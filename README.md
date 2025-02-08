@@ -82,31 +82,6 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 python -m pytest
 ```
 
-Current test coverage:
-- Overall coverage: 71%
-- Full coverage for game constants and enums
-- Menu system: 75% coverage
-- Resource management: 68% coverage
-- Star systems: 54% coverage
-
-## Key Components
-
-### Star Systems
-- Procedurally generated star systems with different types (Main Sequence, Red Giant, White Dwarf, Blue Giant)
-- Planet generation with various types and resources
-- Collision detection for system placement
-
-### Menu System
-- Flexible menu creation with customizable items
-- Keyboard and mouse input handling
-- Semi-transparent overlay effects
-- Resource-efficient text caching
-
-### Resource Management
-- Centralized resource manager for images and fonts
-- Text caching system for improved performance
-- Support for various planet and resource types
-
 ## Contributing
 
 1. Install development dependencies
