@@ -21,8 +21,8 @@ A space exploration and conquest game built with Python and Pygame. Navigate thr
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd galaxy-conquest
+git clone git@github.com:ginstrom/galaxy-conquest-game.git
+cd galaxy-conquest-game
 ```
 
 2. Create and activate a virtual environment:
@@ -116,4 +116,4 @@ Current test coverage:
 
 ## License
 
-[Add your license information here]
+MIT License
