@@ -1,0 +1,1 @@
+"""Galaxy Conquest game package."""

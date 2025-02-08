@@ -1,0 +1,24 @@
+.
+├── README.md
+├── debug.py
+├── galaxy_conquest.py
+├── galaxy_conquest.py.bak
+├── game
+│   ├── __init__.py
+│   ├── background.py
+│   ├── constants.py
+│   ├── enums.py
+│   ├── menu.py
+│   ├── properties.py
+│   ├── resources.py
+│   └── star_system.py
+├── img
+│   ├── planet1.png
+│   └── planet2.png
+├── project_tree.txt
+├── requirements.txt
+├── saves
+│   └── autosave.json
+├── settings.py
+└── venv
+    ├ ...
