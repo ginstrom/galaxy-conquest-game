@@ -1,4 +1,13 @@
-"""Star system and planet generation for Galaxy Conquest."""
+"""
+Star system and planet generation for Galaxy Conquest.
+
+This module handles the creation and rendering of star systems and their planets.
+It includes:
+- Random generation of star systems with unique properties
+- Planet generation with varied types and resources
+- Rendering logic for both galaxy and system views
+- Collision detection for star system placement
+"""
 
 import random
 import pygame
@@ -8,6 +17,21 @@ from .constants import WHITE, GRAY
 from .properties import StarProperties, PlanetProperties, NameGenerator
 
 class StarSystem:
+    """
+    Represents a star system in the game with its planets and properties.
+    
+    A star system consists of a central star with specific properties (type, size,
+    color) and a collection of orbiting planets. Each planet has its own
+    properties including type, size, resources, and orbital characteristics.
+    
+    Args:
+        x (int): X-coordinate in the galaxy view
+        y (int): Y-coordinate in the galaxy view
+        game_instance: Reference to the main game instance
+        name (str, optional): Custom name for the system. If None, generates random name
+        star_type (StarType, optional): Type of star. If None, randomly selected
+    """
+    
     def __init__(self, x, y, game_instance=None, name=None, star_type=None):
         self.x = x
         self.y = y
@@ -41,7 +65,18 @@ class StarSystem:
         self.name_rect.top = self.y + self.size + 15
 
     def collides_with(self, other):
-        """Check if this star system collides with another."""
+        """
+        Check if this star system collides with another system.
+        
+        Uses a circular collision detection with a minimum distance requirement
+        to ensure star systems are well-spaced in the galaxy view.
+        
+        Args:
+            other (StarSystem): The other star system to check collision with
+            
+        Returns:
+            bool: True if systems collide, False otherwise
+        """
         dx = self.x - other.x
         dy = self.y - other.y
         distance = math.sqrt(dx * dx + dy * dy)
@@ -49,7 +84,16 @@ class StarSystem:
         return distance < min_distance
 
     def generate_planets(self):
-        """Generate planets for this star system."""
+        """
+        Generate planets for this star system.
+        
+        Creates a random number of planets based on the star's properties.
+        Each planet is given:
+        - A unique orbit number and position
+        - Random type and size within allowed ranges
+        - Resources appropriate for its type
+        - A name based on the star system's name
+        """
         orbit_spacing = 60  # Base spacing between orbits
         for i in range(self.num_planets):
             planet_type = PlanetProperties.get_random_type()
@@ -70,7 +114,15 @@ class StarSystem:
             self.planets.append(planet)
 
     def draw_galaxy_view(self, screen):
-        """Draw the star system in galaxy view."""
+        """
+        Draw the star system in galaxy view.
+        
+        Renders the star as a colored circle with its name displayed below.
+        Used in the main galaxy map view where all systems are visible.
+        
+        Args:
+            screen: Pygame surface to draw on
+        """
         # Draw the star
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.size)
         
@@ -78,7 +130,18 @@ class StarSystem:
         screen.blit(self.name_surface, self.name_rect)
 
     def draw_system_view(self, screen):
-        """Draw the star system in system view."""
+        """
+        Draw the star system in system view.
+        
+        Renders a detailed view of the system including:
+        - The central star with increased size
+        - System name and type
+        - All planets with their orbits
+        - Orbit numbers for each planet
+        
+        Args:
+            screen: Pygame surface to draw on
+        """
         # Adjust center position to account for info panel
         panel_width = 300  # Match the info panel width
         available_width = screen.get_width() - panel_width

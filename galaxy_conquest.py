@@ -1,4 +1,14 @@
-"""Galaxy Conquest - A space exploration game."""
+"""
+Galaxy Conquest - A space exploration game.
+
+This is the main game module that handles the core game loop, state management,
+and high-level game mechanics. It implements the main Game class which manages:
+- Game initialization and resource loading
+- State transitions between menus and gameplay views
+- Save/load functionality
+- User input handling
+- Rendering of game views
+"""
 
 from datetime import datetime
 from debug import debug, clear_debug, draw_debug, toggle_debug, is_debug_enabled
@@ -23,6 +33,17 @@ logger = logging.getLogger(__name__)
 
 
 class Game:
+    """
+    Main game class that manages the game state, resources, and rendering.
+    
+    This class is responsible for:
+    - Initializing Pygame and loading game resources
+    - Managing game state transitions
+    - Handling user input
+    - Rendering different game views (galaxy, system, menus)
+    - Save/load game functionality
+    """
+    
     def __init__(self):
         pygame.init()
 
@@ -112,9 +133,15 @@ class Game:
         return True
     
     def generate_star_systems(self):
+        """
+        Generate star systems with random positions while avoiding overlaps.
+        
+        Uses a simple collision detection system to ensure star systems don't
+        overlap. Will make up to 1000 attempts to place each system.
+        """
         attempts = 0
-        max_attempts = 1000
-        margin = 100
+        max_attempts = 1000  # Maximum attempts to place a system before giving up
+        margin = 100  # Minimum distance from screen edges
         
         # Available space for galaxy (accounting for info panel)
         available_width = self.galaxy_rect.width - margin * 2
@@ -139,6 +166,16 @@ class Game:
             attempts += 1
     
     def save_game(self):
+        """
+        Save the current game state to a JSON file.
+        
+        Saves all star systems, their planets, resources, and the currently
+        selected system. Handles conversion of enum values to strings for JSON
+        serialization. Creates a timestamp for the save file.
+        
+        Returns:
+            bool: True if called from menu (to return to game), False otherwise
+        """
         # Convert planet data to JSON-serializable format
         def convert_planet_data(planet):
             planet_copy = planet.copy()
@@ -191,6 +228,15 @@ class Game:
         return False
 
     def load_game(self):
+        """
+        Load a saved game state from the autosave JSON file.
+        
+        Reconstructs the game state including all star systems, planets,
+        and resources. Handles conversion of string values back to enums.
+        
+        Returns:
+            bool: True if load successful, False if file not found or invalid
+        """
         try:
             with open('saves/autosave.json', 'r') as f:
                 save_data = json.load(f)
@@ -360,7 +406,15 @@ class Game:
             self.cleanup() 
 
     def handle_galaxy_click(self, pos):
-        """Handle mouse click in galaxy view."""
+        """
+        Handle mouse click in the galaxy view.
+        
+        Checks if the click position intersects with any star system.
+        If a system is clicked, selects it and transitions to system view.
+        
+        Args:
+            pos (tuple): The (x, y) position of the mouse click
+        """
         # Only handle clicks in the galaxy area
         if not self.galaxy_rect.collidepoint(pos):
             return
@@ -375,7 +429,16 @@ class Game:
                 break
 
     def handle_system_click(self, pos):
-        """Handle mouse click in system view."""
+        """
+        Handle mouse click in the system view.
+        
+        Checks if the click position intersects with any planet in the
+        currently selected system. If a planet is clicked, selects it
+        for detailed viewing.
+        
+        Args:
+            pos (tuple): The (x, y) position of the mouse click
+        """
         if not self.selected_system:
             return
         
@@ -398,7 +461,15 @@ class Game:
                 break
 
     def draw_galaxy_view(self):
-        """Draw the galaxy view."""
+        """
+        Draw the galaxy view including star systems and info panel.
+        
+        Renders:
+        - Background star field effect
+        - All star systems in their galaxy positions
+        - Information panel on the right side
+        - Separator line between galaxy view and info panel
+        """
         # Draw background
         self.background.draw_galaxy_background(self.screen)
         
@@ -418,7 +489,14 @@ class Game:
         )
 
     def draw_system_view(self):
-        """Draw the system view."""
+        """
+        Draw the system view showing planets orbiting the selected star.
+        
+        Renders:
+        - Background star field effect
+        - Selected star system and its orbiting planets
+        - Information panel showing system and selected planet details
+        """
         # Draw background
         self.background.draw_system_background(self.screen)
         
@@ -430,7 +508,16 @@ class Game:
             self.draw_info_panel(self.screen)
 
     def draw_info_panel(self, screen):
-        """Draw the information panel."""
+        """
+        Draw the information panel on the right side of the screen.
+        
+        Displays different information based on the current game state:
+        - Galaxy view: Shows hovered system info or general galaxy stats
+        - System view: Shows selected system info and selected planet details
+        
+        Args:
+            screen: The pygame surface to draw on
+        """
         # Draw panel background
         pygame.draw.rect(screen, (30, 30, 30), self.info_panel_rect)
         pygame.draw.line(screen, WHITE, 
@@ -539,7 +626,15 @@ class Game:
                     y += 25
 
     def draw_save_notification(self, screen):
-        """Draw the save notification if active."""
+        """
+        Draw a temporary notification when the game is saved.
+        
+        Shows a fading "Game Saved!" message in the center top of the screen.
+        The notification fades out over 2 seconds.
+        
+        Args:
+            screen: The pygame surface to draw on
+        """
         current_time = pygame.time.get_ticks()
         if current_time - self.save_notification_time < self.save_notification_duration:
             # Calculate alpha based on time remaining

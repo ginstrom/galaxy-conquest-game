@@ -1,4 +1,14 @@
-"""Background effects for Galaxy Conquest."""
+"""
+Background effects for Galaxy Conquest.
+
+This module handles the generation and rendering of background visual effects:
+- Twinkling stars with varying brightness
+- Colorful nebulae using particle systems
+- Different background styles for galaxy and system views
+
+The effects are designed to create an immersive space atmosphere while
+maintaining performance through optimized rendering techniques.
+"""
 
 import random
 import math
@@ -9,14 +19,27 @@ from .constants import (
 )
 
 class BackgroundEffect:
+    """
+    Manages and renders background visual effects for the game.
+    
+    Creates and maintains two types of effects:
+    1. Stars: Small points of light that twinkle over time
+    2. Nebulae: Large, colorful gas clouds created using particle systems
+    
+    The effects are rendered differently in galaxy and system views to create
+    distinct atmospheric experiences for each game state.
+    """
+    
     def __init__(self):
-        # Generate background stars
+        # Generate background stars with twinkling properties
         self.stars = []
         for _ in range(NUM_BACKGROUND_STARS):
             x = random.randint(0, SCREEN_WIDTH)
             y = random.randint(0, SCREEN_HEIGHT)
             size = random.randint(1, 2)
-            brightness = random.randint(100, 180)  # Reduced brightness range
+            # Base brightness range 100-180 gives visible but not overpowering stars
+            brightness = random.randint(100, 180)
+            # Store star properties including position, appearance, and twinkling data
             self.stars.append({
                 'x': x,
                 'y': y,
@@ -37,7 +60,9 @@ class BackgroundEffect:
             y = random.randint(0, SCREEN_HEIGHT)
             size = random.randint(100, 200)
             color = random.choice(nebula_colors)
-            num_particles = 40  # Reduced number of particles
+            # Use 40 particles per nebula for good visual density while maintaining performance
+            num_particles = 40
+            # Each particle represents a portion of the nebula gas cloud
             particles = []
             
             for _ in range(num_particles):
@@ -61,7 +86,16 @@ class BackgroundEffect:
             })
 
     def draw_galaxy_background(self, screen):
-        """Draw the background for galaxy view."""
+        """
+        Draw the background for galaxy view.
+        
+        Renders both nebulae and stars to create a rich space environment.
+        Nebulae are drawn first as a base layer, with twinkling stars overlaid.
+        Each star's brightness varies sinusoidally over time for a dynamic effect.
+        
+        Args:
+            screen: Pygame surface to draw on
+        """
         # Draw nebulae
         for nebula in self.nebulae:
             # Create a surface for the nebula
@@ -76,12 +110,17 @@ class BackgroundEffect:
             screen.blit(nebula_surface, (0, 0))
         
         # Draw stars with twinkling effect
-        current_time = pygame.time.get_ticks() / 1000  # Convert to seconds
+        # Convert milliseconds to seconds for smoother twinkling calculations
+        current_time = pygame.time.get_ticks() / 1000
         for star in self.stars:
-            # Calculate brightness variation
+            # Calculate twinkling effect:
+            # - Multiply time by 2 for faster oscillation
+            # - Add offset for varied timing between stars
+            # - Multiply by 20 for visible but subtle brightness range
             brightness_variation = math.sin(current_time * 2 + star['twinkle_offset']) * 20
             color = list(star['color'])
-            for i in range(3):  # Modify all RGB components
+            # Apply brightness variation to all RGB components for consistent color
+            for i in range(3):
                 color[i] = max(0, min(255, color[i] + brightness_variation))
             
             pygame.draw.circle(
@@ -92,7 +131,16 @@ class BackgroundEffect:
             )
 
     def draw_system_background(self, screen):
-        """Draw the background for system view."""
+        """
+        Draw the background for system view.
+        
+        Renders only the star field without nebulae for a cleaner view when
+        examining individual star systems. Stars still maintain their twinkling
+        effect to keep the background dynamic.
+        
+        Args:
+            screen: Pygame surface to draw on
+        """
         # Only draw stars in system view
         current_time = pygame.time.get_ticks() / 1000
         for star in self.stars:

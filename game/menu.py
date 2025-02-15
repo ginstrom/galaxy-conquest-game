@@ -1,10 +1,31 @@
-"""Menu system for Galaxy Conquest."""
+"""
+Menu system for Galaxy Conquest.
+
+This module implements a flexible menu system with:
+- Support for keyboard and mouse input
+- Visual feedback for selected and disabled items
+- Semi-transparent overlay for better visibility
+- Cached text rendering for performance
+- Customizable appearance including titles and item spacing
+"""
 
 import pygame
 from .constants import WHITE, GRAY, BLACK
 from .resources import ResourceManager
 
 class MenuItem:
+    """
+    Represents a single menu item with text, associated action, and state.
+    
+    Each menu item can be enabled/disabled and selected/unselected.
+    When selected and enabled, a visual indicator appears next to the item.
+    
+    Args:
+        text (str): The text to display for this menu item
+        action (callable): Function to call when this item is activated
+        enabled (bool): Whether this item can be selected/activated
+    """
+    
     def __init__(self, text, action, enabled=True):
         self.text = text
         self.action = action
@@ -12,7 +33,18 @@ class MenuItem:
         self.selected = False
 
     def draw(self, screen, pos, resource_manager, font_size=48):
-        """Draw menu item using ResourceManager's text cache."""
+        """
+        Draw the menu item with appropriate visual state.
+        
+        Uses the ResourceManager's text cache for efficient text rendering.
+        Draws a selection indicator (circle) when the item is selected.
+        
+        Args:
+            screen: Pygame surface to draw on
+            pos (tuple): (x, y) position to draw at
+            resource_manager: ResourceManager instance for text rendering
+            font_size (int): Size of the font to use
+        """
         color = WHITE if self.enabled else GRAY
         text_surface = resource_manager.text_cache.get_text(
             self.text, 
@@ -32,6 +64,21 @@ class MenuItem:
         screen.blit(text_surface, pos)
 
 class Menu:
+    """
+    Manages a collection of menu items with navigation and selection handling.
+    
+    Features:
+    - Semi-transparent background overlay
+    - Bordered menu container
+    - Optional title
+    - Keyboard (arrow keys, enter) and mouse input
+    - Visual feedback for selection
+    
+    Args:
+        items (list): List of MenuItem objects to display
+        title (str): Optional title to display above menu items
+    """
+    
     def __init__(self, items, title=""):
         self.items = items
         self.title = title
@@ -44,7 +91,16 @@ class Menu:
         self.item_size = 48
 
     def draw(self, screen):
-        """Draw the menu with all its items."""
+        """
+        Draw the complete menu with background, border, title, and items.
+        
+        Creates a semi-transparent overlay for the entire screen and a
+        darker menu background. Draws a border around the menu area and
+        positions all items with consistent spacing.
+        
+        Args:
+            screen: Pygame surface to draw on
+        """
         self.screen = screen
 
         # Create a semi-transparent layer over the whole screen
@@ -88,7 +144,20 @@ class Menu:
             item.draw(screen, pos, self.resource_manager, self.item_size)
 
     def handle_input(self, event):
-        """Handle input events for menu navigation and selection."""
+        """
+        Handle keyboard and mouse input for menu navigation and selection.
+        
+        Supports:
+        - Up/Down arrow keys for navigation
+        - Enter key for selection
+        - Mouse click for direct item selection
+        
+        Args:
+            event: Pygame event to process
+            
+        Returns:
+            Result of the selected item's action if activated, None otherwise
+        """
         if not self.screen:  # Guard against handle_input being called before draw
             return None
             
@@ -106,15 +175,18 @@ class Menu:
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             mouse_pos = pygame.mouse.get_pos()
             
-            # Match menu layout from draw()
-            menu_width = 400
+            # Calculate menu layout dimensions (must match draw() calculations)
+            menu_width = 400  # Width of menu background
             menu_height = len(self.items) * 60 + 150  # Adjust for title and spacing
             menu_x = (self.screen.get_width() - menu_width) // 2
             menu_y = 50
             start_y = menu_y + 100  # Aligns with item drawing logic in draw()
             spacing = 60
 
+            # Check each menu item's bounds for mouse collision
             for i, item in enumerate(self.items):
+                # Create collision rectangle for each item
+                # Add padding to make clicking easier
                 item_rect = pygame.Rect(
                     menu_x + 50,  # Offset to center items within menu background
                     start_y + i * spacing,
