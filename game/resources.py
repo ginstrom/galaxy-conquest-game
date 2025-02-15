@@ -32,15 +32,19 @@ class ResourceManager:
         try:
             if name not in self.images:
                 logger.debug(f"Loading image: {path}")
-                image = pygame.image.load(path)
-                if image.get_alpha():
-                    image = image.convert_alpha()
-                else:
-                    image = image.convert()
-                self.images[name] = image
+                try:
+                    image = pygame.image.load(path)
+                    if image.get_alpha():
+                        image = image.convert_alpha()
+                    else:
+                        image = image.convert()
+                    self.images[name] = image
+                except (pygame.error, FileNotFoundError) as e:
+                    logger.error(f"Error loading image {path}: {e}")
+                    return None
             return self.images[name]
-        except pygame.error as e:
-            logger.error(f"Error loading image {path}: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error loading image {path}: {e}")
             return None
 
     def get_font(self, size: int, name: Optional[str] = None) -> pygame.font.Font:
@@ -56,10 +60,14 @@ class ResourceManager:
         try:
             if name not in self.sounds:
                 logger.debug(f"Loading sound: {path}")
-                self.sounds[name] = pygame.mixer.Sound(path)
+                try:
+                    self.sounds[name] = pygame.mixer.Sound(path)
+                except (pygame.error, FileNotFoundError) as e:
+                    logger.error(f"Error loading sound {path}: {e}")
+                    return None
             return self.sounds[name]
-        except pygame.error as e:
-            logger.error(f"Error loading sound {path}: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error loading sound {path}: {e}")
             return None
 
     def cleanup(self):

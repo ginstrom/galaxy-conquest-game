@@ -172,7 +172,7 @@ class Menu:
                     return action()
 
         # Mouse input handling
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+        elif event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION):
             mouse_pos = pygame.mouse.get_pos()
             
             # Calculate menu layout dimensions (must match draw() calculations)
@@ -186,16 +186,18 @@ class Menu:
             # Check each menu item's bounds for mouse collision
             for i, item in enumerate(self.items):
                 # Create collision rectangle for each item
-                # Add padding to make clicking easier
                 item_rect = pygame.Rect(
-                    menu_x + 50,  # Offset to center items within menu background
-                    start_y + i * spacing,
-                    menu_width - 100,  # Matches the inner width of the menu background
-                    40  # Height of each item (ensure this matches the font size)
+                    self.screen.get_width() // 2 - 100,  # Match item drawing position
+                    start_y + i * spacing,  # Item y position
+                    200,  # Width to match text surface width
+                    spacing  # Height matches spacing between items
                 )
                 
-                if item_rect.collidepoint(mouse_pos) and item.enabled:
-                    self.selected_index = i
-                    if item.action:
-                        return item.action()
+                if item_rect.collidepoint(mouse_pos):
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and item.enabled:
+                        self.selected_index = i
+                        if item.action:
+                            return item.action()
+                    elif event.type == pygame.MOUSEMOTION:
+                        self.selected_index = i
         return None

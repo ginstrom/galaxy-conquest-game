@@ -58,3 +58,69 @@ def test_menu(mock_screen):
     # Simulate pressing up key
     menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_UP}))
     assert menu.selected_index == 1
+
+def test_menu_screen_guard():
+    """Test menu input handling before screen initialization."""
+    menu = Menu([MenuItem("Test", lambda: None)])
+    # Should return None when screen is not initialized
+    assert menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_RETURN})) is None
+
+def test_menu_keyboard_activation(mock_screen):
+    """Test menu item activation via keyboard."""
+    activated = False
+    def on_activate():
+        nonlocal activated
+        activated = True
+        return "activated"
+
+    menu = Menu([MenuItem("Test", on_activate)])
+    menu.draw(mock_screen)
+    
+    # Test enter key activation
+    result = menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_RETURN}))
+    assert activated
+    assert result == "activated"
+    
+    # Test disabled item
+    activated = False
+    menu = Menu([MenuItem("Test", on_activate, enabled=False)])
+    menu.draw(mock_screen)
+    result = menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_RETURN}))
+    assert not activated
+    assert result is None
+
+def test_menu_visual_state(mock_screen):
+    """Test menu visual state including selection indicators."""
+    menu = Menu([
+        MenuItem("Item 1", lambda: None),
+        MenuItem("Item 2", lambda: None)
+    ])
+    
+    # Initial state
+    menu.draw(mock_screen)
+    assert menu.items[0].selected  # First item should be selected
+    assert not menu.items[1].selected
+    
+    # Move selection down
+    menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_DOWN}))
+    menu.draw(mock_screen)
+    assert not menu.items[0].selected
+    assert menu.items[1].selected
+    
+    # Test wrapping to top
+    menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_DOWN}))
+    menu.draw(mock_screen)
+    assert menu.items[0].selected
+    assert not menu.items[1].selected
+    
+    # Test wrapping to bottom
+    menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_UP}))
+    menu.draw(mock_screen)
+    assert not menu.items[0].selected
+    assert menu.items[1].selected
+
+def test_menu_title_drawing(mock_screen):
+    """Test menu title drawing."""
+    menu = Menu([MenuItem("Test", lambda: None)], "Menu Title")
+    menu.draw(mock_screen)
+    # Title drawing is tested implicitly since it would raise an error if it failed

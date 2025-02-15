@@ -206,7 +206,9 @@
               "amount": 80
             }
           ],
-          "name": "Vega Complex 1"
+          "name": "Vega Complex 1",
+          "x": 563.1370849898476,
+          "y": 513.1370849898476
         },
         {
           "type": "TERRESTRIAL",
@@ -228,7 +230,9 @@
               "amount": 89
             }
           ],
-          "name": "Vega Complex 2"
+          "name": "Vega Complex 2",
+          "x": 393.0598100774455,
+          "y": 612.5036817835951
         },
         {
           "type": "DESERT",
@@ -242,7 +246,9 @@
               "amount": 65
             }
           ],
-          "name": "Vega Complex 3"
+          "name": "Vega Complex 3",
+          "x": 179.5407686390609,
+          "y": 472.4693326287059
         },
         {
           "type": "GAS_GIANT",
@@ -256,7 +262,9 @@
               "amount": 65
             }
           ],
-          "name": "Vega Complex 4"
+          "name": "Vega Complex 4",
+          "x": 209.58369439657378,
+          "y": 159.5836943965739
         },
         {
           "type": "OCEANIC",
@@ -274,7 +282,9 @@
               "amount": 72
             }
           ],
-          "name": "Vega Complex 5"
+          "name": "Vega Complex 5",
+          "x": 553.527618041008,
+          "y": 13.629669484372641
         },
         {
           "type": "GAS_GIANT",
@@ -292,7 +302,9 @@
               "amount": 94
             }
           ],
-          "name": "Vega Complex 6"
+          "name": "Vega Complex 6",
+          "x": 894.3258800929714,
+          "y": 280.9432392528405
         }
       ]
     },
@@ -672,6 +684,6 @@
       ]
     }
   ],
-  "selected_system": null,
-  "timestamp": "2025-02-05T11:52:34.732569"
+  "selected_system": "Vega Complex",
+  "timestamp": "2025-02-15T19:28:03.307409"
 }
