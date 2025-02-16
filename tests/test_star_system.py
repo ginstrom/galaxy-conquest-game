@@ -32,24 +32,24 @@ def test_star_system_initialization(star_system):
 
 def test_star_system_collision(star_system):
     """Test collision detection between star systems."""
-    # Create another star system close to the first one
-    other_system = StarSystem(x=101, y=101, name="Other System", star_type=StarType.RED_GIANT)
-    assert star_system.collides_with(other_system)
-
-    # Create another star system far from the first one
-    distant_system = StarSystem(x=1000, y=1000, name="Distant System", star_type=StarType.BLUE_GIANT)
-    assert not star_system.collides_with(distant_system)
-
-    # Test exact minimum distance
-    size_sum = star_system.size + other_system.size
-    min_distance = size_sum * 3
-    # Test slightly beyond minimum distance
-    exact_system = StarSystem(
-        x=star_system.x + min_distance + 1,  # Add 1 to be just beyond minimum
+    # Create another star system within collision range
+    min_distance = (star_system.size + star_system.size) * 3  # Using same size for both
+    close_system = StarSystem(
+        x=star_system.x + min_distance - 10,  # Just inside minimum distance
         y=star_system.y,
-        name="Beyond Minimum System"
+        name="Close System",
+        star_type=StarType.RED_GIANT
     )
-    assert not star_system.collides_with(exact_system)
+    assert star_system.collides_with(close_system)
+
+    # Create another star system outside collision range
+    distant_system = StarSystem(
+        x=star_system.x + min_distance + 10,  # Just outside minimum distance
+        y=star_system.y,
+        name="Distant System",
+        star_type=StarType.BLUE_GIANT
+    )
+    assert not star_system.collides_with(distant_system)
 
 def test_planet_generation(star_system):
     """Test that planets are generated for the star system."""

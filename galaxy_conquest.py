@@ -10,24 +10,21 @@ and high-level game mechanics. It implements the main Game class which manages:
 - Rendering of game views
 """
 
-from datetime import datetime
-from debug import debug, clear_debug, draw_debug, toggle_debug, is_debug_enabled
-import json
+from game.debug import debug, clear_debug, draw_debug, toggle_debug, is_debug_enabled
 import logging
-import math
-import os
 import pygame
-import random
 
 from game.constants import (
     SCREEN_WIDTH, SCREEN_HEIGHT, NUM_STAR_SYSTEMS,
     WHITE, GRAY
 )
-from game.enums import GameState, StarType, PlanetType, ResourceType
+from game.enums import GameState, StarType
 from game.menu import Menu, MenuItem
 from game.star_system import StarSystem
 from game.background import BackgroundEffect
 from game.resources import ResourceManager
+from game.views import GalaxyView, SystemView, PlanetView
+from game.persistence import save_game_state, load_game_state, save_exists
 
 logger = logging.getLogger(__name__)
 
@@ -74,11 +71,10 @@ class Game:
             self.info_panel_width, SCREEN_HEIGHT
         )
         
-        # Galaxy view settings
-        self.galaxy_rect = pygame.Rect(
-            0, 0,
-            SCREEN_WIDTH - self.info_panel_width, SCREEN_HEIGHT
-        )
+        # Initialize views
+        self.galaxy_view = GalaxyView(self)
+        self.system_view = SystemView(self)
+        self.planet_view = PlanetView(self)
         
         # Save notification
         self.save_notification_time = 0
@@ -99,7 +95,7 @@ class Game:
         # Startup menu
         startup_menu_items = [
             MenuItem("New Game", self.new_game),
-            MenuItem("Continue", self.continue_game, os.path.exists("saves/autosave.json")),
+            MenuItem("Continue", self.continue_game, save_exists()),
             MenuItem("Quit", self.quit_game)
         ]
         self.startup_menu = Menu(startup_menu_items, "Galaxy Conquest")
@@ -144,8 +140,8 @@ class Game:
         margin = 100  # Minimum distance from screen edges
         
         # Available space for galaxy (accounting for info panel)
-        available_width = self.galaxy_rect.width - margin * 2
-        available_height = self.galaxy_rect.height - margin * 2
+        available_width = self.galaxy_view.galaxy_rect.width - margin * 2
+        available_height = self.galaxy_view.galaxy_rect.height - margin * 2
         
         while len(self.star_systems) < NUM_STAR_SYSTEMS and attempts < max_attempts:
             # Generate positions within the available space
@@ -167,56 +163,12 @@ class Game:
     
     def save_game(self):
         """
-        Save the current game state to a JSON file.
-        
-        Saves all star systems, their planets, resources, and the currently
-        selected system. Handles conversion of enum values to strings for JSON
-        serialization. Creates a timestamp for the save file.
+        Save the current game state.
         
         Returns:
             bool: True if called from menu (to return to game), False otherwise
         """
-        # Convert planet data to JSON-serializable format
-        def convert_planet_data(planet):
-            planet_copy = planet.copy()
-            planet_copy['type'] = planet['type'].name  # Convert PlanetType enum
-            
-            # Convert resources data
-            resources_copy = []
-            for resource in planet['resources']:
-                resource_copy = resource.copy()
-                resource_copy['type'] = resource['type'].name  # Convert ResourceType enum
-                resources_copy.append(resource_copy)
-            planet_copy['resources'] = resources_copy
-            
-            # Ensure angle and orbit_speed are included
-            if 'angle' not in planet_copy:
-                planet_copy['angle'] = random.uniform(0, 2 * math.pi)
-            if 'orbit_speed' not in planet_copy:
-                planet_copy['orbit_speed'] = random.uniform(0.2, 0.5)
-            
-            return planet_copy
-
-        save_data = {
-            'star_systems': [
-                {
-                    'x': system.x,
-                    'y': system.y,
-                    'name': system.name,
-                    'star_type': system.star_type.name,
-                    'size': system.size,
-                    'color': system.color,
-                    'planets': [convert_planet_data(p) for p in system.planets]
-                }
-                for system in self.star_systems
-            ],
-            'selected_system': self.selected_system.name if self.selected_system else None,
-            'timestamp': datetime.now().isoformat()
-        }
-        
-        os.makedirs('saves', exist_ok=True)
-        with open('saves/autosave.json', 'w') as f:
-            json.dump(save_data, f, indent=2)
+        save_game_state(self.star_systems, self.selected_system)
         
         # Set notification time when game is saved
         self.save_notification_time = pygame.time.get_ticks()
@@ -229,17 +181,13 @@ class Game:
 
     def load_game(self):
         """
-        Load a saved game state from the autosave JSON file.
-        
-        Reconstructs the game state including all star systems, planets,
-        and resources. Handles conversion of string values back to enums.
+        Load a saved game state.
         
         Returns:
             bool: True if load successful, False if file not found or invalid
         """
         try:
-            with open('saves/autosave.json', 'r') as f:
-                save_data = json.load(f)
+            save_data = load_game_state()
             
             # Store selected system name if one is selected
             selected_system_name = self.selected_system.name if self.selected_system else None
@@ -251,29 +199,11 @@ class Game:
                     system_data['y'],
                     self,
                     name=system_data['name'],
-                    star_type=StarType[system_data['star_type']]
+                    star_type=system_data['star_type']
                 )
                 system.size = system_data['size']
-                
-                # Restore color if it exists in save data, otherwise use the generated color
-                if 'color' in system_data:
-                    system.color = tuple(system_data['color'])
-                
-                # Convert planet type strings back to enums
-                planets = []
-                for planet in system_data['planets']:
-                    planet_copy = planet.copy()
-                    planet_copy['type'] = PlanetType[planet['type']]
-                    
-                    # Convert resource type strings back to enums
-                    resources = []
-                    for resource in planet['resources']:
-                        resource_copy = resource.copy()
-                        resource_copy['type'] = ResourceType[resource['type']]
-                        resources.append(resource_copy)
-                    planet_copy['resources'] = resources
-                    planets.append(planet_copy)
-                system.planets = planets
+                system.color = tuple(system_data['color']) if 'color' in system_data else system.color
+                system.planets = system_data['planets']
                 
                 # Update selected system reference if this is the one that was selected
                 if selected_system_name and system.name == selected_system_name:
@@ -341,9 +271,9 @@ class Game:
                     # Handle game input only if not in menu
                     elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                         if self.state == GameState.GALAXY:
-                            self.handle_galaxy_click(event.pos)
+                            self.galaxy_view.handle_click(event.pos)
                         elif self.state == GameState.SYSTEM:
-                            self.handle_system_click(event.pos)
+                            self.system_view.handle_click(event.pos)
                 
                 # Clear debug info at start of frame
                 clear_debug()
@@ -353,7 +283,7 @@ class Game:
                 if self.state == GameState.GALAXY:
                     mouse_pos = pygame.mouse.get_pos()
                     # Only check for hover if mouse is in galaxy area
-                    if self.galaxy_rect.collidepoint(mouse_pos):
+                    if self.galaxy_view.galaxy_rect.collidepoint(mouse_pos):
                         for system in self.star_systems:
                             if system.rect.collidepoint(mouse_pos):
                                 self.hovered_system = system
@@ -366,12 +296,12 @@ class Game:
                 self.screen.fill((0, 0, 0))
                 
                 if self.state == GameState.GALAXY:
-                    self.draw_galaxy_view()
+                    self.galaxy_view.draw(self.screen)
                     if is_debug_enabled():
                         debug(f"Systems: {len(self.star_systems)}")
                         debug(f"Mouse: {pygame.mouse.get_pos()}")
                 elif self.state == GameState.SYSTEM:
-                    self.draw_system_view()
+                    self.system_view.draw(self.screen)
                     if is_debug_enabled() and self.selected_system:
                         debug(f"System: {self.selected_system.name}")
                         debug(f"Planets: {len(self.selected_system.planets)}")
@@ -379,16 +309,16 @@ class Game:
                         if self.selected_planet:
                             debug(f"Selected: {self.selected_planet['name']}")
                 elif self.state == GameState.STARTUP_MENU:
-                    self.draw_galaxy_view()  # Draw game as background
+                    self.galaxy_view.draw(self.screen)  # Draw game as background
                     self.startup_menu.draw(self.screen)
                 elif self.state == GameState.GALAXY_MENU:
-                    self.draw_galaxy_view()  # Draw game as background
+                    self.galaxy_view.draw(self.screen)  # Draw game as background
                     self.galaxy_menu.draw(self.screen)
                 elif self.state == GameState.SYSTEM_MENU:
                     if self.selected_system:
-                        self.draw_system_view()  # Draw game as background
+                        self.system_view.draw(self.screen)  # Draw game as background
                     elif self.selected_planet:
-                        self.draw_planet_view()
+                        self.planet_view.draw(self.screen)
                     self.system_menu.draw(self.screen)
                 
                 # Draw save notification on top
@@ -404,108 +334,6 @@ class Game:
             raise
         finally:
             self.cleanup() 
-
-    def handle_galaxy_click(self, pos):
-        """
-        Handle mouse click in the galaxy view.
-        
-        Checks if the click position intersects with any star system.
-        If a system is clicked, selects it and transitions to system view.
-        
-        Args:
-            pos (tuple): The (x, y) position of the mouse click
-        """
-        # Only handle clicks in the galaxy area
-        if not self.galaxy_rect.collidepoint(pos):
-            return
-            
-        for system in self.star_systems:
-            if system.rect.collidepoint(pos):
-                self.selected_system = system
-                debug(f"Selected system: {system.name}")
-                debug(f"Click pos: {pos}")
-                debug(f"System rect: {system.rect}")
-                self.state = GameState.SYSTEM
-                break
-
-    def handle_system_click(self, pos):
-        """
-        Handle mouse click in the system view.
-        
-        Checks if the click position intersects with any planet in the
-        currently selected system. If a planet is clicked, selects it
-        for detailed viewing.
-        
-        Args:
-            pos (tuple): The (x, y) position of the mouse click
-        """
-        if not self.selected_system:
-            return
-        
-        # Adjust click position to account for info panel
-        panel_width = 300  # Match the info panel width
-        available_width = SCREEN_WIDTH - panel_width
-        center_x = available_width // 2
-        center_y = SCREEN_HEIGHT // 2
-        
-        for planet in self.selected_system.planets:
-            x = planet['x']
-            y = planet['y']
-            
-            # Check if click is within planet's radius
-            dx = pos[0] - x
-            dy = pos[1] - y
-            if dx * dx + dy * dy <= planet['size'] * planet['size']:
-                self.selected_planet = planet
-                self.state = GameState.SYSTEM  # Ensure we're in SYSTEM state when planet is selected
-                break
-
-    def draw_galaxy_view(self):
-        """
-        Draw the galaxy view including star systems and info panel.
-        
-        Renders:
-        - Background star field effect
-        - All star systems in their galaxy positions
-        - Information panel on the right side
-        - Separator line between galaxy view and info panel
-        """
-        # Draw background
-        self.background.draw_galaxy_background(self.screen)
-        
-        # Draw star systems
-        for system in self.star_systems:
-            system.draw_galaxy_view(self.screen)
-        
-        # Draw info panel
-        self.draw_info_panel(self.screen)
-        
-        # Draw vertical line to separate info panel
-        pygame.draw.line(
-            self.screen, 
-            WHITE,
-            (self.galaxy_rect.right, 0),
-            (self.galaxy_rect.right, SCREEN_HEIGHT)
-        )
-
-    def draw_system_view(self):
-        """
-        Draw the system view showing planets orbiting the selected star.
-        
-        Renders:
-        - Background star field effect
-        - Selected star system and its orbiting planets
-        - Information panel showing system and selected planet details
-        """
-        # Draw background
-        self.background.draw_system_background(self.screen)
-        
-        if self.selected_system:
-            # Draw the system
-            self.selected_system.draw_system_view(self.screen)
-            
-            # Draw info panel
-            self.draw_info_panel(self.screen)
 
     def draw_info_panel(self, screen):
         """
