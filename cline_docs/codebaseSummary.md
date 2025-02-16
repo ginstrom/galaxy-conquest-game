@@ -34,30 +34,42 @@
    - Error handling
 
 ### View Layer
-1. Galaxy View (views/galaxy.py)
+1. Startup View (views/startup.py)
+   - Game initialization
+   - New game/load game options
+   - Initial menu interface with dynamic background
+   - Smooth transition to galaxy view
+   - State preservation
+
+2. Galaxy View (views/galaxy.py)
    - Galaxy-wide navigation
    - Star system visualization
    - Resource overview display
+   - Galaxy-specific menu controls
 
-2. System View (views/system.py)
+3. System View (views/system.py)
    - Individual system display
    - Planet orbit visualization
    - System resource management
+   - System-specific menu controls
 
-3. Planet View (views/planet.py)
+4. Planet View (views/planet.py)
    - Surface visualization
    - Resource extraction interface
    - Colony management system
+   - Planet-specific menu controls
 
 ## Data Flow
 1. Game Initialization
+   - Display startup view
+   - Process new game/load game selection
    - Load configuration from constants.py
    - Initialize resource system
    - Set up display and sprite groups
    - Load saved game state (if exists)
 
 2. Game Loop
-   - Process user input (menu.py)
+   - Process user input (view-specific menus)
    - Update game state (galaxy_conquest.py)
    - Update resource calculations (resources.py)
    - Render current view (views/*.py)
@@ -79,12 +91,14 @@ galaxy-conquest/
 │   ├── constants.py       # Game constants
 │   ├── enums.py          # Game enums
 │   ├── menu.py           # Menu system
-│   ├── persistence.py    # Save/load system
+│   ├── persistence.py     # Save/load system
 │   ├── properties.py      # Game properties
 │   ├── resources.py       # Resource system
-│   ├── star_system.py    # Star system gen
+│   ├── star_system.py     # Star system gen
+│   ├── transitions.py     # View transitions
 │   └── views/            # View modules
 │       ├── galaxy.py     # Galaxy view
+│       ├── startup.py    # Startup view
 │       ├── system.py     # System view
 │       └── planet.py     # Planet view
 ├── tests/                 # Test suite
@@ -99,11 +113,14 @@ galaxy-conquest/
 - Python standard library
 
 ## Recent Changes
+- [2025-02-16] Implement view transition system with state preservation
+- [2025-02-16] Create startup view with menu integration
+- [2025-02-16] Add smooth transitions between views
+- [2025-02-16] Add comprehensive test coverage for new modules
+- [2025-02-16] Updated project roadmap with view system enhancement plan
 - [2025-02-16] Extract save/load logic into persistence module
 - [2025-02-16] Project structure established
 - [2025-02-16] Core game modules created
-- [2025-02-16] Test framework implemented
-- [2025-02-16] Documentation structure setup
 
 ## Code Style
 - Following Google Python Style Guide
