@@ -10,10 +10,12 @@ and high-level game mechanics. It implements the main Game class which manages:
 - Rendering of game views
 """
 
-from game.debug import debug, clear_debug, draw_debug, toggle_debug, is_debug_enabled
+import json
 import logging
 import pygame
+import random
 
+from game.debug import debug, clear_debug, draw_debug, toggle_debug, is_debug_enabled
 from game.constants import (
     SCREEN_WIDTH, SCREEN_HEIGHT, NUM_STAR_SYSTEMS,
     WHITE, GRAY
@@ -24,6 +26,8 @@ from game.star_system import StarSystem
 from game.background import BackgroundEffect
 from game.resources import ResourceManager
 from game.views import GalaxyView, SystemView, PlanetView
+from game.views.startup import StartupView
+from game.transitions import ViewTransition, ViewStateManager
 from game.persistence import save_game_state, load_game_state, save_exists
 
 logger = logging.getLogger(__name__)
@@ -45,6 +49,10 @@ class Game:
         pygame.init()
 
         self.resource_manager = ResourceManager()
+        
+        # Initialize view transition system
+        self.transition = ViewTransition()
+        self.view_state = ViewStateManager()
         
         # Create window without OpenGL
         self.screen = pygame.display.set_mode(
@@ -72,6 +80,7 @@ class Game:
         )
         
         # Initialize views
+        self.startup_view = StartupView(self)
         self.galaxy_view = GalaxyView(self)
         self.system_view = SystemView(self)
         self.planet_view = PlanetView(self)
@@ -92,14 +101,6 @@ class Game:
         self.create_menus()
     
     def create_menus(self):
-        # Startup menu
-        startup_menu_items = [
-            MenuItem("New Game", self.new_game),
-            MenuItem("Continue", self.continue_game, save_exists()),
-            MenuItem("Quit", self.quit_game)
-        ]
-        self.startup_menu = Menu(startup_menu_items, "Galaxy Conquest")
-        
         # In-game menu (when pressing ESC from galaxy view)
         galaxy_menu_items = [
             MenuItem("New Game", self.new_game),
@@ -225,6 +226,18 @@ class Game:
         return True
     
     def quit_to_main_menu(self):
+        # Start transition effect
+        self.transition.start(
+            self.state.value,
+            GameState.STARTUP_MENU.value
+        )
+        
+        # Store current view state
+        self.view_state.store_state(self.state.value, {
+            'selected_system': self.selected_system,
+            'selected_planet': self.selected_planet
+        })
+        
         self.state = GameState.STARTUP_MENU
         self.selected_system = None
         self.selected_planet = None
@@ -258,14 +271,16 @@ class Game:
                             toggle_debug()
                     
                     # Handle menu input first
-                    if self.state in menu_states:
-                        if self.state == GameState.SYSTEM_MENU:
-                            menu = self.system_menu
-                        elif self.state == GameState.GALAXY_MENU:
-                            menu = self.galaxy_menu
-                        else:
-                            menu = self.startup_menu
-                        result = menu.handle_input(event)
+                    if self.state == GameState.STARTUP_MENU:
+                        result = self.startup_view.handle_input(event)
+                        if result is not None:
+                            running = result
+                    elif self.state == GameState.SYSTEM_MENU:
+                        result = self.system_menu.handle_input(event)
+                        if result is not None:
+                            running = result
+                    elif self.state == GameState.GALAXY_MENU:
+                        result = self.galaxy_menu.handle_input(event)
                         if result is not None:
                             running = result
                     # Handle game input only if not in menu
@@ -295,7 +310,9 @@ class Game:
                 # Draw
                 self.screen.fill((0, 0, 0))
                 
-                if self.state == GameState.GALAXY:
+                if self.state == GameState.STARTUP_MENU:
+                    self.startup_view.draw(self.screen)
+                elif self.state == GameState.GALAXY:
                     self.galaxy_view.draw(self.screen)
                     if is_debug_enabled():
                         debug(f"Systems: {len(self.star_systems)}")
@@ -308,9 +325,6 @@ class Game:
                         debug(f"Mouse: {pygame.mouse.get_pos()}")
                         if self.selected_planet:
                             debug(f"Selected: {self.selected_planet['name']}")
-                elif self.state == GameState.STARTUP_MENU:
-                    self.galaxy_view.draw(self.screen)  # Draw game as background
-                    self.startup_menu.draw(self.screen)
                 elif self.state == GameState.GALAXY_MENU:
                     self.galaxy_view.draw(self.screen)  # Draw game as background
                     self.galaxy_menu.draw(self.screen)
@@ -321,8 +335,12 @@ class Game:
                         self.planet_view.draw(self.screen)
                     self.system_menu.draw(self.screen)
                 
-                # Draw save notification on top
+                # Draw save notification
                 self.draw_save_notification(self.screen)
+                
+                # Draw active transition effect if any
+                if self.transition.is_active:
+                    self.transition.draw(self.screen)
                 
                 # Draw debug last
                 draw_debug(self.screen)
