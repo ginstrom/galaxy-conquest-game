@@ -31,6 +31,13 @@ galaxy-conquest-game/
 - High test coverage with detailed assertions
 
 ## Recent Changes
+- [2025-02-18] Consolidated view interfaces
+  - All views now implement consistent methods:
+    - draw(screen): Renders the view
+    - handle_keydown(event): Handles keyboard input
+    - handle_click(pos): Handles mouse clicks
+  - Improved code consistency and maintainability
+  - Added logging for all input events
 - [2025-02-17] Added comprehensive logging to view classes
   - View transitions and state changes
   - User input handling (keyboard/mouse)
@@ -59,6 +66,10 @@ galaxy-conquest-game/
 - Clear separation of concerns
 - Testable rendering logic
 - Mock-friendly architecture
+- Consistent interface across all views:
+  - draw(screen): Renders the view
+  - handle_keydown(event): Handles keyboard input
+  - handle_click(pos): Handles mouse clicks
 - Comprehensive logging system
   - View transitions and state changes
   - User input handling (keyboard/mouse)
