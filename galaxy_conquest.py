@@ -16,7 +16,7 @@ import logging
 import pygame
 import random
 
-from game.debug import debug, clear_debug, draw_debug, toggle_debug, is_debug_enabled
+from game.debug import debug, clear_debug, draw_debug, toggle_debug
 from game.constants import (
     SCREEN_WIDTH, SCREEN_HEIGHT, NUM_STAR_SYSTEMS,
     WHITE, GRAY
@@ -286,6 +286,8 @@ class Game:
                                 self.state = GameState.SYSTEM_MENU
                             elif self.state == GameState.GALAXY:
                                 self.state = GameState.GALAXY_MENU
+                            elif self.state == GameState.PLANET:
+                                self.planet_view.handle_keydown(event)
                         elif event.key == pygame.K_F4:  
                             toggle_debug()
                         elif self.state == GameState.PLANET:
@@ -310,6 +312,8 @@ class Game:
                             self.galaxy_view.handle_click(event.pos)
                         elif self.state == GameState.SYSTEM and not self.selected_planet:
                             self.system_view.handle_click(event.pos)
+                        elif self.state == GameState.PLANET:
+                            self.planet_view.handle_click(event.pos)
                 
                 # Clear debug info at start of frame
                 clear_debug()
@@ -335,12 +339,11 @@ class Game:
                     self.startup_view.draw(self.screen)
                 elif self.state == GameState.GALAXY:
                     self.galaxy_view.draw(self.screen)
-                    if is_debug_enabled():
-                        debug(f"Systems: {len(self.star_systems)}")
-                        debug(f"Mouse: {pygame.mouse.get_pos()}")
+                    debug(f"Systems: {len(self.star_systems)}")
+                    debug(f"Mouse: {pygame.mouse.get_pos()}")
                 elif self.state == GameState.SYSTEM:
                     self.system_view.draw(self.screen)
-                    if is_debug_enabled() and self.selected_system:
+                    if self.selected_system:
                         debug(f"System: {self.selected_system.name}")
                         debug(f"Planets: {len(self.selected_system.planets)}")
                         debug(f"Mouse: {pygame.mouse.get_pos()}")
@@ -349,6 +352,9 @@ class Game:
                 elif self.state == GameState.GALAXY_MENU:
                     self.galaxy_view.draw(self.screen)  # Draw game as background
                     self.galaxy_menu.draw(self.screen)
+                elif self.state == GameState.PLANET:
+                    self.planet_view.draw(self.screen)
+                    debug(f"Selected planet: {self.selected_planet['name']}")
                 elif self.state == GameState.SYSTEM_MENU:
                     if self.selected_system:
                         self.system_view.draw(self.screen)  # Draw game as background

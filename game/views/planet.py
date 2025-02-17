@@ -52,6 +52,24 @@ class PlanetView:
             # Change state immediately
             self.game.selected_planet = None
             self.game.state = GameState.SYSTEM
+
+    def handle_click(self, pos):
+        """
+        Handle mouse click in the planet view.
+        
+        Args:
+            pos (tuple): The (x, y) position of the mouse click
+        """
+        self.logger.debug(f"Mouse click at position {pos}")
+        
+        # Check if click is within the info panel
+        if pos[0] > self.available_width:
+            self.logger.debug("Click in info panel area, ignoring")
+            return
+        
+        # Change state immediately
+        self.game.selected_planet = None
+        self.game.state = GameState.SYSTEM
     
     def draw(self, screen):
         """
