@@ -8,15 +8,12 @@ from unittest.mock import Mock, patch
 
 from game.views.startup import StartupView
 from game.enums import GameState
-from game.transitions import ViewTransition, ViewStateManager
 
 
 @pytest.fixture
 def mock_game():
     """Create a mock game instance with required attributes."""
     game = Mock()
-    game.transition = ViewTransition()
-    game.view_state = ViewStateManager()
     game.state = GameState.STARTUP_MENU
     return game
 
@@ -42,9 +39,6 @@ def test_start_new_game(startup_view, mock_game):
     
     assert result is True
     assert mock_game.new_game.called
-    assert mock_game.transition.is_active
-    assert mock_game.transition.from_view == GameState.STARTUP_MENU.value
-    assert mock_game.transition.to_view == GameState.GALAXY.value
 
 
 @patch('game.views.startup.save_exists')
@@ -62,9 +56,6 @@ def test_load_game_success(startup_view, mock_game):
     result = startup_view.load_game()
     
     assert result is True
-    assert mock_game.transition.is_active
-    assert mock_game.transition.from_view == GameState.STARTUP_MENU.value
-    assert mock_game.transition.to_view == GameState.GALAXY.value
 
 
 def test_load_game_failure(startup_view, mock_game):
@@ -73,38 +64,12 @@ def test_load_game_failure(startup_view, mock_game):
     result = startup_view.load_game()
     
     assert result is True  # Keep game running even if load fails
-    assert not mock_game.transition.is_active
 
 
 def test_exit_game(startup_view):
     """Test exiting the game."""
     result = startup_view.exit_game()
     assert result is False
-
-
-def test_restore_state(startup_view):
-    """Test restoring view state."""
-    state_data = {'menu_index': 1}
-    startup_view.restore_state(state_data)
-    
-    assert startup_view.menu.selected_index == 1
-
-
-def test_restore_state_invalid_data(startup_view):
-    """Test restoring view state with invalid data."""
-    original_index = startup_view.menu.selected_index
-    
-    # Test with None
-    startup_view.restore_state(None)
-    assert startup_view.menu.selected_index == original_index
-    
-    # Test with empty dict
-    startup_view.restore_state({})
-    assert startup_view.menu.selected_index == original_index
-    
-    # Test with invalid index
-    startup_view.restore_state({'menu_index': 'invalid'})
-    assert startup_view.menu.selected_index == original_index
 
 
 @pytest.mark.parametrize("event_type,key,expected_handled", [

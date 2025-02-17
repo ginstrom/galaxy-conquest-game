@@ -5,9 +5,38 @@ from galaxy_conquest import Game
 from game.enums import GameState
 
 @pytest.fixture
-def game():
+def game(mock_pygame):
     """Create a game instance for testing."""
-    return Game()
+    # Patch pygame modules
+    import pygame
+    import sys
+    
+    # Create a mock pygame module
+    mock_module = type(sys)(pygame.__name__)
+    mock_module.__dict__.update({
+        'init': mock_pygame.init,
+        'display': mock_pygame.display,
+        'font': mock_pygame.font,
+        'mixer': mock_pygame.mixer,
+        'Surface': mock_pygame.Surface,
+        'draw': mock_pygame.draw,
+        'image': mock_pygame.image,
+        'error': mock_pygame.error,
+        'SRCALPHA': mock_pygame.SRCALPHA,
+    })
+    
+    # Save original module
+    original_pygame = sys.modules[pygame.__name__]
+    
+    # Replace with mock
+    sys.modules[pygame.__name__] = mock_module
+    
+    try:
+        game_instance = Game()
+        return game_instance
+    finally:
+        # Restore original module
+        sys.modules[pygame.__name__] = original_pygame
 
 def test_game_initialization(game):
     """Test that the game is properly initialized."""
@@ -27,8 +56,8 @@ def test_menu_creation(game):
     # Test startup menu items
     startup_items = game.startup_menu.items
     assert any(item.text == "New Game" for item in startup_items)
-    assert any(item.text == "Continue" for item in startup_items)
-    assert any(item.text == "Quit" for item in startup_items)
+    assert any(item.text == "Load Game" for item in startup_items)
+    assert any(item.text == "Exit" for item in startup_items)
 
 def test_resource_loading(game):
     """Test that game resources are properly loaded."""

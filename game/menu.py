@@ -79,11 +79,14 @@ class Menu:
         title (str): Optional title to display above menu items
     """
     
-    def __init__(self, items, title=""):
+    def __init__(self, items, title="", resource_manager=None):
         self.items = items
         self.title = title
         self.selected_index = 0
-        self.resource_manager = ResourceManager()  # Get singleton instance
+        if resource_manager is None:
+            import pygame
+            resource_manager = ResourceManager(pygame, pygame.font, pygame.mixer, pygame.display)
+        self.resource_manager = resource_manager
         self.screen = None  # Will be set when drawing
         
         # Default font sizes

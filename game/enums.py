@@ -31,3 +31,4 @@ class GameState(Enum):
     SYSTEM = "system"
     GALAXY_MENU = "galaxy_menu"
     SYSTEM_MENU = "system_menu"
+    PLANET = "planet"

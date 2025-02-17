@@ -47,8 +47,13 @@ class StarSystem:
         self.generate_planets()
         
         # Font setup for names
-        self.font = pygame.font.Font(None, 24)
-        self.name_surface = self.font.render(self.name, True, WHITE)
+        if game_instance:
+            self.name_surface = game_instance.resource_manager.text_cache.get_text(
+                self.name, 24, WHITE
+            )
+        else:
+            # For testing without game instance
+            self.name_surface = pygame.Surface((1, 1))
         self.name_rect = self.name_surface.get_rect()
         
         # Calculate the total height including text
@@ -149,21 +154,33 @@ class StarSystem:
         center_y = screen.get_height() // 2
         
         # Draw system name at the top
-        large_font = pygame.font.Font(None, 48)
-        
-        # Draw shadow for system name first
-        shadow_text = large_font.render(self.name, True, GRAY)
+        # Draw shadow for system name
+        if self.game_instance:
+            shadow_text = self.game_instance.resource_manager.text_cache.get_text(
+                self.name, 48, GRAY
+            )
+        else:
+            shadow_text = pygame.Surface((1, 1))
         shadow_rect = shadow_text.get_rect(center=(center_x + 1, center_y//2 + 1))
         screen.blit(shadow_text, shadow_rect)
         
         # Draw main text
-        title_text = large_font.render(self.name, True, WHITE)
+        if self.game_instance:
+            title_text = self.game_instance.resource_manager.text_cache.get_text(
+                self.name, 48, WHITE
+            )
+        else:
+            title_text = pygame.Surface((1, 1))
         title_rect = title_text.get_rect(center=(center_x, center_y//2))
         screen.blit(title_text, title_rect)
         
         # Draw star type below the name
-        type_font = pygame.font.Font(None, 36)
-        type_text = type_font.render(self.star_type.value, True, self.color)
+        if self.game_instance:
+            type_text = self.game_instance.resource_manager.text_cache.get_text(
+                self.star_type.value, 36, self.color
+            )
+        else:
+            type_text = pygame.Surface((1, 1))
         type_rect = type_text.get_rect(center=(center_x, center_y//2 + 40))
         screen.blit(type_text, type_rect)
         
@@ -171,7 +188,6 @@ class StarSystem:
         pygame.draw.circle(screen, self.color, (center_x, center_y), self.size * 2)
         
         # Draw orbits and planets
-        orbit_font = pygame.font.Font(None, 24)
         for i, planet in enumerate(self.planets):
             orbit_radius = 100 + planet['orbit_number'] * 60
             pygame.draw.circle(screen, (50, 50, 50), (center_x, center_y), orbit_radius, 1)
@@ -191,14 +207,19 @@ class StarSystem:
             pygame.draw.circle(screen, planet_color, (int(planet['x']), int(planet['y'])), size)
             
             # Draw orbit number
-            orbit_text = orbit_font.render(str(planet['orbit_number']), True, WHITE)
-            orbit_rect = orbit_text.get_rect(
-                center=(planet['x'], planet['y'] - size - 15)
-            )
-            # Draw text shadow
-            shadow_text = orbit_font.render(str(planet['orbit_number']), True, GRAY)
-            shadow_rect = shadow_text.get_rect(
-                center=(planet['x'] + 0.5, planet['y'] - size - 14.5)
-            )
-            screen.blit(shadow_text, shadow_rect)
-            screen.blit(orbit_text, orbit_rect)
+            if self.game_instance:
+                orbit_text = self.game_instance.resource_manager.text_cache.get_text(
+                    str(planet['orbit_number']), 24, WHITE
+                )
+                orbit_rect = orbit_text.get_rect(
+                    center=(planet['x'], planet['y'] - size - 15)
+                )
+                # Draw text shadow
+                shadow_text = self.game_instance.resource_manager.text_cache.get_text(
+                    str(planet['orbit_number']), 24, GRAY
+                )
+                shadow_rect = shadow_text.get_rect(
+                    center=(planet['x'] + 0.5, planet['y'] - size - 14.5)
+                )
+                screen.blit(shadow_text, shadow_rect)
+                screen.blit(orbit_text, orbit_rect)

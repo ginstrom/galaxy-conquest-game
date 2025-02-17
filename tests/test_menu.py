@@ -3,14 +3,18 @@ import pytest
 import pygame
 from game.menu import Menu, MenuItem
 from game.enums import GameState
+from game.resources import ResourceManager
 
-# Initialize pygame for testing
-pygame.init()
+@pytest.fixture
+def resource_manager(mock_pygame):
+    """Create a ResourceManager instance for testing."""
+    return ResourceManager(mock_pygame, mock_pygame.font, mock_pygame.mixer, mock_pygame.display)
 
 @pytest.fixture
 def mock_screen():
     """Create a mock screen for testing."""
-    return pygame.Surface((800, 600))
+    from tests.mocks import MockSurface
+    return MockSurface((800, 600))
 
 def test_menu_item():
     """Test MenuItem initialization and callback."""
@@ -28,7 +32,7 @@ def test_menu_item():
     item.action()
     assert callback_called
 
-def test_menu(mock_screen):
+def test_menu(mock_screen, resource_manager):
     """Test Menu initialization and functionality."""
     # Create menu items
     items = [
@@ -37,7 +41,7 @@ def test_menu(mock_screen):
         MenuItem("Item 3", lambda: None)
     ]
     
-    menu = Menu(items, "Test Menu")
+    menu = Menu(items, "Test Menu", resource_manager)
     assert menu.title == "Test Menu"
     assert len(menu.items) == 3
     
@@ -59,13 +63,13 @@ def test_menu(mock_screen):
     menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_UP}))
     assert menu.selected_index == 1
 
-def test_menu_screen_guard():
+def test_menu_screen_guard(resource_manager):
     """Test menu input handling before screen initialization."""
-    menu = Menu([MenuItem("Test", lambda: None)])
+    menu = Menu([MenuItem("Test", lambda: None)], resource_manager=resource_manager)
     # Should return None when screen is not initialized
     assert menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_RETURN})) is None
 
-def test_menu_keyboard_activation(mock_screen):
+def test_menu_keyboard_activation(mock_screen, resource_manager):
     """Test menu item activation via keyboard."""
     activated = False
     def on_activate():
@@ -73,7 +77,7 @@ def test_menu_keyboard_activation(mock_screen):
         activated = True
         return "activated"
 
-    menu = Menu([MenuItem("Test", on_activate)])
+    menu = Menu([MenuItem("Test", on_activate)], resource_manager=resource_manager)
     menu.draw(mock_screen)
     
     # Test enter key activation
@@ -83,18 +87,18 @@ def test_menu_keyboard_activation(mock_screen):
     
     # Test disabled item
     activated = False
-    menu = Menu([MenuItem("Test", on_activate, enabled=False)])
+    menu = Menu([MenuItem("Test", on_activate, enabled=False)], resource_manager=resource_manager)
     menu.draw(mock_screen)
     result = menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_RETURN}))
     assert not activated
     assert result is None
 
-def test_menu_visual_state(mock_screen):
+def test_menu_visual_state(mock_screen, resource_manager):
     """Test menu visual state including selection indicators."""
     menu = Menu([
         MenuItem("Item 1", lambda: None),
         MenuItem("Item 2", lambda: None)
-    ])
+    ], resource_manager=resource_manager)
     
     # Initial state
     menu.draw(mock_screen)
@@ -119,8 +123,8 @@ def test_menu_visual_state(mock_screen):
     assert not menu.items[0].selected
     assert menu.items[1].selected
 
-def test_menu_title_drawing(mock_screen):
+def test_menu_title_drawing(mock_screen, resource_manager):
     """Test menu title drawing."""
-    menu = Menu([MenuItem("Test", lambda: None)], "Menu Title")
+    menu = Menu([MenuItem("Test", lambda: None)], "Menu Title", resource_manager)
     menu.draw(mock_screen)
     # Title drawing is tested implicitly since it would raise an error if it failed

@@ -1,15 +1,16 @@
+#!/usr/bin/env python3
 """
 Galaxy Conquest - A space exploration game.
 
 This is the main game module that handles the core game loop, state management,
 and high-level game mechanics. It implements the main Game class which manages:
 - Game initialization and resource loading
-- State transitions between menus and gameplay views
 - Save/load functionality
 - User input handling
 - Rendering of game views
 """
 
+import argparse
 import json
 import logging
 import pygame
@@ -24,14 +25,22 @@ from game.enums import GameState, StarType
 from game.menu import Menu, MenuItem
 from game.star_system import StarSystem
 from game.background import BackgroundEffect
-from game.resources import ResourceManager
+from game.resources import ResourceManager, ResourceManagerFactory
 from game.views import GalaxyView, SystemView, PlanetView
 from game.views.startup import StartupView
-from game.transitions import ViewTransition, ViewStateManager
 from game.persistence import save_game_state, load_game_state, save_exists
+from game.logging_config import configure_logging, get_logger
 
-logger = logging.getLogger(__name__)
-
+def parse_arguments():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description='Galaxy Conquest Game')
+    parser.add_argument(
+        '--log-level',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        default='INFO',
+        help='Set the logging level'
+    )
+    return parser.parse_args()
 
 class Game:
     """
@@ -39,20 +48,20 @@ class Game:
     
     This class is responsible for:
     - Initializing Pygame and loading game resources
-    - Managing game state transitions
     - Handling user input
     - Rendering different game views (galaxy, system, menus)
     - Save/load game functionality
     """
     
     def __init__(self):
-        pygame.init()
-
-        self.resource_manager = ResourceManager()
+        self.logger = get_logger(__name__)
+        self.logger.info("Initializing game")
         
-        # Initialize view transition system
-        self.transition = ViewTransition()
-        self.view_state = ViewStateManager()
+        pygame.init()
+        self.logger.debug("Pygame initialized")
+
+        self.resource_manager = ResourceManagerFactory.create()
+        self.logger.debug("Resource manager created")
         
         # Create window without OpenGL
         self.screen = pygame.display.set_mode(
@@ -66,11 +75,13 @@ class Game:
             'desert': self.resource_manager.load_image('desert_planet', 'img/planet1.png').convert_alpha(),
             'oceanic': self.resource_manager.load_image('oceanic_planet', 'img/planet2.png').convert_alpha()
         }
+        self.logger.debug("Planet images loaded")
         
         # Initialize fonts
         self.title_font = self.resource_manager.get_font(48)
         self.info_font = self.resource_manager.get_font(36)
         self.detail_font = self.resource_manager.get_font(24)
+        self.logger.debug("Fonts initialized")
         
         # Info panel settings
         self.info_panel_width = 300
@@ -81,9 +92,11 @@ class Game:
         
         # Initialize views
         self.startup_view = StartupView(self)
+        self.startup_menu = self.startup_view.menu  # Expose startup menu for testing
         self.galaxy_view = GalaxyView(self)
         self.system_view = SystemView(self)
         self.planet_view = PlanetView(self)
+        self.logger.debug("Views initialized")
         
         # Save notification
         self.save_notification_time = 0
@@ -96,9 +109,11 @@ class Game:
         self.hovered_system = None
         self.star_systems = []
         self.background = BackgroundEffect()
+        self.logger.debug("Game state initialized")
         
         # Initialize menus
         self.create_menus()
+        self.logger.info("Game initialization complete")
     
     def create_menus(self):
         # In-game menu (when pressing ESC from galaxy view)
@@ -118,14 +133,17 @@ class Game:
             MenuItem("Quit to Desktop", self.quit_game)
         ]
         self.system_menu = Menu(system_menu_items, "Pause")
+        self.logger.debug("Menus created")
     
     def new_game(self):
+        self.logger.info("Starting new game")
         self.star_systems = []
         self.generate_star_systems()
         self.state = GameState.GALAXY
         return True
 
     def go_to_galaxy_view(self):
+        self.logger.debug("Switching to galaxy view")
         self.state = GameState.GALAXY
         return True
     
@@ -136,6 +154,7 @@ class Game:
         Uses a simple collision detection system to ensure star systems don't
         overlap. Will make up to 1000 attempts to place each system.
         """
+        self.logger.info(f"Generating {NUM_STAR_SYSTEMS} star systems")
         attempts = 0
         max_attempts = 1000  # Maximum attempts to place a system before giving up
         margin = 100  # Minimum distance from screen edges
@@ -159,8 +178,11 @@ class Game:
             
             if not collision:
                 self.star_systems.append(new_system)
+                self.logger.debug(f"Created star system: {new_system.name} at ({x}, {y})")
             
             attempts += 1
+        
+        self.logger.info(f"Generated {len(self.star_systems)} star systems in {attempts} attempts")
     
     def save_game(self):
         """
@@ -169,6 +191,7 @@ class Game:
         Returns:
             bool: True if called from menu (to return to game), False otherwise
         """
+        self.logger.info("Saving game state")
         save_game_state(self.star_systems, self.selected_system)
         
         # Set notification time when game is saved
@@ -187,6 +210,7 @@ class Game:
         Returns:
             bool: True if load successful, False if file not found or invalid
         """
+        self.logger.info("Loading game state")
         try:
             save_data = load_game_state()
             
@@ -211,46 +235,41 @@ class Game:
                     self.selected_system = system
                 
                 self.star_systems.append(system)
+                self.logger.debug(f"Loaded star system: {system.name}")
             
             self.state = GameState.GALAXY
+            self.logger.info("Game state loaded successfully")
             return True
         except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
-            print(f"Error loading save file: {e}")
+            self.logger.error(f"Error loading save file: {e}")
             return False
     
     def continue_game(self):
         return self.load_game()
     
     def return_to_game(self):
+        self.logger.debug("Returning to game")
         self.state = GameState.SYSTEM if self.selected_system else GameState.GALAXY
         return True
     
     def quit_to_main_menu(self):
-        # Start transition effect
-        self.transition.start(
-            self.state.value,
-            GameState.STARTUP_MENU.value
-        )
-        
-        # Store current view state
-        self.view_state.store_state(self.state.value, {
-            'selected_system': self.selected_system,
-            'selected_planet': self.selected_planet
-        })
-        
+        self.logger.info("Quitting to main menu")
         self.state = GameState.STARTUP_MENU
         self.selected_system = None
         self.selected_planet = None
         return True
     
     def quit_game(self):
+        self.logger.info("Quitting game")
         return False
     
     def cleanup(self):
+        self.logger.info("Cleaning up resources")
         self.resource_manager.cleanup()
         pygame.quit()
 
     def run(self):
+        self.logger.info("Starting game loop")
         running = True
         try:
             menu_states = [GameState.STARTUP_MENU, GameState.GALAXY_MENU, GameState.SYSTEM_MENU]
@@ -269,6 +288,8 @@ class Game:
                                 self.state = GameState.GALAXY_MENU
                         elif event.key == pygame.K_F4:  
                             toggle_debug()
+                        elif self.state == GameState.PLANET:
+                            self.planet_view.handle_keydown(event)
                     
                     # Handle menu input first
                     if self.state == GameState.STARTUP_MENU:
@@ -287,7 +308,7 @@ class Game:
                     elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                         if self.state == GameState.GALAXY:
                             self.galaxy_view.handle_click(event.pos)
-                        elif self.state == GameState.SYSTEM:
+                        elif self.state == GameState.SYSTEM and not self.selected_planet:
                             self.system_view.handle_click(event.pos)
                 
                 # Clear debug info at start of frame
@@ -338,17 +359,13 @@ class Game:
                 # Draw save notification
                 self.draw_save_notification(self.screen)
                 
-                # Draw active transition effect if any
-                if self.transition.is_active:
-                    self.transition.draw(self.screen)
-                
                 # Draw debug last
                 draw_debug(self.screen)
                 
                 pygame.display.flip()
                 self.clock.tick(60)
         except Exception as e:
-            logger.error(f"Error in game loop: {e}")
+            self.logger.error(f"Error in game loop: {e}", exc_info=True)
             raise
         finally:
             self.cleanup() 
@@ -499,5 +516,7 @@ class Game:
             screen.blit(notification_text, text_rect)
 
 if __name__ == '__main__':
+    args = parse_arguments()
+    configure_logging(args.log_level)
     game = Game()
     game.run()
