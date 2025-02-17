@@ -20,6 +20,15 @@ class GalaxyView:
             SCREEN_WIDTH - game.info_panel_width, SCREEN_HEIGHT
         )
     
+    def handle_keydown(self, event):
+        """
+        Handle key press in the galaxy view.
+        
+        Args:
+            event: The pygame key event
+        """
+        self.logger.debug(f"Key pressed in galaxy view: {pygame.key.name(event.key)}")
+    
     def handle_click(self, pos):
         """
         Handle mouse click in the galaxy view.

@@ -19,6 +19,15 @@ class SystemView:
         self.center_x = self.available_width // 2
         self.center_y = SCREEN_HEIGHT // 2
     
+    def handle_keydown(self, event):
+        """
+        Handle key press in the system view.
+        
+        Args:
+            event: The pygame key event
+        """
+        self.logger.debug(f"Key pressed in system view: {pygame.key.name(event.key)}")
+    
     def handle_click(self, pos):
         """
         Handle mouse click in the system view.

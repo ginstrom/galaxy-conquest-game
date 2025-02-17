@@ -72,25 +72,25 @@ def test_exit_game(startup_view):
     assert result is False
 
 
-@pytest.mark.parametrize("event_type,key,expected_handled", [
-    (pygame.KEYDOWN, pygame.K_UP, True),
-    (pygame.KEYDOWN, pygame.K_DOWN, True),
-    (pygame.KEYDOWN, pygame.K_RETURN, True),
-    (pygame.KEYDOWN, pygame.K_ESCAPE, False),
+@pytest.mark.parametrize("key,expected_handled", [
+    (pygame.K_UP, True),
+    (pygame.K_DOWN, True),
+    (pygame.K_RETURN, True),
+    (pygame.K_ESCAPE, False),
 ])
-def test_handle_input(startup_view, event_type, key, expected_handled):
-    """Test input handling for various key events."""
+def test_handle_keydown(startup_view, key, expected_handled):
+    """Test keyboard input handling for various key events."""
     event = Mock()
-    event.type = event_type
+    event.type = pygame.KEYDOWN
     event.key = key
     
     if expected_handled:
         startup_view.menu.handle_input = Mock(return_value=True)
-        result = startup_view.handle_input(event)
+        result = startup_view.handle_keydown(event)
         assert result is True
         assert startup_view.menu.handle_input.called
     else:
-        result = startup_view.handle_input(event)
+        result = startup_view.handle_keydown(event)
         assert result is None
 
 
