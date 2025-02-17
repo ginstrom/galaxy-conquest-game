@@ -4,12 +4,12 @@ Startup view module for game initialization and main menu.
 This module provides:
 - Initial game menu with new game/load game options
 - Background effects during startup
-- Transition to galaxy view
 """
 
 import pygame
 from typing import Optional
 
+from game.logging_config import get_logger
 from game.menu import Menu, MenuItem
 from game.background import BackgroundEffect
 from game.persistence import save_exists
@@ -34,6 +34,8 @@ class StartupView:
         Args:
             game: Main game instance for state management
         """
+        self.logger = get_logger(__name__)
+        self.logger.info("Initializing StartupView")
         self.game = game
         self.background = BackgroundEffect()
         self.create_menu()
@@ -45,30 +47,16 @@ class StartupView:
             MenuItem("New Game", self.start_new_game),
             MenuItem("Load Game", self.load_game, enabled=has_save),
             MenuItem("Exit", self.exit_game)
-        ], title="Galaxy Conquest")
+        ], title="Galaxy Conquest", resource_manager=self.game.resource_manager)
 
     def start_new_game(self) -> bool:
         """
         Start a new game.
         
-        Initializes new game state and transitions to galaxy view.
-        
         Returns:
             bool: True to keep game running
         """
-        # Store startup view state before transition
-        self.game.view_state.store_state(
-            GameState.STARTUP_MENU.value,
-            {'menu_index': self.menu.selected_index}
-        )
-        
-        # Start transition effect
-        self.game.transition.start(
-            GameState.STARTUP_MENU.value,
-            GameState.GALAXY.value
-        )
-        
-        # Initialize new game
+        self.logger.info("Starting new game")
         self.game.new_game()
         return True
 
@@ -76,24 +64,14 @@ class StartupView:
         """
         Load a saved game.
         
-        Attempts to load saved game state and transition to galaxy view.
-        
         Returns:
             bool: True if load successful and game should continue
         """
+        self.logger.info("Attempting to load saved game")
         if self.game.load_game():
-            # Store startup view state
-            self.game.view_state.store_state(
-                GameState.STARTUP_MENU.value,
-                {'menu_index': self.menu.selected_index}
-            )
-            
-            # Start transition to galaxy view
-            self.game.transition.start(
-                GameState.STARTUP_MENU.value,
-                GameState.GALAXY.value
-            )
+            self.logger.info("Game loaded successfully")
             return True
+        self.logger.warning("Failed to load game")
         return True  # Keep game running even if load fails
 
     def exit_game(self) -> bool:
@@ -103,6 +81,7 @@ class StartupView:
         Returns:
             bool: False to signal game loop to end
         """
+        self.logger.info("Exiting game from startup menu")
         return False
 
     def draw(self, screen: pygame.Surface) -> None:
@@ -128,19 +107,12 @@ class StartupView:
         Returns:
             bool or None: False to quit game, True to continue, None if no action
         """
-        return self.menu.handle_input(event)
-
-    def restore_state(self, state_data: dict) -> None:
-        """
-        Restore view state from saved data.
+        if event.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
+            self.logger.debug(f"Input event received: {pygame.event.event_name(event.type)}")
+            
+        result = self.menu.handle_input(event)
         
-        Args:
-            state_data: Dictionary containing view state data
-        """
-        if state_data and 'menu_index' in state_data:
-            try:
-                index = int(state_data['menu_index'])
-                if 0 <= index < len(self.menu.items):
-                    self.menu.selected_index = index
-            except (ValueError, TypeError):
-                pass  # Keep original index on invalid data
+        if result is not None:
+            self.logger.debug(f"Menu action result: {result}")
+            
+        return result

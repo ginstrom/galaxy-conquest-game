@@ -6,11 +6,14 @@ import pygame
 from game.debug import debug
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE
 from game.enums import GameState
+from game.logging_config import get_logger
 
 class SystemView:
     """Handles rendering of the system view including planets and info panel."""
     
     def __init__(self, game):
+        self.logger = get_logger(__name__)
+        self.logger.info("Initializing SystemView")
         self.game = game
         self.available_width = SCREEN_WIDTH - game.info_panel_width
         self.center_x = self.available_width // 2
@@ -23,7 +26,10 @@ class SystemView:
         Args:
             pos (tuple): The (x, y) position of the mouse click
         """
+        self.logger.debug(f"Mouse click at position {pos}")
+        
         if not self.game.selected_system:
+            self.logger.debug("No system selected, ignoring click")
             return
         
         for planet in self.game.selected_system.planets:
@@ -34,8 +40,11 @@ class SystemView:
             dx = pos[0] - x
             dy = pos[1] - y
             if dx * dx + dy * dy <= planet['size'] * planet['size']:
+                self.logger.info(f"Selected planet: {planet.get('name', 'Unnamed')}")
                 self.game.selected_planet = planet
-                self.game.state = GameState.SYSTEM
+                # Change state immediately
+                self.logger.info("Transitioning to PLANET view")
+                self.game.state = GameState.PLANET
                 break
     
     def draw(self, screen):

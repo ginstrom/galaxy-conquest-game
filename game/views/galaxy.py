@@ -6,11 +6,14 @@ import pygame
 from game.debug import debug
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE
 from game.enums import GameState
+from game.logging_config import get_logger
 
 class GalaxyView:
     """Handles rendering of the galaxy view including star systems and info panel."""
     
     def __init__(self, game):
+        self.logger = get_logger(__name__)
+        self.logger.info("Initializing GalaxyView")
         self.game = game
         self.galaxy_rect = pygame.Rect(
             0, 0,
@@ -24,12 +27,17 @@ class GalaxyView:
         Args:
             pos (tuple): The (x, y) position of the mouse click
         """
+        self.logger.debug(f"Mouse click at position {pos}")
+        
         if not self.galaxy_rect.collidepoint(pos):
+            self.logger.debug("Click outside galaxy view area")
             return
             
         for system in self.game.star_systems:
             if system.rect.collidepoint(pos):
+                self.logger.info(f"Selected star system: {system.name}")
                 self.game.selected_system = system
+                self.logger.info("Transitioning to SYSTEM view")
                 self.game.state = GameState.SYSTEM
                 break
     
