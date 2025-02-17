@@ -1,58 +1,59 @@
 ## Current Objective
-Implementing comprehensive view system with navigation and view-specific menus
+Implement logging system for Galaxy Conquest game
 
-## Context
-This task is part of the view system enhancement goal from projectRoadmap.md. We are focusing on creating a complete view system with proper navigation between different game views and moving menu functionality to their respective views.
+### Completed Tasks
+1. Created logging configuration module:
+   - Created `game/logging_config.py` with flexible logging setup
+   - Implemented configurable log levels
+   - Added utility functions for getting module-specific loggers
 
-## Current Status
-1. View structure established:
-   - Startup view completed with transitions
-   - Galaxy view implementation started
-   - System view implementation started
-   - Planet view skeleton created
-   - Menu system partially refactored
+2. Added command-line configuration:
+   - Added `--log-level` argument to set logging level
+   - Default level configurable in settings.py
+   - Supports DEBUG, INFO, WARNING, ERROR, CRITICAL levels
 
-## Completed
-1. Create Startup View ✓
-   - Design initialization sequence ✓
-   - Implement game start menu ✓
-   - Add new game/load game options ✓
-   - Create transition to galaxy view ✓
-   - Add state preservation ✓
+3. Integrated logging in main game:
+   - Added comprehensive logging throughout game initialization
+   - Added logging for game state changes
+   - Added error logging with stack traces
+   - Added debug logging for game events
 
-2. Implement View Navigation (Partial) ✓
-   - Create seamless transitions between views ✓
-   - Handle state preservation during transitions ✓
-   - Add visual transition effects ✓
+4. Updated settings:
+   - Added logging configuration to settings.py
+   - Defined default log level and format
+   - Maintained existing game settings
 
-## Next Steps
-1. Complete Planet View
-   - Implement planet visualization
-   - Add resource display
-   - Create colony management interface
-   - Design planet-specific controls
+5. Implemented view logging:
+   - Added logging to all view classes (StartupView, GalaxyView, SystemView, PlanetView)
+   - Logged view transitions and state changes
+   - Logged user input handling (keyboard/mouse)
+   - Logged error conditions and edge cases
+   - Removed verbose drawing logs for better performance
 
-2. Complete View Navigation
-   - Implement navigation controls
-   - Add view-specific navigation logic
-   - Enhance transition animations
+### Usage
+Run the game with optional log level:
+```bash
+python galaxy_conquest.py  # Uses default INFO level
+python galaxy_conquest.py --log-level DEBUG  # For detailed debug output
+```
 
-3. Develop View-Specific Menus
-   - Move menu code to respective views
-   - Create context-aware menu actions
-   - Implement consistent menu interface
-   - Add view-specific controls
+### Next Steps
+1. Add logging to remaining game modules (resources, star_system)
+2. Consider adding file-based logging option
+3. Add logging for performance metrics
+4. Add logging for network operations (if implemented)
 
-## Dependencies
-- Python 3.9+
-- Pygame 2.1.3
-- Existing view modules
-- Menu system
-
-## Notes
-- Following Google docstring format
-- Using 4-space indentation
-- Maintaining 88 character line limit
-- Implementing proper error handling
-- Following Pygame best practices for performance
-- Ensuring each view has proper test coverage
+### Implementation Details
+- Log Format: `%(asctime)s - %(name)s - %(levelname)s - %(message)s`
+- Date Format: `%Y-%m-%d %H:%M:%S`
+- Default Level: INFO
+- Output: Standard output (stdout)
+- Key Events Logged:
+  * Game initialization and cleanup
+  * State transitions
+  * Star system generation
+  * Save/load operations
+  * Error handling with stack traces
+  * View transitions and user interactions
+  * Input events (keyboard/mouse)
+  * Menu actions and selections
