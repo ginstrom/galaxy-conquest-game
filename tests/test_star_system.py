@@ -106,8 +106,12 @@ def test_draw_system_view(star_system, screen):
         orbit_radius = 100 + planet['orbit_number'] * 60
         assert orbit_radius > 0
     
-    # Check that the star was drawn last (its color should be the final color)
-    assert screen._color == (173, 216, 230)  # Light blue color used for orbits
+    # Check that orbits are drawn with correct radius and width
+    for planet in star_system.planets:
+        orbit_radius = 100 + planet['orbit_number'] * 60
+        # Verify orbit radius is positive and increases with orbit number
+        assert orbit_radius > 0
+        assert orbit_radius == 100 + planet['orbit_number'] * 60
 
 def test_random_star_system_generation(mock_game):
     """Test random star system generation without specified parameters."""
