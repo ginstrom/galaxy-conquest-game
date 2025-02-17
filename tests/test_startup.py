@@ -94,6 +94,47 @@ def test_handle_keydown(startup_view, key, expected_handled):
         assert result is None
 
 
+def test_handle_input_keydown(startup_view):
+    """Test that handle_input correctly delegates keyboard events."""
+    event = Mock()
+    event.type = pygame.KEYDOWN
+    event.key = pygame.K_RETURN
+    
+    startup_view.handle_keydown = Mock(return_value=True)
+    result = startup_view.handle_input(event)
+    
+    assert result is True
+    startup_view.handle_keydown.assert_called_once_with(event)
+
+
+def test_handle_input_mousedown(startup_view):
+    """Test that handle_input correctly delegates mouse events."""
+    event = Mock()
+    event.type = pygame.MOUSEBUTTONDOWN
+    event.pos = (100, 100)
+    
+    startup_view.handle_click = Mock(return_value=True)
+    result = startup_view.handle_input(event)
+    
+    assert result is True
+    startup_view.handle_click.assert_called_once_with(event.pos)
+
+
+def test_handle_click_creates_correct_event(startup_view):
+    """Test that handle_click creates the correct event with button attribute."""
+    pos = (100, 100)
+    startup_view.menu.handle_input = Mock(return_value=True)
+    
+    result = startup_view.handle_click(pos)
+    
+    assert result is True
+    # Verify the event passed to menu.handle_input
+    call_args = startup_view.menu.handle_input.call_args[0][0]
+    assert call_args.type == pygame.MOUSEBUTTONDOWN
+    assert call_args.pos == pos
+    assert call_args.button == 1
+
+
 def test_draw(startup_view):
     """Test drawing the startup view."""
     screen = Mock()

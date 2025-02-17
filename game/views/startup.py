@@ -124,8 +124,24 @@ class StartupView:
             bool or None: False to quit game, True to continue, None if no action
         """
         self.logger.debug(f"Mouse click at position {pos}")
-        event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': pos})
+        event = pygame.event.Event(pygame.MOUSEBUTTONDOWN, {'pos': pos, 'button': 1})
         result = self.menu.handle_input(event)
         if result is not None:
             self.logger.debug(f"Menu action result: {result}")
         return result
+
+    def handle_input(self, event: pygame.event.Event) -> Optional[bool]:
+        """
+        Handle input events in the startup view.
+        
+        Args:
+            event: The pygame event to handle
+            
+        Returns:
+            bool or None: False to quit game, True to continue, None if no action
+        """
+        if event.type == pygame.KEYDOWN:
+            return self.handle_keydown(event)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            return self.handle_click(event.pos)
+        return None
