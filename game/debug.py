@@ -93,6 +93,8 @@ def debug(info, color=(255, 255, 255), pos=None):
         color: RGB tuple for text color (default: white)
         pos: Optional (x, y) position. If None, will be added to list
     """
+    if not is_debug_enabled():
+        return
     _debug.add(info, color, pos)
 
 def clear_debug():
