@@ -538,7 +538,6 @@ and high-level game mechanics. It implements the main Game class which manages:
 """
 
 import argparse
-import json
 import logging
 import pygame
 import random
@@ -619,7 +618,6 @@ class Game:
         
         # Initialize views
         self.startup_view = StartupView(self)
-        self.startup_menu = self.startup_view.menu  # Expose startup menu for testing
         self.galaxy_view = GalaxyView(self)
         self.system_view = SystemView(self)
         self.planet_view = PlanetView(self)
