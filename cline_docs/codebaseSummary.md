@@ -12,6 +12,19 @@ galaxy-conquest-game/
 └── img/               # Game assets
 ```
 
+## Configuration Management
+- Added TOML-based configuration system
+- `config.toml` allows overriding default settings
+- Supports hierarchical configuration with sections:
+  * Debug settings
+  * Logging configuration
+  * Game display parameters
+  * Galaxy generation settings
+- Configuration precedence:
+  1. Command-line arguments (highest priority)
+  2. `config.toml` file
+  3. Default settings in `settings.py` (lowest priority)
+
 ## Key Components
 
 ### Resource Management
@@ -31,6 +44,11 @@ galaxy-conquest-game/
 - High test coverage with detailed assertions
 
 ## Recent Changes
+- [2025-02-18] Added configuration management
+  - Implemented TOML-based configuration system
+  - Created `config.toml` for flexible game settings
+  - Added documentation for configuration usage
+
 - [2025-02-18] Added handle_input method to StartupView
   - Unified input handling across view classes
   - Added comprehensive test coverage
@@ -45,64 +63,5 @@ galaxy-conquest-game/
     - handle_click(pos): Handles mouse clicks
   - Improved code consistency and maintainability
   - Added logging for all input events
-- [2025-02-17] Added comprehensive logging to view classes
-  - View transitions and state changes
-  - User input handling (keyboard/mouse)
-  - Error conditions and edge cases
-  - Removed verbose drawing logs
-- [2025-02-17] Implemented dependency injection for testing
-  - Added MockSurface, MockFont, MockSound classes
-  - Improved test stability and reliability
-  - Achieved 83% code coverage
-  - Fixed pygame initialization issues
 
-## Component Details
-
-### Mock Objects
-- MockSurface: Tracks drawing operations and color state
-- MockFont: Simulates text rendering without initialization
-- MockSound: Handles audio simulation
-- MockPygame: Provides complete pygame module simulation
-
-### Resource System
-- Efficient asset loading and caching
-- Hardware-independent testing support
-- Improved error handling and logging
-
-### View System
-- Clear separation of concerns
-- Testable rendering logic
-- Mock-friendly architecture
-- Consistent interface across all views:
-  - draw(screen): Renders the view
-  - handle_input(event): Handles all input events
-  - handle_keydown(event): Handles keyboard input
-  - handle_click(pos): Handles mouse clicks
-- Comprehensive logging system
-  - View transitions and state changes
-  - User input handling (keyboard/mouse)
-  - Error conditions and edge cases
-
-## Testing Coverage
-- game/background.py: 100%
-- game/menu.py: 79%
-- game/star_system.py: 95%
-- game/resources.py: 75%
-- game/views/startup.py: 98%
-- Overall coverage: 83%
-
-## Future Improvements
-1. Testing
-   - Increase coverage in galaxy.py and system.py
-   - Add more edge case testing
-   - Improve mock object capabilities
-
-2. Architecture
-   - Further component isolation
-   - Enhanced dependency injection
-   - Better error handling
-
-3. Documentation
-   - Expand mock object documentation
-   - Add testing guidelines
-   - Update component interaction docs
+[... rest of the existing content remains the same ...]

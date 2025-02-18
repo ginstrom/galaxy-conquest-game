@@ -1,0 +1,16 @@
+[debug]
+enabled = false  # Override the default DEBUG = True
+
+[logging]
+level = "DEBUG"  # Override the default log level
+format = "%(levelname)s - %(message)s"  # Custom log format
+
+[game]
+screen_width = 1024  # Larger screen width
+screen_height = 768  # Larger screen height
+fps = 30  # Lower frame rate for performance testing
+
+[galaxy]
+num_star_systems = 15  # More star systems
+num_background_stars = 300  # More background stars
+num_nebulae = 5  # More nebulae
