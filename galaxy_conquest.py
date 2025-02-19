@@ -30,6 +30,7 @@ from game.views import GalaxyView, SystemView, PlanetView
 from game.views.startup import StartupView
 from game.persistence import save_game_state, load_game_state, save_exists
 from game.logging_config import configure_logging, get_logger
+from game.config import load_config, apply_config
 
 def parse_arguments():
     """Parse command line arguments."""
@@ -37,9 +38,16 @@ def parse_arguments():
     parser.add_argument(
         '--log-level',
         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-        default='INFO',
         help='Set the logging level'
     )
+    # Add other configuration arguments that match config_loader.py
+    parser.add_argument('--debug', type=bool, help='Enable/disable debug mode')
+    parser.add_argument('--screen-width', type=int, help='Screen width')
+    parser.add_argument('--screen-height', type=int, help='Screen height')
+    parser.add_argument('--fps', type=int, help='Frames per second')
+    parser.add_argument('--num-star-systems', type=int, help='Number of star systems')
+    parser.add_argument('--num-background-stars', type=int, help='Number of background stars')
+    parser.add_argument('--num-nebulae', type=int, help='Number of nebulae')
     return parser.parse_args()
 
 class Game:
@@ -1047,7 +1055,19 @@ class Game:
             screen.blit(notification_text, text_rect)
 
 if __name__ == '__main__':
+    # Load configuration first
+    config = load_config()
+    
+    # Apply configuration to settings
+    apply_config(config)
+    
+    # Parse arguments (which can override config)
     args = parse_arguments()
-    configure_logging(args.log_level)
+    
+    # Configure logging (use log level from config or command line)
+    log_level = args.log_level or config['logging']['level']
+    configure_logging(log_level)
+    
+    # Initialize and run game
     game = Game()
     game.run()
