@@ -3,8 +3,10 @@ Implement TOML-based configuration system for Galaxy Conquest Game
 
 ### Completed Tasks
 - Created `config.toml` in project root
-- Implemented `config_loader.py` with:
-  * Configuration loading from TOML file
+- Refactored configuration module from `config_loader.py` to `config.py`
+  * Maintained existing configuration loading functionality
+  * Updated imports in main script
+  * Preserved TOML configuration loading mechanism
   * Command-line argument overrides
   * Flexible configuration merging
 - Updated `galaxy_conquest.py` to use configuration loader
