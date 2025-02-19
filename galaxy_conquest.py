@@ -283,6 +283,18 @@ class Game:
                             self.system_view.handle_click(event.pos)
                         elif self.state == GameState.PLANET:
                             self.planet_view.handle_click(event.pos)
+
+                    # handle right click
+                    elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+                        self.logger.debug("Right click detected")
+                        if self.state == GameState.GALAXY:
+                            self.selected_system = None
+                            self.state = GameState.GALAXY_MENU
+                            self.logger.info("Right click: Transitioning to GALAXY MENU view")
+                        if self.state == GameState.SYSTEM:
+                            self.selected_planet = None
+                            self.state = GameState.SYSTEM_MENU
+                            self.logger.info("Right click: Transitioning to SYSTEM MENU view")
                 
                 # Clear debug info at start of frame
                 clear_debug()
