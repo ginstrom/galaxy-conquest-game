@@ -1,7 +1,8 @@
 """Mock implementations for pygame objects and modules."""
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock
 import pygame
 import os
+from game.enums import PlanetType, ResourceType, GameState
 
 class MockFont:
     def __init__(self, name=None, size=None):
@@ -199,3 +200,58 @@ class MockPygame:
         
     def get_init(self):
         return self.init_called
+
+
+class MockInfoPanel:
+    """Mock info panel class for testing
+    planet view."""
+    def __init__(self, game):
+        self.panel_rect = pygame.Rect(0, 0, 300, 600)
+        self.panel_width = 300
+        self.game = game
+        self.game.selected_system = MagicMock()
+        self.game.state = GameState.SYSTEM
+        self.game.selected_planet = {
+            'name': 'Test Planet',
+            'type': PlanetType.TERRESTRIAL,
+            'resources': [
+                {'type': ResourceType.MINERALS, 'amount': 75},
+                {'type': ResourceType.WATER, 'amount': 50}
+            ]
+        }
+        self.game.info_font = MockFont()
+        self.game.detail_font = MockFont()
+        self.game.title_font = MockFont()
+        self.game.selected_system.color = (255, 255, 255)
+        self.game.selected_system.star_type.value = 'Test Type'
+    
+    def draw(self, screen):
+        """Mock info panel drawing."""
+        pass
+
+class MockGame:
+    """Mock game class for testing planet view."""
+    def __init__(self):
+        self.info_panel = MockInfoPanel(self)
+        self.selected_planet = {
+            'name': 'Test Planet',
+            'type': PlanetType.TERRESTRIAL,
+            'size': 10,
+            'orbit_number': 1,
+            'resources': [
+                {'type': ResourceType.MINERALS, 'amount': 75},
+                {'type': ResourceType.WATER, 'amount': 50}
+            ]
+        }
+        self.background = MockBackground()
+        self.state = GameState.PLANET
+        
+    def draw_info_panel(self, screen):
+        """Mock info panel drawing."""
+        pass
+
+class MockBackground:
+    """Mock background class for testing."""
+    def draw_system_background(self, screen):
+        """Mock background drawing."""
+        pass

@@ -30,7 +30,7 @@ class PlanetView:
         self.logger = get_logger(__name__)
         self.logger.info("Initializing PlanetView")
         self.game = game
-        self.available_width = SCREEN_WIDTH - game.info_panel_width
+        self.available_width = SCREEN_WIDTH - game.info_panel.panel_width
         self.center_x = self.available_width // 2
         self.center_y = SCREEN_HEIGHT // 2
         
@@ -114,4 +114,4 @@ class PlanetView:
                          planet_size)
         
         # Draw info panel
-        self.game.draw_info_panel(screen)
+        self.game.info_panel.draw(screen)

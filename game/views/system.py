@@ -7,6 +7,8 @@ from game.debug import debug
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE
 from game.enums import GameState
 from game.logging_config import get_logger
+from game.menu import Menu, MenuItem
+
 
 class SystemView:
     """Handles rendering of the system view including planets and info panel."""
@@ -15,9 +17,16 @@ class SystemView:
         self.logger = get_logger(__name__)
         self.logger.info("Initializing SystemView")
         self.game = game
-        self.available_width = SCREEN_WIDTH - game.info_panel_width
+        self.available_width = SCREEN_WIDTH - game.info_panel.panel_width
         self.center_x = self.available_width // 2
         self.center_y = SCREEN_HEIGHT // 2
+        # In-game menu (when pressing ESC from system view)
+        system_menu_items = [
+            MenuItem("Resume Game", self.game.return_to_game),
+            MenuItem("Galaxy View", self.game.go_to_galaxy_view),
+            MenuItem("Quit to Desktop", self.game.quit_game)
+        ]
+        self.menu = Menu(system_menu_items, "Pause")
     
     def handle_keydown(self, event):
         """
@@ -71,4 +80,8 @@ class SystemView:
             self.game.selected_system.draw_system_view(screen)
             
             # Draw info panel
-            self.game.draw_info_panel(screen)
+            self.game.info_panel.draw(screen)
+        else:
+            self.logger.warning("No system selected to draw")
+            self.logger.info("Transitioning to GALAXY view")
+            self.game.state = GameState.GALAXY

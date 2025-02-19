@@ -7,6 +7,7 @@ from game.debug import debug
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE
 from game.enums import GameState
 from game.logging_config import get_logger
+from game.menu import Menu, MenuItem
 
 class GalaxyView:
     """Handles rendering of the galaxy view including star systems and info panel."""
@@ -17,8 +18,17 @@ class GalaxyView:
         self.game = game
         self.galaxy_rect = pygame.Rect(
             0, 0,
-            SCREEN_WIDTH - game.info_panel_width, SCREEN_HEIGHT
+            SCREEN_WIDTH - game.info_panel.panel_width, SCREEN_HEIGHT
         )
+        # In-game menu (when pressing ESC from galaxy view)
+        galaxy_menu_items = [
+            MenuItem("New Game", self.game.new_game),
+            MenuItem("Save", self.game.save_game),
+            MenuItem("Resume Game", self.game.return_to_game),
+            MenuItem("Main Menu", self.game.quit_to_main_menu),
+            MenuItem("Quit to Desktop", self.game.quit_game)
+        ]
+        self.menu = Menu(galaxy_menu_items, "Pause")
     
     def handle_keydown(self, event):
         """
@@ -64,9 +74,7 @@ class GalaxyView:
         for system in self.game.star_systems:
             system.draw_galaxy_view(screen)
         
-        # Draw info panel
-        self.game.draw_info_panel(screen)
-        
+        self.game.info_panel.draw(screen)
         # Draw vertical line to separate info panel
         pygame.draw.line(
             screen, 

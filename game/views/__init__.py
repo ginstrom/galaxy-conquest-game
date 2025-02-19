@@ -10,5 +10,6 @@ Provides the view classes for different game states:
 from game.views.galaxy import GalaxyView
 from game.views.system import SystemView
 from game.views.planet import PlanetView
+from game.views.infopanel import InfoPanel
 
-__all__ = ['GalaxyView', 'SystemView', 'PlanetView']
+__all__ = ['GalaxyView', 'SystemView', 'PlanetView', 'InfoPanel']

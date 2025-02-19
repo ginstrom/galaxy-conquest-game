@@ -13,33 +13,7 @@ if not pygame.font.get_init():
 from game.views.planet import PlanetView
 from game.enums import PlanetType, ResourceType, GameState
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT
-
-class MockGame:
-    """Mock game class for testing planet view."""
-    def __init__(self):
-        self.info_panel_width = 300
-        self.selected_planet = {
-            'name': 'Test Planet',
-            'type': PlanetType.TERRESTRIAL,
-            'size': 10,
-            'orbit_number': 1,
-            'resources': [
-                {'type': ResourceType.MINERALS, 'amount': 75},
-                {'type': ResourceType.WATER, 'amount': 50}
-            ]
-        }
-        self.background = MockBackground()
-        self.state = GameState.PLANET
-        
-    def draw_info_panel(self, screen):
-        """Mock info panel drawing."""
-        pass
-
-class MockBackground:
-    """Mock background class for testing."""
-    def draw_system_background(self, screen):
-        """Mock background drawing."""
-        pass
+from tests.mocks import MockGame
 
 @pytest.fixture(autouse=True)
 def setup_and_cleanup():
@@ -56,7 +30,7 @@ def test_planet_view_initialization():
     view = PlanetView(game)
     
     assert view.game == game
-    assert view.available_width == SCREEN_WIDTH - game.info_panel_width
+    assert view.available_width == SCREEN_WIDTH - game.info_panel.panel_width
     assert view.center_x == view.available_width // 2
     assert view.center_y == SCREEN_HEIGHT // 2
     assert view.title_font is not None

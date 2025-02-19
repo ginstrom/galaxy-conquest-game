@@ -23,6 +23,7 @@ def game(mock_pygame):
         'image': mock_pygame.image,
         'error': mock_pygame.error,
         'SRCALPHA': mock_pygame.SRCALPHA,
+        'Rect': pygame.Rect  # Add Rect class from pygame
     })
     
     # Save original module
