@@ -10,9 +10,9 @@ and high-level game mechanics. It implements the main Game class which manages:
 - Rendering of game views
 """
 
+import sys
 import argparse
 import json
-import logging
 import pygame
 import random
 
@@ -30,25 +30,7 @@ from game.views import GalaxyView, SystemView, PlanetView
 from game.views.startup import StartupView
 from game.persistence import save_game_state, load_game_state, save_exists
 from game.logging_config import configure_logging, get_logger
-from game.config import load_config, apply_config
-
-def parse_arguments():
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description='Galaxy Conquest Game')
-    parser.add_argument(
-        '--log-level',
-        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-        help='Set the logging level'
-    )
-    # Add other configuration arguments that match config_loader.py
-    parser.add_argument('--debug', type=bool, help='Enable/disable debug mode')
-    parser.add_argument('--screen-width', type=int, help='Screen width')
-    parser.add_argument('--screen-height', type=int, help='Screen height')
-    parser.add_argument('--fps', type=int, help='Frames per second')
-    parser.add_argument('--num-star-systems', type=int, help='Number of star systems')
-    parser.add_argument('--num-background-stars', type=int, help='Number of background stars')
-    parser.add_argument('--num-nebulae', type=int, help='Number of nebulae')
-    return parser.parse_args()
+from game.config import load_config, apply_config, parse_arguments
 
 class Game:
     """
@@ -546,7 +528,6 @@ and high-level game mechanics. It implements the main Game class which manages:
 """
 
 import argparse
-import logging
 import pygame
 import random
 
@@ -1054,7 +1035,8 @@ class Game:
             # Draw to screen
             screen.blit(notification_text, text_rect)
 
-if __name__ == '__main__':
+
+def main(argv):
     # Load configuration first
     config = load_config()
     
@@ -1062,7 +1044,7 @@ if __name__ == '__main__':
     apply_config(config)
     
     # Parse arguments (which can override config)
-    args = parse_arguments()
+    args = parse_arguments(argv)
     
     # Configure logging (use log level from config or command line)
     log_level = args.log_level or config['logging']['level']
@@ -1071,3 +1053,7 @@ if __name__ == '__main__':
     # Initialize and run game
     game = Game()
     game.run()
+
+if __name__ == '__main__':
+
+    main(sys.argv)#!/usr/bin/env python3

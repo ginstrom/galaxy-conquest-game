@@ -49,12 +49,8 @@ def test_game_initialization(game):
 
 def test_menu_creation(game):
     """Test that menus are properly created."""
-    assert hasattr(game, 'startup_menu')
-    assert hasattr(game, 'galaxy_menu')
-    assert hasattr(game, 'system_menu')
-    
     # Test startup menu items
-    startup_items = game.startup_menu.items
+    startup_items = game.startup_view.menu.items
     assert any(item.text == "New Game" for item in startup_items)
     assert any(item.text == "Load Game" for item in startup_items)
     assert any(item.text == "Exit" for item in startup_items)

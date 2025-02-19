@@ -2,7 +2,27 @@ import os
 import toml
 import argparse
 
-def load_config(default_config_path='config.toml'):
+
+def parse_arguments(args):
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description='Galaxy Conquest Game')
+    parser.add_argument(
+        '--log-level',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        help='Set the logging level'
+    )
+    # Add other configuration arguments that match config_loader.py
+    parser.add_argument('--debug', type=bool, help='Enable/disable debug mode')
+    parser.add_argument('--screen-width', type=int, help='Screen width')
+    parser.add_argument('--screen-height', type=int, help='Screen height')
+    parser.add_argument('--fps', type=int, help='Frames per second')
+    parser.add_argument('--num-star-systems', type=int, help='Number of star systems')
+    parser.add_argument('--num-background-stars', type=int, help='Number of background stars')
+    parser.add_argument('--num-nebulae', type=int, help='Number of nebulae')
+    return parser.parse_args()
+
+
+def load_config(default_config_path='config.toml', args=None):
     """
     Load configuration from TOML file with optional command-line argument overrides.
     
@@ -13,7 +33,7 @@ def load_config(default_config_path='config.toml'):
         dict: Merged configuration dictionary.
     """
     # Load default settings from settings module
-    from . import settings
+    import settings
 
     # Default configuration dictionary
     config = {
@@ -73,7 +93,7 @@ def load_config(default_config_path='config.toml'):
     parser.add_argument('--num-nebulae', type=int, help='Number of nebulae')
 
     # Parse command-line arguments
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     # Override config with command-line arguments
     if args.debug is not None:
@@ -107,7 +127,7 @@ def apply_config(config):
     Args:
         config (dict): Configuration dictionary.
     """
-    from . import settings
+    import settings
 
     # Apply debug settings
     settings.DEBUG = config['debug']['enabled']
