@@ -87,6 +87,7 @@ class Game:
         
         # Initialize game state
         self.state = GameState.STARTUP_MENU
+        self.current_view = self.startup_view
         self.selected_system = None
         self.selected_planet = None
         self.hovered_system = None
@@ -109,11 +110,13 @@ class Game:
         self.star_systems = []
         self.generate_star_systems()
         self.state = GameState.GALAXY
+        self.current_view = self.galaxy_view
         return True
 
     def go_to_galaxy_view(self):
         self.logger.debug("Switching to galaxy view")
         self.state = GameState.GALAXY
+        self.current_view = self.galaxy_view
         return True
     
     def generate_star_systems(self):
@@ -168,7 +171,12 @@ class Game:
         
         # If called from menu, return to game
         if self.state == GameState.GALAXY_MENU:
-            self.state = GameState.SYSTEM if self.selected_system else GameState.GALAXY
+            if self.selected_system:
+                self.state = GameState.SYSTEM
+                self.current_view = self.system_view
+            else:
+                self.state = GameState.GALAXY
+                self.current_view = self.galaxy_view
             return True
         return False
 

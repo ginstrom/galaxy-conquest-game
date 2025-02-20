@@ -63,6 +63,7 @@ class SystemView:
                 # Change state immediately
                 self.logger.info("Transitioning to PLANET view")
                 self.game.state = GameState.PLANET
+                self.game.current_view = self.game.planet_view
                 break
     
     def draw(self, screen):
