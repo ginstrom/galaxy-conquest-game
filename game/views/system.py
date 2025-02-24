@@ -35,6 +35,11 @@ class SystemView:
         Args:
             event: The pygame key event
         """
+        # escape key to open in-game menu
+        if event.key == pygame.K_ESCAPE:
+            self.logger.info("Opening in-game menu")
+            self.game.state = GameState.SYSTEM_MENU
+            return
         self.logger.debug(f"Key pressed in system view: {pygame.key.name(event.key)}")
     
     def handle_click(self, pos):
@@ -65,6 +70,23 @@ class SystemView:
                 self.game.state = GameState.PLANET
                 self.game.current_view = self.game.planet_view
                 break
+
+    def handle_right_click(self, pos):
+        """
+        Handle right mouse click in the system view.
+        
+        Args:
+            pos: The (x, y) position of the mouse click
+        """
+        self.logger.debug(f"Right mouse click at position {pos}")
+        
+        if not self.game.selected_system:
+            self.logger.debug("No system selected, ignoring right click")
+            return
+
+        self.game.selected_planet = None
+        self.game.state = GameState.SYSTEM_MENU
+        self.logger.info("Right click: Transitioning to SYSTEM MENU view")
     
     def draw(self, screen):
         """
@@ -86,3 +108,14 @@ class SystemView:
             self.logger.warning("No system selected to draw")
             self.logger.info("Transitioning to GALAXY view")
             self.game.state = GameState.GALAXY
+        if self.game.selected_system:
+            ss = self.game.selected_system
+            debug(f"System: {ss.name}")
+            debug(f"Planets: {len(ss.planets)}")
+            debug(f"Mouse: {pygame.mouse.get_pos()}")
+            if self.game.selected_planet:
+                sp = self.game.selected_planet
+                debug(f"Selected: {sp['name']}")
+
+        if self.game.state == GameState.SYSTEM_MENU:
+            self.menu.draw(screen)

@@ -233,6 +233,10 @@ class MockGame:
     """Mock game class for testing planet view."""
     def __init__(self):
         self.info_panel = MockInfoPanel(self)
+        self.startup_view = MagicMock()
+        self.galaxy_view = MagicMock()
+        self.system_view = MagicMock()
+        self.planet_view = MagicMock()
         self.selected_planet = {
             'name': 'Test Planet',
             'type': PlanetType.TERRESTRIAL,

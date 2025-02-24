@@ -215,6 +215,7 @@ class Game:
                 self.logger.debug(f"Loaded star system: {system.name}")
             
             self.state = GameState.GALAXY
+            self.current_view = self.galaxy_view
             self.logger.info("Game state loaded successfully")
             return True
         except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
@@ -226,12 +227,18 @@ class Game:
     
     def return_to_game(self):
         self.logger.debug("Returning to game")
-        self.state = GameState.SYSTEM if self.selected_system else GameState.GALAXY
+        if self.selected_system:
+            self.state = GameState.SYSTEM
+            self.current_view = self.system_view
+        else:
+            self.state = GameState.GALAXY
+            self.current_view = self.galaxy_view
         return True
     
     def quit_to_main_menu(self):
         self.logger.info("Quitting to main menu")
         self.state = GameState.STARTUP_MENU
+        self.current_view = self.startup_view
         self.selected_system = None
         self.selected_planet = None
         return True
@@ -256,53 +263,30 @@ class Game:
                         running = False
                     
                     elif event.type == pygame.KEYDOWN:
+                        # quick save
                         if event.key == pygame.K_F5 and self.state not in menu_states:
                             self.save_game()  # Don't use the return value for F5 quick save
-                        elif event.key == pygame.K_ESCAPE:
-                            if self.state == GameState.SYSTEM:
-                                self.state = GameState.SYSTEM_MENU
-                            elif self.state == GameState.GALAXY:
-                                self.state = GameState.GALAXY_MENU
-                            elif self.state == GameState.PLANET:
-                                self.planet_view.handle_keydown(event)
+                        # toggle debug info
                         elif event.key == pygame.K_F4:  
                             toggle_debug()
-                        elif self.state == GameState.PLANET:
-                            self.planet_view.handle_keydown(event)
+                        # other key events handled by current view
+                        else:
+                            self.current_view.handle_keydown(event)
                     
                     # Handle menu input first
-                    if self.state == GameState.STARTUP_MENU:
-                        result = self.startup_view.handle_input(event)
-                        if result is not None:
-                            running = result
-                    elif self.state == GameState.SYSTEM_MENU:
-                        result = self.system_menu.handle_input(event)
-                        if result is not None:
-                            running = result
-                    elif self.state == GameState.GALAXY_MENU:
-                        result = self.galaxy_menu.handle_input(event)
+                    if self.state in menu_states:
+                        result = self.current_view.menu.handle_input(event)
                         if result is not None:
                             running = result
                     # Handle game input only if not in menu
+
+                    # handle left click
                     elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                        if self.state == GameState.GALAXY:
-                            self.galaxy_view.handle_click(event.pos)
-                        elif self.state == GameState.SYSTEM and not self.selected_planet:
-                            self.system_view.handle_click(event.pos)
-                        elif self.state == GameState.PLANET:
-                            self.planet_view.handle_click(event.pos)
+                        self.current_view.handle_click(event.pos)
 
                     # handle right click
                     elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
-                        self.logger.debug("Right click detected")
-                        if self.state == GameState.GALAXY:
-                            self.selected_system = None
-                            self.state = GameState.GALAXY_MENU
-                            self.logger.info("Right click: Transitioning to GALAXY MENU view")
-                        if self.state == GameState.SYSTEM:
-                            self.selected_planet = None
-                            self.state = GameState.SYSTEM_MENU
-                            self.logger.info("Right click: Transitioning to SYSTEM MENU view")
+                        self.current_view.handle_right_click(event.pos)
                 
                 # Clear debug info at start of frame
                 clear_debug()
@@ -324,30 +308,7 @@ class Game:
                 # Draw
                 self.screen.fill((0, 0, 0))
                 
-                if self.state == GameState.STARTUP_MENU:
-                    self.startup_view.draw(self.screen)
-                elif self.state == GameState.GALAXY:
-                    self.galaxy_view.draw(self.screen)
-                    debug(f"Systems: {len(self.star_systems)}")
-                    debug(f"Mouse: {pygame.mouse.get_pos()}")
-                elif self.state == GameState.SYSTEM:
-                    self.system_view.draw(self.screen)
-                    if self.selected_system:
-                        debug(f"System: {self.selected_system.name}")
-                        debug(f"Planets: {len(self.selected_system.planets)}")
-                        debug(f"Mouse: {pygame.mouse.get_pos()}")
-                        if self.selected_planet:
-                            debug(f"Selected: {self.selected_planet['name']}")
-                elif self.state == GameState.PLANET:
-                    self.planet_view.draw(self.screen)
-                    debug(f"Selected planet: {self.selected_planet['name']}")
-                elif self.state == GameState.GALAXY_MENU:
-                    self.galaxy_view.draw(self.screen)  # Draw game as background
-                    self.galaxy_menu.draw(self.screen)
-                elif self.state == GameState.SYSTEM_MENU:
-                    if self.selected_system:
-                        self.system_view.draw(self.screen)  # Draw game as background
-                    self.system_menu.draw(self.screen)
+                self.current_view.draw(self.screen)
                 
                 # Draw save notification
                 self.draw_save_notification(self.screen)
