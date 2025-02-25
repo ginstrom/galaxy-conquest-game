@@ -7,7 +7,7 @@ from game.enums import PlanetType, ResourceType, GameState
 class MockFont:
     def __init__(self, name=None, size=None):
         self.name = name
-        self.size = size
+        self.size = size if size is not None else 24  # Default size to 24 if None
 
     def render(self, text, antialias, color):
         return MockSurface((len(text) * self.size // 2, self.size))
@@ -232,11 +232,14 @@ class MockInfoPanel:
 class MockGame:
     """Mock game class for testing planet view."""
     def __init__(self):
-        self.info_panel = MockInfoPanel(self)
         self.startup_view = MagicMock()
         self.galaxy_view = MagicMock()
+        self.galaxy_view.panel = MockInfoPanel(self)
         self.system_view = MagicMock()
+        self.system_view.panel = MockInfoPanel(self)
         self.planet_view = MagicMock()
+        self.planet_view.panel = MockInfoPanel(self)
+        self.info_panel = MockInfoPanel(self)  # Add info_panel attribute
         self.selected_planet = {
             'name': 'Test Planet',
             'type': PlanetType.TERRESTRIAL,
@@ -249,6 +252,16 @@ class MockGame:
         }
         self.background = MockBackground()
         self.state = GameState.PLANET
+        self.star_systems = []
+        self.hovered_system = None
+        
+        # Add methods needed for view initialization
+        self.new_game = MagicMock(return_value=True)
+        self.save_game = MagicMock(return_value=True)
+        self.return_to_game = MagicMock(return_value=True)
+        self.quit_to_main_menu = MagicMock(return_value=True)
+        self.quit_game = MagicMock(return_value=True)
+        self.go_to_galaxy_view = MagicMock(return_value=True)
         
     def draw_info_panel(self, screen):
         """Mock info panel drawing."""
@@ -257,5 +270,9 @@ class MockGame:
 class MockBackground:
     """Mock background class for testing."""
     def draw_system_background(self, screen):
-        """Mock background drawing."""
+        """Mock system background drawing."""
+        pass
+        
+    def draw_galaxy_background(self, screen):
+        """Mock galaxy background drawing."""
         pass
