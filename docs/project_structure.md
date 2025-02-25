@@ -52,6 +52,7 @@ galaxy-conquest/
 │   ├── projectRoadmap.md
 │   ├── techStack.md
 │   └── testing_guidelines.md
+├── Makefile               # Build system for common tasks
 ├── requirements.txt       # Production dependencies
 └── requirements-dev.txt   # Development dependencies
 ```
@@ -106,6 +107,16 @@ The `tests` directory contains the test suite for the game:
 
 - **docs/**: Contains detailed project documentation.
 - **cline_docs/**: Contains project management documentation.
+
+### Build System
+
+- **Makefile**: Provides a consistent interface for common development tasks:
+  - `make setup`: Creates a virtual environment and installs dependencies
+  - `make run`: Runs the game
+  - `make test`: Runs the test suite
+  - `make coverage`: Runs tests with coverage report
+  - `make clean`: Cleans up generated files
+  - `make help`: Shows available commands
 
 ### Dependencies
 

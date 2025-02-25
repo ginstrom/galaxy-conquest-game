@@ -39,7 +39,31 @@ For development, install additional testing dependencies:
 pip install -r requirements-dev.txt
 ```
 
-Run tests:
+### Using the Makefile
+
+The project includes a Makefile to simplify common development tasks:
+
+```bash
+# Set up the virtual environment and install dependencies
+make setup
+
+# Run the game
+make run
+
+# Run unit tests
+make test
+
+# Run tests with coverage report
+make coverage
+
+# Clean up generated files
+make clean
+
+# Show available commands
+make help
+```
+
+Alternatively, you can run tests directly:
 ```bash
 python -m pytest
 ```

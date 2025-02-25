@@ -1,31 +1,27 @@
 ## Current Objective
-Make the README more concise and split out detailed information into further docs in a `docs` directory.
+Create a Makefile system with commands for running the game and running unit tests.
 
 ## Context
-The current README.md file contains comprehensive information about the project, but it's quite lengthy. Following the documentation management guidelines, we need to make the README more concise while moving detailed information into separate documentation files within a `docs` directory.
+The project currently requires manual commands to run the game and execute tests. A Makefile will streamline these operations and provide a consistent interface for common development tasks.
 
 ## Plan
-1. Create a `docs` directory in the project root if it doesn't already exist
-2. Create the following documentation files in the `docs` directory:
-   - `installation.md`: Detailed installation and development setup instructions
-   - `project_structure.md`: Detailed project structure and file descriptions
-   - `configuration.md`: Detailed configuration options and instructions
-   - `testing.md`: Detailed testing instructions and guidelines
-   - `contributing.md`: Detailed contributing guidelines
-   - `license.md`: License information
+1. Create a Makefile in the project root with the following targets:
+   - `run`: Activate the virtual environment and run the game
+   - `test`: Activate the virtual environment and run the unit tests using pytest
+   - `setup`: Create and activate the virtual environment and install dependencies
 
-3. Update the README.md file to:
-   - Retain a brief project overview, key features, and basic installation instructions
-   - Include links to detailed documentation files in the `docs` directory
+2. Ensure the Makefile works across different platforms (macOS, Linux)
+
+3. Update documentation to reference the new Makefile commands
 
 ## Impact
-- More concise README that provides essential information at a glance
-- Better organized documentation with detailed information in dedicated files
-- Improved maintainability of documentation
-- Follows documentation management best practices
+- Simplified workflow for running the game and tests
+- Consistent interface for common development tasks
+- Improved developer experience
+- Reduced friction for new contributors
 
 ## Next Steps
-1. Check if the `docs` directory already exists, create it if needed
-2. Create the detailed documentation files in the `docs` directory
-3. Update the README.md file to be more concise with links to the detailed docs
-4. Update codebaseSummary.md to reflect the documentation changes
+1. Create the Makefile with the necessary targets
+2. Test the Makefile to ensure it works as expected
+3. Update the documentation to reference the new Makefile commands
+4. Update codebaseSummary.md to reflect the addition of the Makefile

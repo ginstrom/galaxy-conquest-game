@@ -16,7 +16,21 @@ Our testing approach is built on the following principles:
 
 The project uses pytest for testing. Tests are located in the `tests/` directory.
 
-### Basic Test Execution
+### Using the Makefile (Recommended)
+
+The project includes a Makefile to simplify running tests:
+
+```bash
+# Run all tests
+make test
+
+# Run tests with coverage report
+make coverage
+```
+
+### Manual Test Execution
+
+If you prefer not to use the Makefile, you can run tests manually:
 
 ```bash
 # Activate virtual environment
@@ -38,7 +52,10 @@ python -m pytest tests/test_infopanel.py::test_info_panel_initialization
 ### Coverage Testing
 
 ```bash
-# Run tests with coverage report
+# Using Makefile (recommended)
+make coverage
+
+# Manual method
 python -m pytest --cov=game tests/
 
 # Generate HTML coverage report

@@ -25,6 +25,12 @@
 - [ ] Documentation complete
 
 ## Completed Tasks
+- [2025-02-25] Added Makefile system for common development tasks
+  - Created a Makefile with targets for running the game and tests
+  - Added setup, run, test, coverage, clean, and help targets
+  - Updated documentation to reference the Makefile commands
+  - Improved developer experience and simplified common workflows
+
 - [2025-02-25] Improved test coverage for InfoPanel classes
   - Added comprehensive unit tests for InfoPanel base class and subclasses
   - Created integration tests for view classes and their InfoPanel instances
@@ -76,6 +82,7 @@
 3. Documentation
    - [x] Update technical documentation
    - [x] Document mock objects
+   - [x] Create Makefile for common tasks
    - [ ] Create testing guidelines
    - [ ] Add API documentation
 

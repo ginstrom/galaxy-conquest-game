@@ -17,6 +17,7 @@ galaxy-conquest-game/
 │   ├── contributing.md   # Contributing guidelines
 │   └── license.md        # License information
 ├── img/               # Game assets
+├── Makefile           # Build system for common tasks
 └── README.md          # Concise project overview with links to docs
 ```
 
@@ -56,6 +57,17 @@ galaxy-conquest-game/
 - High test coverage with detailed assertions
 
 ## Recent Changes
+- [2025-02-25] Added Makefile system for common development tasks
+  - Created a Makefile with targets for running the game and tests
+  - Added `setup` target for easy environment setup and dependency installation
+  - Added `run` target for running the game
+  - Added `test` target for running unit tests
+  - Added `coverage` target for generating test coverage reports
+  - Added `clean` target for cleaning up generated files
+  - Added `help` target for displaying available commands
+  - Updated documentation to reference the Makefile commands
+  - Improved developer experience and simplified common workflows
+
 - [2025-02-25] Restructured project documentation
   - Made README.md more concise with links to detailed documentation
   - Created a `docs` directory with detailed documentation files:

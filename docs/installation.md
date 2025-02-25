@@ -43,6 +43,22 @@ These dependencies include:
 
 ## Running the Game
 
+### Using the Makefile (Recommended)
+
+The project includes a Makefile to simplify installation and running the game:
+
+```bash
+# Set up the virtual environment and install all dependencies
+make setup
+
+# Run the game
+make run
+```
+
+### Manual Method
+
+If you prefer not to use the Makefile, you can run the game manually:
+
 ```bash
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 python galaxy_conquest.py
