@@ -8,6 +8,7 @@ from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE
 from game.enums import GameState
 from game.logging_config import get_logger
 from game.menu import Menu, MenuItem
+from game.views.infopanel import GalaxyViewInfoPanel
 
 class GalaxyView:
     """Handles rendering of the galaxy view including star systems and info panel."""
@@ -16,9 +17,10 @@ class GalaxyView:
         self.logger = get_logger(__name__)
         self.logger.info("Initializing GalaxyView")
         self.game = game
+        self.panel = GalaxyViewInfoPanel(game)
         self.galaxy_rect = pygame.Rect(
             0, 0,
-            SCREEN_WIDTH - game.info_panel.panel_width, SCREEN_HEIGHT
+            SCREEN_WIDTH - self.panel.panel_width, SCREEN_HEIGHT
         )
         # In-game menu (when pressing ESC from galaxy view)
         galaxy_menu_items = [
@@ -97,7 +99,7 @@ class GalaxyView:
         for system in self.game.star_systems:
             system.draw_galaxy_view(screen)
         
-        self.game.info_panel.draw(screen)
+        self.panel.draw(screen)
         # Draw vertical line to separate info panel
         pygame.draw.line(
             screen, 
@@ -109,4 +111,3 @@ class GalaxyView:
         debug(f"Mouse: {pygame.mouse.get_pos()}")
         if self.game.state == GameState.GALAXY_MENU:
             self.menu.draw(screen)
-

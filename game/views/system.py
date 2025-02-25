@@ -8,6 +8,7 @@ from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE
 from game.enums import GameState
 from game.logging_config import get_logger
 from game.menu import Menu, MenuItem
+from game.views.infopanel import SystemViewInfoPanel
 
 
 class SystemView:
@@ -17,7 +18,8 @@ class SystemView:
         self.logger = get_logger(__name__)
         self.logger.info("Initializing SystemView")
         self.game = game
-        self.available_width = SCREEN_WIDTH - game.info_panel.panel_width
+        self.panel = SystemViewInfoPanel(game)
+        self.available_width = SCREEN_WIDTH - self.panel.panel_width
         self.center_x = self.available_width // 2
         self.center_y = SCREEN_HEIGHT // 2
         # In-game menu (when pressing ESC from system view)
@@ -103,7 +105,7 @@ class SystemView:
             self.game.selected_system.draw_system_view(screen)
             
             # Draw info panel
-            self.game.info_panel.draw(screen)
+            self.panel.draw(screen)
         else:
             self.logger.warning("No system selected to draw")
             self.logger.info("Transitioning to GALAXY view")

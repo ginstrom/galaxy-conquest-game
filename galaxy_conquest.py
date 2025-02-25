@@ -74,7 +74,6 @@ class Game:
         self.logger.debug("Fonts initialized")
         
         # Initialize views
-        self.info_panel = InfoPanel(self)  # Initialize info_panel before views that depend on it
         self.startup_view = StartupView(self)
         self.galaxy_view = GalaxyView(self)
         self.system_view = SystemView(self)
