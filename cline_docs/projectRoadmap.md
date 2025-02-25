@@ -25,6 +25,21 @@
 - [ ] Documentation complete
 
 ## Completed Tasks
+- [2025-02-25] Improved test coverage for InfoPanel classes
+  - Added comprehensive unit tests for InfoPanel base class and subclasses
+  - Created integration tests for view classes and their InfoPanel instances
+  - Updated MockGame and MockBackground classes to support testing
+  - Fixed edge cases and improved test robustness
+  - Increased overall test coverage to 82% (above the 80% target)
+  - Updated documentation in currentTask.md and codebaseSummary.md
+
+- [2025-02-25] Fixed unit tests for PlanetView
+  - Added `info_panel` attribute to MockGame class
+  - Updated MockFont class to provide default size value
+  - Fixed AttributeError and TypeError in tests
+  - All tests now pass with 73% code coverage
+  - Updated documentation in currentTask.md and codebaseSummary.md
+
 - [2025-02-17] Implemented dependency injection for testing
   - Added mock objects for pygame components
   - Fixed test suite initialization issues
@@ -52,8 +67,9 @@
    - [x] Document testing approach
 
 2. Code Quality
-   - [x] Improve test coverage
-   - [ ] Add edge case tests
+   - [x] Improve test coverage for InfoPanel classes
+   - [x] Add edge case tests for InfoPanel
+   - [ ] Improve coverage for galaxy.py and system.py
    - [ ] Optimize resource usage
    - [ ] Enhance error handling
 
@@ -65,9 +81,10 @@
 
 ## Next Steps
 1. Testing
-   - Improve coverage in low-coverage areas
+   - Improve coverage for galaxy.py and system.py
+   - Create comprehensive testing guidelines
    - Add performance tests
-   - Create testing guidelines
+   - Document testing best practices
 
 2. Features
    - Complete save/load system

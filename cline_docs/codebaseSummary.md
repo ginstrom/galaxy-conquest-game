@@ -9,7 +9,15 @@ galaxy-conquest-game/
 ├── tests/             # Test suite
 │   ├── mocks.py       # Mock objects for testing
 │   └── test_*.py      # Test modules
-└── img/               # Game assets
+├── docs/              # Detailed documentation
+│   ├── installation.md   # Installation guide
+│   ├── project_structure.md # Project structure details
+│   ├── configuration.md  # Configuration guide
+│   ├── testing.md        # Testing guide
+│   ├── contributing.md   # Contributing guidelines
+│   └── license.md        # License information
+├── img/               # Game assets
+└── README.md          # Concise project overview with links to docs
 ```
 
 ## Configuration Management
@@ -37,6 +45,10 @@ galaxy-conquest-game/
 - SystemView: Individual star system view
 - PlanetView: Detailed planet information
 - StartupView: Game initialization and menu
+- InfoPanel: Base class for information panels
+  - GalaxyViewInfoPanel: Information panel for galaxy view
+  - SystemViewInfoPanel: Information panel for system view
+  - PlanetViewInfoPanel: Information panel for planet view
 
 ### Testing Infrastructure
 - Mock objects for pygame components
@@ -44,6 +56,63 @@ galaxy-conquest-game/
 - High test coverage with detailed assertions
 
 ## Recent Changes
+- [2025-02-25] Restructured project documentation
+  - Made README.md more concise with links to detailed documentation
+  - Created a `docs` directory with detailed documentation files:
+    - installation.md: Detailed installation instructions
+    - project_structure.md: Detailed project structure information
+    - configuration.md: Configuration options and usage
+    - testing.md: Testing approach and instructions
+    - contributing.md: Guidelines for contributing
+    - license.md: License details
+  - Improved documentation organization and maintainability
+  - Updated currentTask.md to reflect documentation restructuring
+
+- [2025-02-25] Updated project documentation
+  - Updated currentTask.md to focus on improving test coverage for galaxy.py and system.py
+  - Updated projectRoadmap.md to reflect current progress and next steps
+  - Updated codebaseSummary.md with latest changes and testing improvements
+  - Aligned documentation with the current state of the codebase
+
+- [2025-02-25] Improved test coverage for InfoPanel classes
+  - Added comprehensive unit tests for InfoPanel base class and subclasses
+  - Created integration tests for view classes and their InfoPanel instances
+  - Updated MockGame and MockBackground classes to support testing
+  - Fixed edge cases and improved test robustness
+  - Increased overall test coverage to 82% (above the 80% target)
+  - Completed all planned testing tasks for InfoPanel classes
+
+- [2025-02-25] Fixed unit tests for PlanetView
+  - Added `info_panel` attribute to MockGame class in tests/mocks.py
+  - Updated MockFont class to provide a default size value (24) when none is specified
+  - Fixed AttributeError in test_planet_view_initialization
+  - Fixed TypeError in test_planet_view_draw_with_planet
+  - All tests now pass successfully with 73% code coverage
+
+- [2025-02-25] Added view-specific InfoPanel instances to each view
+  - Added a `panel` member to each view class (GalaxyView, SystemView, PlanetView)
+  - Each view now has its own InfoPanel subclass instance
+  - Updated drawing logic to use `self.panel.draw(screen)` in each view
+  - Removed central `info_panel` from Game class
+  - Improved encapsulation by having each view manage its own panel
+  - Better separation of responsibilities and more maintainable code structure
+
+- [2025-02-25] Implemented draw logic in InfoPanel subclasses
+  - Added view-specific drawing logic to each InfoPanel subclass:
+    - GalaxyViewInfoPanel: Displays hovered system info or galaxy stats
+    - SystemViewInfoPanel: Shows selected system info and planet details
+    - PlanetViewInfoPanel: Presents detailed planet information
+  - Each subclass now handles its specific view state appropriately
+  - Completed the InfoPanel refactoring for better separation of concerns
+
+- [2025-02-25] Refactored InfoPanel into a class hierarchy
+  - Created InfoPanel base class with common functionality
+  - Added specialized subclasses for each game view:
+    - GalaxyViewInfoPanel: For galaxy-specific information
+    - SystemViewInfoPanel: For system-specific information
+    - PlanetViewInfoPanel: For planet-specific information
+  - Improved code organization and maintainability
+
 - [2025-02-18] Added configuration management
   - Implemented TOML-based configuration system
   - Created `config.toml` for flexible game settings

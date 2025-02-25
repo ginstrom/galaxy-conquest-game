@@ -1,42 +1,31 @@
 ## Current Objective
-Refactor info panel code into a proper view class
+Make the README more concise and split out detailed information into further docs in a `docs` directory.
 
 ## Context
-The info panel code was previously part of the Game class, but needed to be moved into its own view module to match the architecture of other UI components.
+The current README.md file contains comprehensive information about the project, but it's quite lengthy. Following the documentation management guidelines, we need to make the README more concise while moving detailed information into separate documentation files within a `docs` directory.
 
-## Changes Made
-1. Created new InfoPanel class in game/views/infopanel.py:
-   - Follows standard view interface (draw, handle_input, handle_click, handle_keydown)
-   - Takes Game instance in constructor to access required state
-   - Manages its own panel dimensions and rendering logic
-   - Maintains consistent behavior with original implementation
+## Plan
+1. Create a `docs` directory in the project root if it doesn't already exist
+2. Create the following documentation files in the `docs` directory:
+   - `installation.md`: Detailed installation and development setup instructions
+   - `project_structure.md`: Detailed project structure and file descriptions
+   - `configuration.md`: Detailed configuration options and instructions
+   - `testing.md`: Detailed testing instructions and guidelines
+   - `contributing.md`: Detailed contributing guidelines
+   - `license.md`: License information
 
-2. Updated Game class:
-   - Removed draw_info_panel method
-   - Removed info_panel.panel_rect attribute
-   - Added info_panel instance in __init__
-   - Updated game loop to use info_panel.draw()
-
-3. Updated game/views/__init__.py:
-   - Added InfoPanel import
-   - Added InfoPanel to __all__ list
+3. Update the README.md file to:
+   - Retain a brief project overview, key features, and basic installation instructions
+   - Include links to detailed documentation files in the `docs` directory
 
 ## Impact
-- Improved code organization by following the established view module pattern
-- Reduced coupling between Game class and info panel rendering logic
-- Made info panel code more maintainable and consistent with other views
+- More concise README that provides essential information at a glance
+- Better organized documentation with detailed information in dedicated files
+- Improved maintainability of documentation
+- Follows documentation management best practices
 
 ## Next Steps
-1. Consider adding interactive features to info panel in the future
-2. Add unit tests for InfoPanel class
-3. Consider adding documentation for the view interface pattern
-
-## Recent Updates
-Fixed test failures after info panel refactoring:
-1. Updated GalaxyView to use info_panel.panel_width instead of accessing info_panel_width directly from Game class
-2. Removed redundant info panel drawing call from GalaxyView (now handled in game loop)
-3. Ensured proper separation of concerns between Game, InfoPanel, and GalaxyView classes
-
-## Test Status
-- Fixed AttributeError in test_game_initialization, test_menu_creation, and test_resource_loading
-- Tests now properly reflect the new InfoPanel architecture
+1. Check if the `docs` directory already exists, create it if needed
+2. Create the detailed documentation files in the `docs` directory
+3. Update the README.md file to be more concise with links to the detailed docs
+4. Update codebaseSummary.md to reflect the documentation changes
