@@ -25,6 +25,14 @@
 - [ ] Documentation complete
 
 ## Completed Tasks
+- [2025-02-27] Consolidated duplicated code in InfoPanel classes
+  - Extracted common planet details display logic into a shared `draw_planet_details()` method in the parent `InfoPanel` class
+  - Refactored `SystemViewInfoPanel` and `PlanetViewInfoPanel` to use the new method
+  - Improved code maintainability and reduced duplication
+  - Maintained consistent behavior across all panel views
+  - All tests pass successfully with 99% code coverage for infopanel.py
+  - Enhanced code organization and readability
+
 - [2025-02-26] Enhanced PlanetViewInfoPanel to display system information
   - Updated the PlanetViewInfoPanel to display system information at the top of the panel
   - Added system name, type, and planet count to the panel

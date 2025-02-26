@@ -1,16 +1,23 @@
 ## Current Objective
-✅ Update the planet's details display in the info panel to match the system view
+✅ Consolidate the duplicated code in game/views/infopanel.py lines 222-246 and 300-325
 
 ## Context
-In the game/views/planet.py module, the planet's details should be displayed in the info panel, similarly to how the planet details are displayed in the system view (enum SYSTEM, game/views/system.py).
+The `SystemViewInfoPanel` and `PlanetViewInfoPanel` classes in the infopanel.py file contained duplicated code for displaying planet details. This code duplication has been eliminated by extracting the common logic into a shared method in the parent `InfoPanel` class.
+
+## Plan
+1. Identify the duplicated code blocks in lines 222-246 and 300-325
+2. Create a new method called `draw_planet_details()` in the parent `InfoPanel` class
+3. Refactor both `SystemViewInfoPanel` and `PlanetViewInfoPanel` to use this new method
+4. Ensure the behavior remains the same after refactoring
+5. Run tests to verify all functionality works correctly
 
 ## Completed Steps
-1. ✅ Compared the planet details display in the `PlanetViewInfoPanel` with the `SystemViewInfoPanel`
-2. ✅ Updated the `PlanetViewInfoPanel` to display system information at the top of the panel
-3. ✅ Added a separator line between system information and planet details
-4. ✅ Maintained consistency with the SystemViewInfoPanel display style
-5. ✅ Ran tests to verify all functionality works correctly
-6. ✅ Updated documentation in codebaseSummary.md and projectRoadmap.md
+1. ✅ Identified duplicated code blocks for displaying planet details in `SystemViewInfoPanel` and `PlanetViewInfoPanel`
+2. ✅ Created a new `draw_planet_details()` method in the parent `InfoPanel` class that encapsulates the common logic
+3. ✅ Refactored `SystemViewInfoPanel` to use the new method for both hovered and selected planets
+4. ✅ Refactored `PlanetViewInfoPanel` to use the new method for selected planets
+5. ✅ Ran tests to verify all functionality works correctly (99% code coverage for infopanel.py)
+6. ✅ Improved code maintainability and reduced duplication
 
 ## Next Steps
 1. Consider adding more detailed planet information in the planet view

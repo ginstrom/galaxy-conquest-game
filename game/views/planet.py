@@ -118,14 +118,14 @@ class PlanetView:
         """
         # Update hover state (for consistency with other views)
         self.update()
-        if not self.game.selected_planet:
+        planet = self.game.selected_planet
+        if not planet:
             self.logger.warning("No planet selected to draw")
+            debug("** No planet selected to draw **")
             return
             
         # Draw background
         self.game.background.draw_system_background(screen)
-        
-        planet = self.game.selected_planet
         
         # Draw planet name with shadow
         name_shadow = self.title_font.render(planet['name'], True, GRAY)

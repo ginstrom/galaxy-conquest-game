@@ -54,6 +54,50 @@ class InfoPanel:
                         (self.panel_rect.left, 0),
                         (self.panel_rect.left, SCREEN_HEIGHT))
     
+    def draw_planet_details(self, screen, planet, y):
+        """
+        Draw planet details including name, type, and resources.
+        
+        Args:
+            screen: The pygame surface to draw on
+            planet: The planet data dictionary
+            y: The starting y-coordinate for drawing
+            
+        Returns:
+            The updated y-coordinate after drawing all planet details
+        """
+        # Display planet name
+        planet_name = self.game.info_font.render(
+            planet['name'],
+            True, WHITE
+        )
+        screen.blit(planet_name, (self.panel_rect.left + 10, y))
+        
+        y += 40
+        # Display planet type
+        planet_type = self.game.info_font.render(
+            f"Type: {planet['type'].value}",
+            True, WHITE
+        )
+        screen.blit(planet_type, (self.panel_rect.left + 10, y))
+        
+        y += 40
+        # Display resources title
+        resources_title = self.game.info_font.render("Resources:", True, WHITE)
+        screen.blit(resources_title, (self.panel_rect.left + 10, y))
+        
+        y += 30
+        # Display each resource
+        for resource in planet['resources']:
+            resource_text = self.game.detail_font.render(
+                f"{resource['type'].value}: {resource['amount']}",
+                True, WHITE
+            )
+            screen.blit(resource_text, (self.panel_rect.left + 20, y))
+            y += 25
+            
+        return y
+    
     def handle_input(self, event):
         """Handle input events (no-op implementation)."""
         pass
@@ -185,31 +229,7 @@ class SystemViewInfoPanel(InfoPanel):
                             (self.panel_rect.right - 10, y))
                 
                 y += 20
-                planet_name = self.game.info_font.render(
-                    self.game.hovered_planet['name'],
-                    True, WHITE
-                )
-                screen.blit(planet_name, (self.panel_rect.left + 10, y))
-                
-                y += 40
-                planet_type = self.game.info_font.render(
-                    f"Type: {self.game.hovered_planet['type'].value}",
-                    True, WHITE
-                )
-                screen.blit(planet_type, (self.panel_rect.left + 10, y))
-                
-                y += 40
-                resources_title = self.game.info_font.render("Resources:", True, WHITE)
-                screen.blit(resources_title, (self.panel_rect.left + 10, y))
-                
-                y += 30
-                for resource in self.game.hovered_planet['resources']:
-                    resource_text = self.game.detail_font.render(
-                        f"{resource['type'].value}: {resource['amount']}",
-                        True, WHITE
-                    )
-                    screen.blit(resource_text, (self.panel_rect.left + 20, y))
-                    y += 25
+                self.draw_planet_details(screen, self.game.hovered_planet, y)
             
             # Draw selected planet info if no planet is hovered
             elif self.game.selected_planet and self.game.state == GameState.SYSTEM:
@@ -219,31 +239,7 @@ class SystemViewInfoPanel(InfoPanel):
                             (self.panel_rect.right - 10, y))
                 
                 y += 20
-                planet_name = self.game.info_font.render(
-                    self.game.selected_planet['name'],
-                    True, WHITE
-                )
-                screen.blit(planet_name, (self.panel_rect.left + 10, y))
-                
-                y += 40
-                planet_type = self.game.info_font.render(
-                    f"Type: {self.game.selected_planet['type'].value}",
-                    True, WHITE
-                )
-                screen.blit(planet_type, (self.panel_rect.left + 10, y))
-                
-                y += 40
-                resources_title = self.game.info_font.render("Resources:", True, WHITE)
-                screen.blit(resources_title, (self.panel_rect.left + 10, y))
-                
-                y += 30
-                for resource in self.game.selected_planet['resources']:
-                    resource_text = self.game.detail_font.render(
-                        f"{resource['type'].value}: {resource['amount']}",
-                        True, WHITE
-                    )
-                    screen.blit(resource_text, (self.panel_rect.left + 20, y))
-                    y += 25
+                self.draw_planet_details(screen, self.game.selected_planet, y)
 
 
 class PlanetViewInfoPanel(InfoPanel):
@@ -298,28 +294,4 @@ class PlanetViewInfoPanel(InfoPanel):
                 y = 20
             
             # Display detailed planet information
-            planet_name = self.game.info_font.render(
-                self.game.selected_planet['name'],
-                True, WHITE
-            )
-            screen.blit(planet_name, (self.panel_rect.left + 10, y))
-            
-            y += 40
-            planet_type = self.game.info_font.render(
-                f"Type: {self.game.selected_planet['type'].value}",
-                True, WHITE
-            )
-            screen.blit(planet_type, (self.panel_rect.left + 10, y))
-            
-            y += 40
-            resources_title = self.game.info_font.render("Resources:", True, WHITE)
-            screen.blit(resources_title, (self.panel_rect.left + 10, y))
-            
-            y += 30
-            for resource in self.game.selected_planet['resources']:
-                resource_text = self.game.detail_font.render(
-                    f"{resource['type'].value}: {resource['amount']}",
-                    True, WHITE
-                )
-                screen.blit(resource_text, (self.panel_rect.left + 20, y))
-                y += 25
+            self.draw_planet_details(screen, self.game.selected_planet, y)
