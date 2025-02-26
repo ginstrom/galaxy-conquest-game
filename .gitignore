@@ -1,4 +1,5 @@
-diff.txt # Ignore the diff.txt file, it is used for llm coding
+# Ignore the diff.txt file, it is used for llm coding
+diff.txt
 
 # Python
 __pycache__/
