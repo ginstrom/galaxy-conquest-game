@@ -124,6 +124,49 @@ def test_system_view_no_selected_system(mock_game, mock_screen):
     # Restore the original draw method
     view.panel.draw = original_draw
 
+def test_system_view_updates_hovered_planet(mock_game, mock_screen):
+    """Test that SystemView correctly updates the hovered_planet attribute."""
+    view = SystemView(mock_game)
+    
+    # Set up a selected system with planets
+    mock_game.selected_system = mock_game.selected_system
+    mock_game.selected_system.planets = [
+        {
+            'name': 'Planet 1',
+            'x': 100,
+            'y': 100,
+            'size': 20,
+            'type': MagicMock(),
+            'resources': []
+        },
+        {
+            'name': 'Planet 2',
+            'x': 200,
+            'y': 200,
+            'size': 15,
+            'type': MagicMock(),
+            'resources': []
+        }
+    ]
+    mock_game.state = GameState.SYSTEM
+    
+    # Mock pygame.mouse.get_pos to return a position over Planet 1
+    with patch('pygame.mouse.get_pos', return_value=(100, 100)):
+        # Call the update method to check for hover
+        view.update()
+        
+        # Verify that hovered_planet is set to Planet 1
+        assert mock_game.hovered_planet is not None
+        assert mock_game.hovered_planet['name'] == 'Planet 1'
+    
+    # Mock pygame.mouse.get_pos to return a position not over any planet
+    with patch('pygame.mouse.get_pos', return_value=(150, 150)):
+        # Call the update method to check for hover
+        view.update()
+        
+        # Verify that hovered_planet is None
+        assert mock_game.hovered_planet is None
+
 def test_planet_view_uses_panel_for_drawing(mock_game, mock_screen):
     """Test that PlanetView properly uses its panel for drawing."""
     view = PlanetView(mock_game)

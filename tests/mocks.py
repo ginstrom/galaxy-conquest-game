@@ -254,6 +254,7 @@ class MockGame:
         self.state = GameState.PLANET
         self.star_systems = []
         self.hovered_system = None
+        self.hovered_planet = None
         
         # Add methods needed for view initialization
         self.new_game = MagicMock(return_value=True)

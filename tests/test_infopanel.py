@@ -138,6 +138,60 @@ def test_system_view_infopanel_draw_with_selected_planet(mock_game, mock_screen)
             {'type': ResourceType.WATER, 'amount': 50}
         ]
     }
+    mock_game.hovered_planet = None  # Ensure no hovered planet
+    mock_game.state = GameState.SYSTEM
+    
+    # Draw the panel
+    panel.draw(mock_screen)
+    
+    # If we got here, no exceptions were raised
+    assert True
+
+def test_system_view_infopanel_draw_with_hovered_planet(mock_game, mock_screen):
+    """Test SystemViewInfoPanel draw method with a hovered planet."""
+    panel = SystemViewInfoPanel(mock_game)
+    
+    # Set up a selected system and hovered planet
+    mock_game.selected_system = mock_game.selected_system
+    mock_game.selected_planet = None  # No selected planet
+    mock_game.hovered_planet = {
+        'name': 'Hovered Planet',
+        'type': PlanetType.GAS_GIANT,
+        'resources': [
+            {'type': ResourceType.GASES, 'amount': 100},
+            {'type': ResourceType.RARE_ELEMENTS, 'amount': 25}
+        ]
+    }
+    mock_game.state = GameState.SYSTEM
+    
+    # Draw the panel
+    panel.draw(mock_screen)
+    
+    # If we got here, no exceptions were raised
+    assert True
+
+def test_system_view_infopanel_draw_with_both_selected_and_hovered_planet(mock_game, mock_screen):
+    """Test SystemViewInfoPanel draw method with both selected and hovered planets."""
+    panel = SystemViewInfoPanel(mock_game)
+    
+    # Set up a selected system, selected planet, and hovered planet
+    mock_game.selected_system = mock_game.selected_system
+    mock_game.selected_planet = {
+        'name': 'Selected Planet',
+        'type': PlanetType.TERRESTRIAL,
+        'resources': [
+            {'type': ResourceType.MINERALS, 'amount': 75},
+            {'type': ResourceType.WATER, 'amount': 50}
+        ]
+    }
+    mock_game.hovered_planet = {
+        'name': 'Hovered Planet',
+        'type': PlanetType.GAS_GIANT,
+        'resources': [
+            {'type': ResourceType.GASES, 'amount': 100},
+            {'type': ResourceType.RARE_ELEMENTS, 'amount': 25}
+        ]
+    }
     mock_game.state = GameState.SYSTEM
     
     # Draw the panel
