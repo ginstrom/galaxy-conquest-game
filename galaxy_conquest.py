@@ -17,6 +17,7 @@ import pygame
 import random
 
 from game.debug import debug, clear_debug, draw_debug, toggle_debug
+from game.views.hover_utils import check_hover, is_within_circle
 from game.constants import (
     SCREEN_WIDTH, SCREEN_HEIGHT, NUM_STAR_SYSTEMS,
     WHITE, GRAY
@@ -90,6 +91,7 @@ class Game:
         self.selected_system = None
         self.selected_planet = None
         self.hovered_system = None
+        self.hovered_planet = None  # Track hovered planet in system view
         self.star_systems = []
         self.background = BackgroundEffect()
         self.logger.debug("Game state initialized")
@@ -290,19 +292,26 @@ class Game:
                 # Clear debug info at start of frame
                 clear_debug()
                 
-                # Update hovered system in galaxy view
+                # Update hover state based on current view
                 self.hovered_system = None  # Clear hover state by default
+                self.hovered_planet = None  # Clear hover state by default
+                
                 if self.state == GameState.GALAXY:
                     mouse_pos = pygame.mouse.get_pos()
                     # Only check for hover if mouse is in galaxy area
-                    if self.galaxy_view.galaxy_rect.collidepoint(mouse_pos):
-                        for system in self.star_systems:
-                            if system.rect.collidepoint(mouse_pos):
-                                self.hovered_system = system
-                                debug(f"Hovering: {system.name} at {system.x}, {system.y}")
-                                debug(f"Mouse pos: {mouse_pos}")
-                                debug(f"System rect: {system.rect}")
-                                break
+                    rect_check_func = lambda pos: self.galaxy_view.galaxy_rect.collidepoint(pos)
+                    self.hovered_system = check_hover(
+                        mouse_pos, 
+                        self.star_systems, 
+                        lambda pos, obj: obj.rect.collidepoint(pos),
+                        rect_check_func
+                    )
+                    
+                    # Additional debug info if hovering
+                    if self.hovered_system:
+                        debug(f"Hovering: {self.hovered_system.name} at {self.hovered_system.x}, {self.hovered_system.y}")
+                        debug(f"Mouse pos: {mouse_pos}")
+                        debug(f"System rect: {self.hovered_system.rect}")
                 
                 # Draw
                 self.screen.fill((0, 0, 0))
