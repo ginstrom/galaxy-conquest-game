@@ -9,6 +9,7 @@ from game.enums import GameState
 from game.logging_config import get_logger
 from game.menu import Menu, MenuItem
 from game.views.infopanel import SystemViewInfoPanel
+from game.views.hover_utils import check_hover, is_within_circle
 
 
 class SystemView:
@@ -58,6 +59,10 @@ class SystemView:
             return
         
         for planet in self.game.selected_system.planets:
+            # Skip planets that don't have coordinates yet
+            if 'x' not in planet or 'y' not in planet:
+                continue
+                
             x = planet['x']
             y = planet['y']
             
@@ -90,6 +95,35 @@ class SystemView:
         self.game.state = GameState.SYSTEM_MENU
         self.logger.info("Right click: Transitioning to SYSTEM MENU view")
     
+    def update(self):
+        """
+        Update the system view state, including checking for planet hover.
+        
+        This method should be called each frame to update the hover state.
+        """
+        # Clear hover state by default
+        self.game.hovered_planet = None
+        
+        if not self.game.selected_system or self.game.state != GameState.SYSTEM:
+            return
+            
+        # Get mouse position
+        mouse_pos = pygame.mouse.get_pos()
+        
+        # Check if mouse is within the system view area (not over info panel)
+        rect_check_func = lambda pos: pos[0] < self.available_width
+        
+        # Filter out planets without coordinates
+        valid_planets = [p for p in self.game.selected_system.planets if 'x' in p and 'y' in p]
+        
+        # Use the common hover detection function
+        self.game.hovered_planet = check_hover(
+            mouse_pos,
+            valid_planets,
+            is_within_circle,
+            rect_check_func
+        )
+    
     def draw(self, screen):
         """
         Draw the system view showing planets orbiting the selected star.
@@ -97,6 +131,9 @@ class SystemView:
         Args:
             screen: The pygame surface to draw on
         """
+        # Update hover state
+        self.update()
+        
         # Draw background
         self.game.background.draw_system_background(screen)
         
@@ -118,6 +155,9 @@ class SystemView:
             if self.game.selected_planet:
                 sp = self.game.selected_planet
                 debug(f"Selected: {sp['name']}")
+            if self.game.hovered_planet:
+                hp = self.game.hovered_planet
+                debug(f"Hovered: {hp['name']}")
 
         if self.game.state == GameState.SYSTEM_MENU:
             self.menu.draw(screen)
