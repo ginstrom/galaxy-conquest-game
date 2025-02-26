@@ -2,9 +2,9 @@
 
 This document provides detailed information about configuring the Galaxy Conquest game.
 
-## Configuration File
+## Configuration Files
 
-The game uses a TOML configuration file (`config.toml`) located in the project root directory. This file allows you to override default settings without modifying the code.
+The game uses TOML configuration files located in the `config/` directory. The main configuration file is `config/prefs.toml`, which allows you to override default settings without modifying the code.
 
 ## Configuration Structure
 
@@ -67,7 +67,7 @@ seed = 12345  # Random seed for procedural generation (use 0 for random seed)
 ## How Configuration Works
 
 1. The game first loads default settings from `game/constants.py`.
-2. It then looks for a `config.toml` file in the project root directory.
+2. It then looks for a `config/prefs.toml` file.
 3. Any settings found in the configuration file override the default settings.
 4. If a setting is not specified in the configuration file, the default value is used.
 
@@ -103,10 +103,12 @@ seed = 12345
 
 To modify the configuration:
 
-1. Open `config.toml` in a text editor.
+1. Open `config/prefs.toml` in a text editor.
 2. Change the desired settings.
 3. Save the file.
 4. Restart the game for the changes to take effect.
+
+For detailed instructions on modifying configuration files, see the README.md file in the `config/` directory.
 
 ## Configuration API
 

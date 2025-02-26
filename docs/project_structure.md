@@ -7,7 +7,9 @@ This document provides a detailed overview of the Galaxy Conquest game project s
 ```
 galaxy-conquest/
 ├── galaxy_conquest.py     # Main game entry point
-├── config.toml            # Configuration file
+├── config/               # Configuration directory
+│   ├── prefs.toml        # Player preferences
+│   └── README.md         # Configuration instructions
 ├── game/                  # Game modules
 │   ├── __init__.py
 │   ├── background.py      # Background effects
@@ -68,14 +70,15 @@ galaxy-conquest/
 ### Main Game Files
 
 - **galaxy_conquest.py**: The main entry point for the game. Handles command-line arguments, configuration loading, and initializes the game.
-- **config.toml**: Configuration file for game settings. Can be modified to change game behavior without altering code.
+- **config/prefs.toml**: Configuration file for game settings. Can be modified to change game behavior without altering code.
+- **config/README.md**: Instructions for players on how to modify configuration files.
 
 ### Game Module
 
 The `game` directory contains the core game logic and components:
 
 - **background.py**: Manages the dynamic background effects and star field rendering.
-- **config.py**: Handles loading and parsing of configuration settings from config.toml.
+- **config.py**: Handles loading and parsing of configuration settings from config/prefs.toml.
 - **constants.py**: Defines game-wide constants such as colors, sizes, and default values.
 - **debug.py**: Contains debugging utilities for development and testing.
 - **enums.py**: Defines enumeration types used throughout the game.
@@ -138,4 +141,4 @@ The `tests` directory contains the test suite for the game:
 - Views use components from the game module for functionality.
 - The `infopanel.py` module provides context-specific information panels for each view.
 - The `persistence.py` module interacts with the file system to save and load game state.
-- The `config.py` module loads settings from `config.toml` and provides them to other modules.
+- The `config.py` module loads settings from `config/prefs.toml` and provides them to other modules.

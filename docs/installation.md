@@ -81,7 +81,7 @@ pip install pygame==2.1.3
 
 If you encounter display issues:
 1. Ensure your graphics drivers are up to date
-2. Try running the game with a different resolution by modifying the `config.toml` file
+2. Try running the game with a different resolution by modifying the `config/prefs.toml` file
 
 #### Virtual Environment Issues
 
