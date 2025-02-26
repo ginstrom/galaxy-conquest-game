@@ -30,7 +30,8 @@ test:
 # Run tests with coverage report
 .PHONY: coverage
 coverage:
-	$(VENV_BIN)/python -m pytest --cov=game --cov-report=term-missing
+	$(VENV_BIN)/python -m pytest --cov=game --cov-report=term-missing --cov-report=html
+	open htmlcov/index.html
 
 # Clean up generated files and directories
 .PHONY: clean
@@ -39,6 +40,7 @@ clean:
 	rm -rf __pycache__
 	rm -rf .pytest_cache
 	rm -rf .coverage
+	rm -rf htmlcov
 	find . -name "*.pyc" -delete
 	find . -name "__pycache__" -delete
 
@@ -50,6 +52,6 @@ help:
 	@echo "  setup     - Create virtual environment and install dependencies"
 	@echo "  run       - Run the game"
 	@echo "  test      - Run unit tests"
-	@echo "  coverage  - Run tests with coverage report"
+	@echo "  coverage  - Run tests with coverage report (terminal and HTML) and open report in browser"
 	@echo "  clean     - Clean up generated files and directories"
 	@echo "  help      - Show this help message"
