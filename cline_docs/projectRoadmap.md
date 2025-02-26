@@ -25,6 +25,24 @@
 - [ ] Documentation complete
 
 ## Completed Tasks
+- [2025-02-26] Created player-editable configuration system
+  - Moved `config.toml` to `config/prefs.toml`
+  - Created `config/README.md` with instructions for modifying configurations
+  - Updated references to the configuration file in the codebase and documentation
+  - Improved organization with a dedicated configuration directory
+  - Enhanced user experience by providing clear documentation for customization
+- [2025-02-26] Improved test coverage for Game class
+  - Created a new test file `tests/test_game_coverage.py` with additional tests
+  - Added tests for key Game class methods:
+    - Game state management (new_game, go_to_galaxy_view)
+    - Save/load functionality (save_game, load_game, continue_game)
+    - Navigation (return_to_game, quit_to_main_menu, quit_game)
+    - Star system generation and UI components (draw_save_notification)
+  - Used mocks and fixtures to isolate the Game class from its dependencies
+  - Improved code coverage for game/game.py from 33% to 77%
+  - Overall project coverage improved from 87% to 88%
+  - All tests pass successfully
+
 - [2025-02-26] Moved Game class to dedicated module
   - Moved the `Game` class from `galaxy_conquest.py` to `game/game.py`
   - Updated imports in `galaxy_conquest.py` and `tests/test_game.py`
@@ -115,6 +133,7 @@
    - [x] Improve test coverage for InfoPanel classes
    - [x] Add edge case tests for InfoPanel
    - [x] Improve coverage for galaxy.py and system.py
+   - [x] Improve coverage for game.py
    - [ ] Optimize resource usage
    - [ ] Enhance error handling
 

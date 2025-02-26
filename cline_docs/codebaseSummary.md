@@ -24,7 +24,7 @@ galaxy-conquest-game/
 
 ## Configuration Management
 - Added TOML-based configuration system
-- `config.toml` allows overriding default settings
+- `config/prefs.toml` allows overriding default settings
 - Supports hierarchical configuration with sections:
   * Debug settings
   * Logging configuration
@@ -32,7 +32,7 @@ galaxy-conquest-game/
   * Galaxy generation settings
 - Configuration precedence:
   1. Command-line arguments (highest priority)
-  2. `config.toml` file
+  2. `config/prefs.toml` file
   3. Default settings in `settings.py` (lowest priority)
 
 ## Key Components
@@ -58,6 +58,18 @@ galaxy-conquest-game/
 - High test coverage with detailed assertions
 
 ## Recent Changes
+- [2025-02-26] Improved test coverage for Game class
+  - Created a new test file `tests/test_game_coverage.py` with additional tests
+  - Added tests for key Game class methods:
+    - Game state management (new_game, go_to_galaxy_view)
+    - Save/load functionality (save_game, load_game, continue_game)
+    - Navigation (return_to_game, quit_to_main_menu, quit_game)
+    - Star system generation and UI components (draw_save_notification)
+  - Used mocks and fixtures to isolate the Game class from its dependencies
+  - Improved code coverage for game/game.py from 33% to 77%
+  - Overall project coverage improved from 87% to 88%
+  - All tests pass successfully
+
 - [2025-02-26] Moved Game class to dedicated module
   - Moved the `Game` class from `galaxy_conquest.py` to `game/game.py`
   - Updated imports in `galaxy_conquest.py` and `tests/test_game.py`
@@ -177,7 +189,7 @@ galaxy-conquest-game/
 
 - [2025-02-18] Added configuration management
   - Implemented TOML-based configuration system
-  - Created `config.toml` for flexible game settings
+  - Created configuration files for flexible game settings
   - Added documentation for configuration usage
 
 - [2025-02-18] Added handle_input method to StartupView
