@@ -9,6 +9,7 @@ from game.enums import GameState
 from game.logging_config import get_logger
 from game.menu import Menu, MenuItem
 from game.views.infopanel import GalaxyViewInfoPanel
+from game.views.hover_utils import check_hover, is_within_circle
 
 class GalaxyView:
     """Handles rendering of the galaxy view including star systems and info panel."""
@@ -84,6 +85,19 @@ class GalaxyView:
         self.game.selected_system = None
         self.game.state = GameState.GALAXY_MENU
         self.logger.info("Right click: Transitioning to GALAXY MENU view")
+    
+    def update(self):
+        """
+        Update the galaxy view state, including checking for system hover.
+        
+        This method should be called each frame to update the hover state.
+        Note: The actual hover detection for systems is handled in the main game loop
+        for historical reasons, but this method is included for consistency with
+        other views and potential future refactoring.
+        """
+        # The hover detection for systems is handled in the main game loop
+        # This method is included for consistency with other views
+        pass
 
     def draw(self, screen):
         """
@@ -92,6 +106,8 @@ class GalaxyView:
         Args:
             screen: The pygame surface to draw on
         """
+        # Note: We don't call update() here because system hover detection
+        # is handled in the main game loop
         # Draw background
         self.game.background.draw_galaxy_background(screen)
         

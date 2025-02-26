@@ -12,6 +12,7 @@ from game.enums import GameState
 from game.properties import PlanetProperties
 from game.logging_config import get_logger
 from game.views.infopanel import PlanetViewInfoPanel
+from game.views.hover_utils import check_hover, is_within_circle
 
 class PlanetView:
     """
@@ -94,6 +95,17 @@ class PlanetView:
         self.game.state = GameState.SYSTEM
         self.game.current_view = self.game.system_view
     
+    def update(self):
+        """
+        Update the planet view state, including checking for hover.
+        
+        This method should be called each frame to update the hover state.
+        """
+        # In the planet view, we don't need to track hover state for the planet
+        # since we're already viewing it in detail. This method is included
+        # for consistency with other views.
+        pass
+    
     def draw(self, screen):
         """
         Draw the detailed planet view.
@@ -104,6 +116,8 @@ class PlanetView:
         Args:
             screen: The pygame surface to draw on
         """
+        # Update hover state (for consistency with other views)
+        self.update()
         if not self.game.selected_planet:
             self.logger.warning("No planet selected to draw")
             return
