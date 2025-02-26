@@ -1,27 +1,30 @@
 ## Current Objective
-Create a Makefile system with commands for running the game and running unit tests.
+Unify hover handling logic for planets and systems.
 
 ## Context
-The project currently requires manual commands to run the game and execute tests. A Makefile will streamline these operations and provide a consistent interface for common development tasks.
+Previously, hover handling was implemented differently for planets in the system view and star systems in the galaxy view. The planet hover detection was in the `SystemView.update()` method, while the system hover detection was directly in the main game loop in `galaxy_conquest.py`. This inconsistency made the code harder to maintain and extend.
 
-## Plan
-1. Create a Makefile in the project root with the following targets:
-   - `run`: Activate the virtual environment and run the game
-   - `test`: Activate the virtual environment and run the unit tests using pytest
-   - `setup`: Create and activate the virtual environment and install dependencies
+## Completed Tasks
+1. Created a new `hover_utils.py` module with common hover detection functions:
+   - `check_hover`: A generic function to check if the mouse is hovering over any object in a list
+   - `is_within_circle`: A helper function to check if the mouse is within a circular object
 
-2. Ensure the Makefile works across different platforms (macOS, Linux)
+2. Updated hover detection in the main game loop to use the common functions for system hover detection
 
-3. Update documentation to reference the new Makefile commands
+3. Updated the `SystemView.update()` method to use the common functions for planet hover detection
+
+4. Added an `update()` method to the `PlanetView` class for consistency with other views
+
+5. Added an `update()` method to the `GalaxyView` class for consistency with other views
 
 ## Impact
-- Simplified workflow for running the game and tests
-- Consistent interface for common development tasks
-- Improved developer experience
-- Reduced friction for new contributors
+- Unified hover handling across different game views
+- Improved code maintainability and readability
+- Made the codebase more consistent and easier to extend
+- Reduced code duplication
 
 ## Next Steps
-1. Create the Makefile with the necessary targets
-2. Test the Makefile to ensure it works as expected
-3. Update the documentation to reference the new Makefile commands
-4. Update codebaseSummary.md to reflect the addition of the Makefile
+1. Update tests to verify the unified hover functionality works correctly
+2. Consider refactoring the main game loop to delegate hover detection to each view's `update()` method
+3. Explore adding hover effects (e.g., highlighting) to improve visual feedback
+4. Update documentation to reflect the architectural changes

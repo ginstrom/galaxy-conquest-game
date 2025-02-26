@@ -57,6 +57,23 @@ galaxy-conquest-game/
 - High test coverage with detailed assertions
 
 ## Recent Changes
+- [2025-02-25] Unified hover handling for planets and systems
+  - Created a new `hover_utils.py` module with common hover detection functions:
+    - `check_hover`: A generic function to check if the mouse is hovering over any object
+    - `is_within_circle`: A helper function to check if the mouse is within a circular object
+  - Updated hover detection in the main game loop to use the common functions
+  - Updated the `SystemView.update()` method to use the common functions
+  - Added `update()` methods to `PlanetView` and `GalaxyView` classes for consistency
+  - Improved code maintainability and reduced duplication
+  - Made the codebase more consistent and easier to extend
+- [2025-02-25] Implemented planet hover functionality in system view
+  - Added hover detection in SystemView to track when the mouse is over a planet
+  - Updated Game class to include a `hovered_planet` attribute
+  - Modified SystemViewInfoPanel to display information about the hovered planet
+  - Added tests to verify the hover functionality works correctly
+  - Enhanced user experience by providing immediate feedback when hovering over planets
+  - Improved information display without requiring user clicks
+
 - [2025-02-25] Added Makefile system for common development tasks
   - Created a Makefile with targets for running the game and tests
   - Added `setup` target for easy environment setup and dependency installation
