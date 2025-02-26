@@ -80,7 +80,7 @@ def test_load_config_from_toml(mock_settings):
     mock_file = mock_open(read_data=SAMPLE_CONFIG)
     with patch('os.path.exists', return_value=True), \
          patch('builtins.open', mock_file):
-        config = load_config('config.toml', args=[])
+        config = load_config('config/prefs.toml', args=[])
         
         assert config['debug']['enabled'] is True
         assert config['logging']['level'] == "INFO"
@@ -91,7 +91,7 @@ def test_load_config_with_cli_override(mock_settings):
     """Test command-line arguments overriding configuration."""
     test_args = ['--debug', 'True', '--screen-width', '1280', '--num-star-systems', '20']
     with patch('os.path.exists', return_value=False):
-        config = load_config('config.toml', args=test_args)
+        config = load_config('config/prefs.toml', args=test_args)
         
         assert config['debug']['enabled'] is True
         assert config['game']['screen_width'] == 1280
@@ -158,7 +158,7 @@ def test_load_config_invalid_toml(mock_settings):
     with patch('os.path.exists', return_value=True), \
          patch('builtins.open', mock_file), \
          patch('builtins.print') as mock_print:
-        config = load_config('config.toml', args=[])
+        config = load_config('config/prefs.toml', args=[])
         
         # Should fall back to default values
         assert config['debug']['enabled'] == mock_settings.DEBUG
@@ -176,7 +176,7 @@ def test_load_config_partial_toml(mock_settings):
     
     with patch('os.path.exists', return_value=True), \
          patch('builtins.open', mock_file):
-        config = load_config('config.toml', args=[])
+        config = load_config('config/prefs.toml', args=[])
         
         # Specified values should be loaded
         assert config['game']['screen_width'] == 1024

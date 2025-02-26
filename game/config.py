@@ -22,7 +22,7 @@ def parse_arguments(args):
     return parser.parse_args()
 
 
-def load_config(default_config_path='config.toml', args=None):
+def load_config(default_config_path='config/prefs.toml', args=None):
     """
     Load configuration from TOML file with optional command-line argument overrides.
     
