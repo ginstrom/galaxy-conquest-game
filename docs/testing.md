@@ -54,14 +54,22 @@ python -m pytest tests/test_infopanel.py::test_info_panel_initialization
 ```bash
 # Using Makefile (recommended)
 make coverage
+# This generates both a terminal report and an HTML report in the htmlcov/ directory
+# and automatically opens the HTML report in your default browser
 
 # Manual method
 python -m pytest --cov=game tests/
 
-# Generate HTML coverage report
+# Generate only HTML coverage report
 python -m pytest --cov=game --cov-report=html tests/
-# This creates a htmlcov/ directory with an interactive coverage report
 ```
+
+The HTML coverage report provides an interactive way to explore test coverage. The `make coverage` command automatically opens the report in your default browser. This allows you to:
+
+- See overall coverage statistics
+- Drill down into specific modules
+- View line-by-line coverage with color coding
+- Identify untested code sections
 
 ## Test Structure
 

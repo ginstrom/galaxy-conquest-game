@@ -128,15 +128,35 @@ def test_planet_view():
 We use pytest-cov to track test coverage:
 
 ```bash
+# Terminal coverage report
 pytest --cov=game tests/
+
+# HTML coverage report
+pytest --cov=game --cov-report=html tests/
+
+# Both terminal and HTML reports (recommended)
+pytest --cov=game --cov-report=term-missing --cov-report=html tests/
 ```
+
+The Makefile provides a convenient way to generate both terminal and HTML coverage reports:
+
+```bash
+make coverage
+```
+
+This creates an HTML report in the `htmlcov/` directory and automatically opens it in your default browser. The interactive report provides:
+
+- Overall coverage statistics
+- Module-by-module breakdown
+- Line-by-line coverage highlighting
+- Easy identification of untested code
 
 Coverage targets:
 - Overall project: 80%+
 - Core game logic: 90%+
 - UI components: 75%+
 
-When adding new features, tests should be written to maintain or improve these coverage targets.
+When adding new features, tests should be written to maintain or improve these coverage targets. Use the HTML coverage report to identify areas needing additional test coverage.
 
 ## Edge Case Testing
 
