@@ -142,6 +142,7 @@ class SystemViewInfoPanel(InfoPanel):
     Responsible for displaying:
     - Selected system information
     - Selected planet details
+    - Hovered planet details
     """
     
     def draw(self, screen):
@@ -176,8 +177,42 @@ class SystemViewInfoPanel(InfoPanel):
             )
             screen.blit(planets_text, (self.panel_rect.left + 10, y))
             
-            # Draw selected planet info
-            if self.game.selected_planet and self.game.state == GameState.SYSTEM:
+            # Draw hovered planet info if available
+            if self.game.hovered_planet and self.game.state == GameState.SYSTEM:
+                y += 60
+                pygame.draw.line(screen, GRAY,
+                            (self.panel_rect.left + 10, y),
+                            (self.panel_rect.right - 10, y))
+                
+                y += 20
+                planet_name = self.game.info_font.render(
+                    self.game.hovered_planet['name'],
+                    True, WHITE
+                )
+                screen.blit(planet_name, (self.panel_rect.left + 10, y))
+                
+                y += 40
+                planet_type = self.game.info_font.render(
+                    f"Type: {self.game.hovered_planet['type'].value}",
+                    True, WHITE
+                )
+                screen.blit(planet_type, (self.panel_rect.left + 10, y))
+                
+                y += 40
+                resources_title = self.game.info_font.render("Resources:", True, WHITE)
+                screen.blit(resources_title, (self.panel_rect.left + 10, y))
+                
+                y += 30
+                for resource in self.game.hovered_planet['resources']:
+                    resource_text = self.game.detail_font.render(
+                        f"{resource['type'].value}: {resource['amount']}",
+                        True, WHITE
+                    )
+                    screen.blit(resource_text, (self.panel_rect.left + 20, y))
+                    y += 25
+            
+            # Draw selected planet info if no planet is hovered
+            elif self.game.selected_planet and self.game.state == GameState.SYSTEM:
                 y += 60
                 pygame.draw.line(screen, GRAY,
                             (self.panel_rect.left + 10, y),
