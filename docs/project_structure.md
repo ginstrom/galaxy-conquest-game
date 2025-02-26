@@ -15,6 +15,7 @@ galaxy-conquest/
 │   ├── constants.py       # Game constants
 │   ├── debug.py           # Debugging utilities
 │   ├── enums.py           # Game enums
+│   ├── game.py            # Main Game class
 │   ├── logging_config.py  # Logging configuration
 │   ├── menu.py            # Menu system
 │   ├── persistence.py     # Save/load functionality
@@ -24,6 +25,7 @@ galaxy-conquest/
 │   └── views/             # Game view components
 │       ├── __init__.py
 │       ├── galaxy.py      # Galaxy view
+│       ├── hover_utils.py # Hover detection utilities
 │       ├── infopanel.py   # Information panels
 │       ├── planet.py      # Planet view
 │       ├── startup.py     # Startup view
@@ -35,13 +37,17 @@ galaxy-conquest/
 │   ├── test_background.py
 │   ├── test_config.py
 │   ├── test_game.py
+│   ├── test_galaxy.py
+│   ├── test_hover_utils.py
 │   ├── test_infopanel.py
 │   ├── test_menu.py
 │   ├── test_persistence.py
 │   ├── test_planet.py
+│   ├── test_planet_view.py
 │   ├── test_resources.py
 │   ├── test_star_system.py
 │   ├── test_startup.py
+│   ├── test_system.py
 │   └── test_view_panel_integration.py
 ├── img/                   # Game assets
 ├── saves/                 # Save game files
@@ -61,7 +67,7 @@ galaxy-conquest/
 
 ### Main Game Files
 
-- **galaxy_conquest.py**: The main entry point for the game. Initializes the game environment, sets up the display, and manages the game loop.
+- **galaxy_conquest.py**: The main entry point for the game. Handles command-line arguments, configuration loading, and initializes the game.
 - **config.toml**: Configuration file for game settings. Can be modified to change game behavior without altering code.
 
 ### Game Module
@@ -73,6 +79,7 @@ The `game` directory contains the core game logic and components:
 - **constants.py**: Defines game-wide constants such as colors, sizes, and default values.
 - **debug.py**: Contains debugging utilities for development and testing.
 - **enums.py**: Defines enumeration types used throughout the game.
+- **game.py**: Implements the main Game class that manages game state, resources, and rendering.
 - **logging_config.py**: Configures the logging system for the game.
 - **menu.py**: Implements the menu system with keyboard and mouse support.
 - **persistence.py**: Handles saving and loading game state.
@@ -85,6 +92,7 @@ The `game` directory contains the core game logic and components:
 The `game/views` directory contains the different view components of the game:
 
 - **galaxy.py**: Implements the galaxy view, showing the overall map of star systems.
+- **hover_utils.py**: Provides common utilities for hover detection across different views.
 - **infopanel.py**: Implements information panels that display context-specific information.
 - **planet.py**: Implements the planet view, showing detailed information about a selected planet.
 - **startup.py**: Implements the startup view, including the main menu and game initialization.
@@ -125,7 +133,8 @@ The `tests` directory contains the test suite for the game:
 
 ## Module Relationships
 
-- The main game loop in `galaxy_conquest.py` initializes and manages the different views.
+- The main script `galaxy_conquest.py` initializes the Game class from `game.py`.
+- The Game class manages the different views and game state.
 - Views use components from the game module for functionality.
 - The `infopanel.py` module provides context-specific information panels for each view.
 - The `persistence.py` module interacts with the file system to save and load game state.

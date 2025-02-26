@@ -3,6 +3,7 @@
 galaxy-conquest-game/
 ├── game/               # Game source code
 │   ├── views/         # Game view components
+│   ├── game.py        # Main Game class
 │   ├── resources.py   # Resource management
 │   ├── star_system.py # Star system logic
 │   └── menu.py        # Menu system
@@ -57,6 +58,14 @@ galaxy-conquest-game/
 - High test coverage with detailed assertions
 
 ## Recent Changes
+- [2025-02-26] Moved Game class to dedicated module
+  - Moved the `Game` class from `galaxy_conquest.py` to `game/game.py`
+  - Updated imports in `galaxy_conquest.py` and `tests/test_game.py`
+  - Simplified the main script to focus on initialization and configuration
+  - Improved code organization and maintainability
+  - Better separation of concerns between the main script and the game logic
+  - All tests pass with 81% code coverage (above the 80% target)
+
 - [2025-02-26] Improved test coverage for game/views directory
   - Added comprehensive test suites for previously under-tested view components:
     - `hover_utils.py`: Tests for hover detection utilities

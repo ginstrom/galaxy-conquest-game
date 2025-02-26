@@ -25,6 +25,14 @@
 - [ ] Documentation complete
 
 ## Completed Tasks
+- [2025-02-26] Moved Game class to dedicated module
+  - Moved the `Game` class from `galaxy_conquest.py` to `game/game.py`
+  - Updated imports in `galaxy_conquest.py` and `tests/test_game.py`
+  - Simplified the main script to focus on initialization and configuration
+  - Improved code organization and maintainability
+  - Better separation of concerns between the main script and the game logic
+  - All tests pass with 81% code coverage (above the 80% target)
+
 - [2025-02-26] Improved test coverage for game/views directory
   - Added comprehensive test suites for previously under-tested view components:
     - `hover_utils.py`: Tests for hover detection utilities

@@ -1,7 +1,7 @@
 """Tests for the main Game class."""
 import pytest
 import pygame
-from galaxy_conquest import Game
+from game.game import Game
 from game.enums import GameState
 
 @pytest.fixture

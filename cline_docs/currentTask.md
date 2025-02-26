@@ -1,42 +1,27 @@
 ## Current Objective
-Improve test coverage for the `game/views` directory.
+Completed: Move the `Game` class from galaxy_conquest.py to a new file `game/game.py`.
 
 ## Context
-We have identified several modules in the `game/views` directory with lower test coverage than our target threshold. Specifically, `galaxy.py` (52%), `hover_utils.py` (73%), `planet.py` (78%), and `system.py` (60%) need additional tests to improve coverage. The `infopanel.py` file already has 100% coverage.
+The `Game` class was previously defined in the main `galaxy_conquest.py` file. To improve code organization and maintainability, we moved it to a dedicated file in the game module. The `Game` class is only referenced in galaxy_conquest.py, so this refactoring was straightforward.
 
-## Completed Tasks
-1. Created comprehensive test suite for `hover_utils.py`:
-   - Added tests for `check_hover` function with various scenarios
-   - Added tests for `is_within_circle` function with different object types
-   - Covered edge cases like missing center coordinates or radius
-
-2. Created comprehensive test suite for `galaxy.py`:
-   - Added tests for `GalaxyView` initialization
-   - Added tests for key handling (escape and other keys)
-   - Added tests for mouse click handling (left and right clicks)
-   - Added tests for drawing in different game states
-
-3. Created comprehensive test suite for `system.py`:
-   - Added tests for `SystemView` initialization
-   - Added tests for key handling (escape and other keys)
-   - Added tests for mouse click handling (clicks on planets and outside planets)
-   - Added tests for the update method (hover detection)
-   - Added tests for drawing in different game states
-
-4. Created comprehensive test suite for `planet.py`:
-   - Added tests for `PlanetView` initialization
-   - Added tests for key handling (escape and other keys)
-   - Added tests for mouse click handling (clicks in different areas)
-   - Added tests for drawing with and without a selected planet
+## Completed Steps
+1. Created a new file `game/game.py`
+2. Moved the `Game` class from `galaxy_conquest.py` to `game/game.py`
+3. Added necessary imports to `game/game.py`
+4. Updated `galaxy_conquest.py` to import the `Game` class from `game/game.py`
+5. Updated imports in `tests/test_game.py` to reference the new location
+6. Ran tests to ensure everything works correctly
+7. Updated documentation in project_structure.md to reflect the new structure
+8. Updated codebaseSummary.md and projectRoadmap.md with the changes
 
 ## Impact
-- Improved test coverage for the `game/views` directory
-- Better verification of key game interactions like hover detection, selection, and state transitions
-- Enhanced ability to detect regressions in view components
-- More comprehensive testing of edge cases and error conditions
+- Improved code organization with the `Game` class in its own module
+- Better separation of concerns between the main script and the game logic
+- Consistent with the project's modular structure
+- No functional changes to the game behavior
+- All tests pass with 81% code coverage (above the 80% target)
 
 ## Next Steps
-1. Run the coverage report to verify the improved test coverage
-2. Address any remaining gaps in test coverage
-3. Consider adding integration tests for interactions between different view components
-4. Update documentation to reflect the improved test coverage
+1. Continue with the next task in the project roadmap
+2. Consider refactoring other large classes into their own modules if needed
+3. Look for opportunities to improve test coverage for the Game class (currently at 33%)
