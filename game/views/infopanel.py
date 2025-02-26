@@ -266,15 +266,45 @@ class PlanetViewInfoPanel(InfoPanel):
         super().draw(screen)
         
         if self.game.selected_planet:
+            # Display selected system info if available
+            if self.game.selected_system:
+                y = 20
+                name_text = self.game.title_font.render(
+                    self.game.selected_system.name, True, WHITE
+                )
+                screen.blit(name_text, (self.panel_rect.left + 10, y))
+                
+                y += 50
+                type_text = self.game.info_font.render(
+                    f"Type: {self.game.selected_system.star_type.value}",
+                    True, self.game.selected_system.color
+                )
+                screen.blit(type_text, (self.panel_rect.left + 10, y))
+                
+                y += 40
+                planets_text = self.game.info_font.render(
+                    f"Planets: {len(self.game.selected_system.planets)}",
+                    True, WHITE
+                )
+                screen.blit(planets_text, (self.panel_rect.left + 10, y))
+                
+                # Draw a separator line
+                y += 60
+                pygame.draw.line(screen, GRAY,
+                            (self.panel_rect.left + 10, y),
+                            (self.panel_rect.right - 10, y))
+                y += 20
+            else:
+                y = 20
+            
             # Display detailed planet information
-            y = 20
-            planet_name = self.game.title_font.render(
+            planet_name = self.game.info_font.render(
                 self.game.selected_planet['name'],
                 True, WHITE
             )
             screen.blit(planet_name, (self.panel_rect.left + 10, y))
             
-            y += 50
+            y += 40
             planet_type = self.game.info_font.render(
                 f"Type: {self.game.selected_planet['type'].value}",
                 True, WHITE

@@ -58,6 +58,13 @@ galaxy-conquest-game/
 - High test coverage with detailed assertions
 
 ## Recent Changes
+- [2025-02-26] Enhanced PlanetViewInfoPanel to display system information
+  - Updated the PlanetViewInfoPanel to display system information at the top of the panel
+  - Added system name, type, and planet count to the panel
+  - Added a separator line between system information and planet details
+  - Maintained consistency with the SystemViewInfoPanel display style
+  - Improved user experience by providing context about the current system
+  - All tests pass successfully with no regressions
 - [2025-02-26] Improved test coverage for Game class
   - Created a new test file `tests/test_game_coverage.py` with additional tests
   - Added tests for key Game class methods:
