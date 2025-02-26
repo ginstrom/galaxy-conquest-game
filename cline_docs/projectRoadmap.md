@@ -25,6 +25,24 @@
 - [ ] Documentation complete
 
 ## Completed Tasks
+- [2025-02-26] Improved test coverage for game/views directory
+  - Added comprehensive test suites for previously under-tested view components:
+    - `hover_utils.py`: Tests for hover detection utilities
+    - `galaxy.py`: Tests for GalaxyView initialization, input handling, and drawing
+    - `system.py`: Tests for SystemView initialization, input handling, hover detection, and drawing
+    - `planet.py`: Tests for PlanetView initialization, input handling, and drawing
+  - Focused on testing key interactions like key handling, mouse clicks, hover detection, and state transitions
+  - Enhanced ability to detect regressions in view components
+  - Added tests for edge cases and error conditions
+  - Improved overall test coverage for the views directory
+
+- [2025-02-26] Enhanced test coverage reporting with HTML reports
+  - Updated the Makefile's `coverage` target to generate both terminal and HTML reports
+  - Added HTML report cleaning to the `clean` target
+  - Updated documentation to explain how to use the HTML coverage reports
+  - Enhanced the `coverage` target to automatically open the HTML report in the default browser
+  - Improved developer experience by providing visual coverage analysis
+
 - [2025-02-25] Unified hover handling for planets and systems
   - Created a new `hover_utils.py` module with common hover detection functions
   - Updated hover detection in the main game loop and SystemView to use common functions
@@ -88,7 +106,7 @@
 2. Code Quality
    - [x] Improve test coverage for InfoPanel classes
    - [x] Add edge case tests for InfoPanel
-   - [ ] Improve coverage for galaxy.py and system.py
+   - [x] Improve coverage for galaxy.py and system.py
    - [ ] Optimize resource usage
    - [ ] Enhance error handling
 
@@ -101,10 +119,10 @@
 
 ## Next Steps
 1. Testing
-   - Improve coverage for galaxy.py and system.py
    - Create comprehensive testing guidelines
    - Add performance tests
    - Document testing best practices
+   - Add tests for remaining modules with lower coverage
 
 2. Features
    - Complete save/load system

@@ -1,30 +1,42 @@
 ## Current Objective
-Unify hover handling logic for planets and systems.
+Improve test coverage for the `game/views` directory.
 
 ## Context
-Previously, hover handling was implemented differently for planets in the system view and star systems in the galaxy view. The planet hover detection was in the `SystemView.update()` method, while the system hover detection was directly in the main game loop in `galaxy_conquest.py`. This inconsistency made the code harder to maintain and extend.
+We have identified several modules in the `game/views` directory with lower test coverage than our target threshold. Specifically, `galaxy.py` (52%), `hover_utils.py` (73%), `planet.py` (78%), and `system.py` (60%) need additional tests to improve coverage. The `infopanel.py` file already has 100% coverage.
 
 ## Completed Tasks
-1. Created a new `hover_utils.py` module with common hover detection functions:
-   - `check_hover`: A generic function to check if the mouse is hovering over any object in a list
-   - `is_within_circle`: A helper function to check if the mouse is within a circular object
+1. Created comprehensive test suite for `hover_utils.py`:
+   - Added tests for `check_hover` function with various scenarios
+   - Added tests for `is_within_circle` function with different object types
+   - Covered edge cases like missing center coordinates or radius
 
-2. Updated hover detection in the main game loop to use the common functions for system hover detection
+2. Created comprehensive test suite for `galaxy.py`:
+   - Added tests for `GalaxyView` initialization
+   - Added tests for key handling (escape and other keys)
+   - Added tests for mouse click handling (left and right clicks)
+   - Added tests for drawing in different game states
 
-3. Updated the `SystemView.update()` method to use the common functions for planet hover detection
+3. Created comprehensive test suite for `system.py`:
+   - Added tests for `SystemView` initialization
+   - Added tests for key handling (escape and other keys)
+   - Added tests for mouse click handling (clicks on planets and outside planets)
+   - Added tests for the update method (hover detection)
+   - Added tests for drawing in different game states
 
-4. Added an `update()` method to the `PlanetView` class for consistency with other views
-
-5. Added an `update()` method to the `GalaxyView` class for consistency with other views
+4. Created comprehensive test suite for `planet.py`:
+   - Added tests for `PlanetView` initialization
+   - Added tests for key handling (escape and other keys)
+   - Added tests for mouse click handling (clicks in different areas)
+   - Added tests for drawing with and without a selected planet
 
 ## Impact
-- Unified hover handling across different game views
-- Improved code maintainability and readability
-- Made the codebase more consistent and easier to extend
-- Reduced code duplication
+- Improved test coverage for the `game/views` directory
+- Better verification of key game interactions like hover detection, selection, and state transitions
+- Enhanced ability to detect regressions in view components
+- More comprehensive testing of edge cases and error conditions
 
 ## Next Steps
-1. Update tests to verify the unified hover functionality works correctly
-2. Consider refactoring the main game loop to delegate hover detection to each view's `update()` method
-3. Explore adding hover effects (e.g., highlighting) to improve visual feedback
-4. Update documentation to reflect the architectural changes
+1. Run the coverage report to verify the improved test coverage
+2. Address any remaining gaps in test coverage
+3. Consider adding integration tests for interactions between different view components
+4. Update documentation to reflect the improved test coverage

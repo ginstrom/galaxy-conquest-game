@@ -57,6 +57,30 @@ galaxy-conquest-game/
 - High test coverage with detailed assertions
 
 ## Recent Changes
+- [2025-02-26] Improved test coverage for game/views directory
+  - Added comprehensive test suites for previously under-tested view components:
+    - `hover_utils.py`: Tests for hover detection utilities
+    - `galaxy.py`: Tests for GalaxyView initialization, input handling, and drawing
+    - `system.py`: Tests for SystemView initialization, input handling, hover detection, and drawing
+    - `planet.py`: Tests for PlanetView initialization, input handling, and drawing
+  - Focused on testing key interactions:
+    - Key handling (escape and other keys)
+    - Mouse click handling (left and right clicks)
+    - Hover detection
+    - State transitions between views
+    - Drawing in different game states
+  - Improved overall test coverage for the views directory
+  - Enhanced ability to detect regressions in view components
+  - Added tests for edge cases and error conditions
+
+- [2025-02-26] Enhanced test coverage reporting with HTML reports
+  - Updated the Makefile's `coverage` target to generate both terminal and HTML reports
+  - Added HTML report cleaning to the `clean` target
+  - Updated documentation in testing.md to explain how to use the HTML coverage reports
+  - Enhanced the `coverage` target to automatically open the HTML report in the default browser
+  - Improved developer experience by providing visual coverage analysis
+  - Made it easier to identify areas needing more test coverage
+
 - [2025-02-25] Unified hover handling for planets and systems
   - Created a new `hover_utils.py` module with common hover detection functions:
     - `check_hover`: A generic function to check if the mouse is hovering over any object
