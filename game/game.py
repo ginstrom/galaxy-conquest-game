@@ -11,6 +11,7 @@ and high-level game mechanics. It implements the main Game class which manages:
 
 import json
 import pygame
+import pygame_gui
 import random
 
 from game.debug import debug, clear_debug, draw_debug, toggle_debug
@@ -70,6 +71,10 @@ class Game:
         self.info_font = self.resource_manager.get_font(36)
         self.detail_font = self.resource_manager.get_font(24)
         self.logger.debug("Fonts initialized")
+        
+        # Initialize pygame_gui
+        self.ui_manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.logger.debug("UI manager initialized")
         
         # Initialize views
         self.startup_view = StartupView(self)
@@ -256,7 +261,12 @@ class Game:
         try:
             menu_states = [GameState.STARTUP_MENU, GameState.GALAXY_MENU, GameState.SYSTEM_MENU]
             while running:
+                time_delta = self.clock.tick(60) / 1000.0  # Time since last frame in seconds
+                
                 for event in pygame.event.get():
+                    # Process pygame_gui events first
+                    self.ui_manager.process_events(event)
+                    
                     if event.type == pygame.QUIT:
                         running = False
                     
@@ -286,6 +296,9 @@ class Game:
                     elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
                         self.current_view.handle_right_click(event.pos)
                 
+                # Update pygame_gui
+                self.ui_manager.update(time_delta)
+                
                 # Clear debug info at start of frame
                 clear_debug()
                 
@@ -314,6 +327,9 @@ class Game:
                 self.screen.fill((0, 0, 0))
                 
                 self.current_view.draw(self.screen)
+                
+                # Draw pygame_gui elements
+                self.ui_manager.draw_ui(self.screen)
                 
                 # Draw save notification
                 self.draw_save_notification(self.screen)
