@@ -29,16 +29,46 @@ def mock_screen():
     return MockSurface((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 @pytest.fixture
-def system_view(mock_game):
+def system_view(mock_game, monkeypatch):
     """Create a SystemView instance for testing."""
-    return SystemView(mock_game)
+    # Mock the SystemViewInfoPanel class to avoid pygame_gui initialization
+    mock_panel = MagicMock()
+    mock_panel.panel_width = 300
+    
+    # Create a mock class for SystemViewInfoPanel
+    MockSystemViewInfoPanel = MagicMock(return_value=mock_panel)
+    
+    # Patch the SystemViewInfoPanel import in system.py
+    monkeypatch.setattr('game.views.system.SystemViewInfoPanel', MockSystemViewInfoPanel)
+    
+    # Now create the SystemView instance
+    view = SystemView(mock_game)
+    
+    # Ensure the view has the mock panel
+    view.panel = mock_panel
+    
+    return view
 
 class TestSystemViewInitialization:
     """Tests for SystemView initialization."""
     
-    def test_initialization(self, mock_game):
+    def test_initialization(self, mock_game, monkeypatch):
         """Test that SystemView initializes correctly."""
+        # Mock the SystemViewInfoPanel class to avoid pygame_gui initialization
+        mock_panel = MagicMock()
+        mock_panel.panel_width = 300
+        
+        # Create a mock class for SystemViewInfoPanel
+        MockSystemViewInfoPanel = MagicMock(return_value=mock_panel)
+        
+        # Patch the SystemViewInfoPanel import in system.py
+        monkeypatch.setattr('game.views.system.SystemViewInfoPanel', MockSystemViewInfoPanel)
+        
+        # Now create the SystemView instance
         view = SystemView(mock_game)
+        
+        # Ensure the view has the mock panel
+        view.panel = mock_panel
         
         assert view.game == mock_game
         assert view.panel is not None

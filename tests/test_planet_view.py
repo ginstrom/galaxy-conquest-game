@@ -29,16 +29,46 @@ def mock_screen():
     return MockSurface((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 @pytest.fixture
-def planet_view(mock_game):
+def planet_view(mock_game, monkeypatch):
     """Create a PlanetView instance for testing."""
-    return PlanetView(mock_game)
+    # Mock the PlanetViewInfoPanel class to avoid pygame_gui initialization
+    mock_panel = MagicMock()
+    mock_panel.panel_width = 300
+    
+    # Create a mock class for PlanetViewInfoPanel
+    MockPlanetViewInfoPanel = MagicMock(return_value=mock_panel)
+    
+    # Patch the PlanetViewInfoPanel import in planet.py
+    monkeypatch.setattr('game.views.planet.PlanetViewInfoPanel', MockPlanetViewInfoPanel)
+    
+    # Now create the PlanetView instance
+    view = PlanetView(mock_game)
+    
+    # Ensure the view has the mock panel
+    view.panel = mock_panel
+    
+    return view
 
 class TestPlanetViewInitialization:
     """Tests for PlanetView initialization."""
     
-    def test_initialization(self, mock_game):
+    def test_initialization(self, mock_game, monkeypatch):
         """Test that PlanetView initializes correctly."""
+        # Mock the PlanetViewInfoPanel class to avoid pygame_gui initialization
+        mock_panel = MagicMock()
+        mock_panel.panel_width = 300
+        
+        # Create a mock class for PlanetViewInfoPanel
+        MockPlanetViewInfoPanel = MagicMock(return_value=mock_panel)
+        
+        # Patch the PlanetViewInfoPanel import in planet.py
+        monkeypatch.setattr('game.views.planet.PlanetViewInfoPanel', MockPlanetViewInfoPanel)
+        
+        # Now create the PlanetView instance
         view = PlanetView(mock_game)
+        
+        # Ensure the view has the mock panel
+        view.panel = mock_panel
         
         assert view.game == mock_game
         assert view.panel is not None
@@ -144,30 +174,54 @@ class TestPlanetViewUpdate:
 class TestPlanetViewDrawing:
     """Tests for PlanetView drawing."""
     
-    def test_draw_with_selected_planet(self, planet_view, mock_game, mock_screen):
+    @patch('pygame.draw.circle')
+    def test_draw_with_selected_planet(self, mock_draw_circle, planet_view, mock_game, mock_screen):
         """Test drawing with a selected planet."""
-        # Create a mock planet
-        planet = {
-            'name': 'Test Planet',
-            'type': PlanetType.TERRESTRIAL,
-            'size': 20,
-            'resources': [
-                {'type': ResourceType.MINERALS, 'amount': 75},
-                {'type': ResourceType.WATER, 'amount': 50}
-            ]
-        }
-        mock_game.selected_planet = planet
+        # Create mock font objects
+        mock_title_font = MagicMock()
+        mock_title_font.render.return_value = MockSurface((100, 30))
+        mock_info_font = MagicMock()
+        mock_info_font.render.return_value = MockSurface((100, 20))
         
-        # Mock the background and panel draw methods
-        mock_game.background.draw_system_background = MagicMock()
-        planet_view.panel.draw = MagicMock()
+        # Replace the real font objects with our mocks
+        original_title_font = planet_view.title_font
+        original_info_font = planet_view.info_font
+        planet_view.title_font = mock_title_font
+        planet_view.info_font = mock_info_font
         
-        # Draw the view
-        planet_view.draw(mock_screen)
-        
-        # Verify that the background and panel were drawn
-        mock_game.background.draw_system_background.assert_called_once_with(mock_screen)
-        planet_view.panel.draw.assert_called_once_with(mock_screen)
+        try:
+            # Create a mock planet
+            planet = {
+                'name': 'Test Planet',
+                'type': PlanetType.TERRESTRIAL,
+                'size': 20,
+                'resources': [
+                    {'type': ResourceType.MINERALS, 'amount': 75},
+                    {'type': ResourceType.WATER, 'amount': 50}
+                ]
+            }
+            mock_game.selected_planet = planet
+            
+            # Mock the background and panel draw methods
+            mock_game.background.draw_system_background = MagicMock()
+            
+            # Mock PlanetProperties.PROPERTIES to avoid KeyError
+            with patch('game.views.planet.PlanetProperties.PROPERTIES', {
+                PlanetType.TERRESTRIAL: {'color': (0, 255, 0)}
+            }):
+                # Draw the view
+                planet_view.draw(mock_screen)
+            
+            # Verify that the background and panel were drawn
+            mock_game.background.draw_system_background.assert_called_once_with(mock_screen)
+            planet_view.panel.draw.assert_called_once_with(mock_screen)
+            
+            # Verify that pygame.draw.circle was called
+            mock_draw_circle.assert_called_once()
+        finally:
+            # Restore the original font objects
+            planet_view.title_font = original_title_font
+            planet_view.info_font = original_info_font
     
     def test_draw_without_selected_planet(self, planet_view, mock_game, mock_screen):
         """Test drawing without a selected planet."""

@@ -5,6 +5,7 @@ import pygame
 from unittest.mock import MagicMock, patch
 
 from game.views.galaxy import GalaxyView
+from game.views.infopanel import GalaxyViewInfoPanel
 from game.enums import GameState
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from tests.mocks import MockGame, MockSurface
@@ -29,23 +30,34 @@ def mock_screen():
     return MockSurface((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 @pytest.fixture
-def galaxy_view(mock_game):
+def mock_panel(mock_game):
+    """Create a mock panel for testing."""
+    panel = MagicMock(spec=GalaxyViewInfoPanel)
+    panel.panel_width = 300
+    panel.draw = MagicMock()
+    return panel
+
+@pytest.fixture
+def galaxy_view(mock_game, mock_panel):
     """Create a GalaxyView instance for testing."""
-    return GalaxyView(mock_game)
+    with patch('game.views.galaxy.GalaxyViewInfoPanel', return_value=mock_panel):
+        view = GalaxyView(mock_game)
+        return view
 
 class TestGalaxyViewInitialization:
     """Tests for GalaxyView initialization."""
     
-    def test_initialization(self, mock_game):
+    def test_initialization(self, mock_game, mock_panel):
         """Test that GalaxyView initializes correctly."""
-        view = GalaxyView(mock_game)
-        
-        assert view.game == mock_game
-        assert view.panel is not None
-        assert view.galaxy_rect.width == SCREEN_WIDTH - view.panel.panel_width
-        assert view.galaxy_rect.height == SCREEN_HEIGHT
-        assert view.menu is not None
-        assert len(view.menu.items) == 5  # Check that menu has 5 items
+        with patch('game.views.galaxy.GalaxyViewInfoPanel', return_value=mock_panel):
+            view = GalaxyView(mock_game)
+            
+            assert view.game == mock_game
+            assert view.panel is not None
+            assert view.galaxy_rect.width == SCREEN_WIDTH - view.panel.panel_width
+            assert view.galaxy_rect.height == SCREEN_HEIGHT
+            assert view.menu is not None
+            assert len(view.menu.items) == 5  # Check that menu has 5 items
 
 class TestGalaxyViewKeyHandling:
     """Tests for GalaxyView key handling."""
@@ -169,8 +181,10 @@ class TestGalaxyViewDrawing:
         mock_game.background.draw_galaxy_background = MagicMock()
         galaxy_view.panel.draw = MagicMock()
         
-        # Draw the view
-        galaxy_view.draw(mock_screen)
+        # Patch pygame.draw.line to avoid TypeError with MockSurface
+        with patch('pygame.draw.line', return_value=None):
+            # Draw the view
+            galaxy_view.draw(mock_screen)
         
         # Verify that the background and panel were drawn
         mock_game.background.draw_galaxy_background.assert_called_once_with(mock_screen)
@@ -191,8 +205,10 @@ class TestGalaxyViewDrawing:
         galaxy_view.panel.draw = MagicMock()
         galaxy_view.menu.draw = MagicMock()
         
-        # Draw the view
-        galaxy_view.draw(mock_screen)
+        # Patch pygame.draw.line to avoid TypeError with MockSurface
+        with patch('pygame.draw.line', return_value=None):
+            # Draw the view
+            galaxy_view.draw(mock_screen)
         
         # Verify that the background, panel, and menu were drawn
         mock_game.background.draw_galaxy_background.assert_called_once_with(mock_screen)
