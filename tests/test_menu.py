@@ -1,6 +1,8 @@
 """Tests for the Menu system."""
 import pytest
 import pygame
+import pygame_gui
+from unittest.mock import MagicMock, patch
 from game.menu import Menu, MenuItem
 from game.enums import GameState
 from game.resources import ResourceManager
@@ -9,6 +11,24 @@ from game.resources import ResourceManager
 def resource_manager(mock_pygame):
     """Create a ResourceManager instance for testing."""
     return ResourceManager(mock_pygame, mock_pygame.font, mock_pygame.mixer, mock_pygame.display)
+
+@pytest.fixture
+def mock_ui_manager():
+    """Create a mock UIManager for testing."""
+    ui_manager = MagicMock(spec=pygame_gui.UIManager)
+    return ui_manager
+
+@pytest.fixture
+def mock_ui_button():
+    """Create a mock UIButton for testing."""
+    button = MagicMock(spec=pygame_gui.elements.UIButton)
+    return button
+
+@pytest.fixture
+def mock_ui_panel():
+    """Create a mock UIPanel for testing."""
+    panel = MagicMock(spec=pygame_gui.elements.UIPanel)
+    return panel
 
 @pytest.fixture
 def mock_screen():
@@ -32,7 +52,10 @@ def test_menu_item():
     item.action()
     assert callback_called
 
-def test_menu(mock_screen, resource_manager):
+@patch('pygame_gui.elements.UIButton')
+@patch('pygame_gui.elements.UIPanel')
+@patch('pygame_gui.elements.UILabel')
+def test_menu(mock_ui_label, mock_ui_panel, mock_ui_button, mock_screen, resource_manager, mock_ui_manager):
     """Test Menu initialization and functionality."""
     # Create menu items
     items = [
@@ -41,12 +64,20 @@ def test_menu(mock_screen, resource_manager):
         MenuItem("Item 3", lambda: None)
     ]
     
+    # Setup mocks
+    mock_ui_button.return_value = MagicMock()
+    mock_ui_panel.return_value = MagicMock()
+    mock_ui_label.return_value = MagicMock()
+    
     menu = Menu(items, "Test Menu", resource_manager)
     assert menu.title == "Test Menu"
     assert len(menu.items) == 3
     
-    # Draw menu to initialize screen
-    menu.draw(mock_screen)
+    # Initialize menu with mock UI manager
+    menu.initialize(mock_screen, mock_ui_manager)
+    
+    # Show the menu first
+    menu.show()
     
     # Test selection with keyboard input
     assert menu.selected_index == 0
@@ -64,12 +95,15 @@ def test_menu(mock_screen, resource_manager):
     assert menu.selected_index == 1
 
 def test_menu_screen_guard(resource_manager):
-    """Test menu input handling before screen initialization."""
+    """Test menu input handling before initialization."""
     menu = Menu([MenuItem("Test", lambda: None)], resource_manager=resource_manager)
-    # Should return None when screen is not initialized
+    # Should return None when menu is not initialized
     assert menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_RETURN})) is None
 
-def test_menu_keyboard_activation(mock_screen, resource_manager):
+@patch('pygame_gui.elements.UIButton')
+@patch('pygame_gui.elements.UIPanel')
+@patch('pygame_gui.elements.UILabel')
+def test_menu_keyboard_activation(mock_ui_label, mock_ui_panel, mock_ui_button, mock_screen, resource_manager, mock_ui_manager):
     """Test menu item activation via keyboard."""
     activated = False
     def on_activate():
@@ -77,8 +111,16 @@ def test_menu_keyboard_activation(mock_screen, resource_manager):
         activated = True
         return "activated"
 
+    # Setup mocks
+    mock_ui_button.return_value = MagicMock()
+    mock_ui_panel.return_value = MagicMock()
+    mock_ui_label.return_value = MagicMock()
+
     menu = Menu([MenuItem("Test", on_activate)], resource_manager=resource_manager)
-    menu.draw(mock_screen)
+    menu.initialize(mock_screen, mock_ui_manager)
+    
+    # Show the menu first
+    menu.show()
     
     # Test enter key activation
     result = menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_RETURN}))
@@ -88,43 +130,184 @@ def test_menu_keyboard_activation(mock_screen, resource_manager):
     # Test disabled item
     activated = False
     menu = Menu([MenuItem("Test", on_activate, enabled=False)], resource_manager=resource_manager)
-    menu.draw(mock_screen)
+    menu.initialize(mock_screen, mock_ui_manager)
+    
+    # Show the menu first
+    menu.show()
+    
     result = menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_RETURN}))
     assert not activated
     assert result is None
 
-def test_menu_visual_state(mock_screen, resource_manager):
-    """Test menu visual state including selection indicators."""
+@patch('pygame_gui.elements.UIButton')
+@patch('pygame_gui.elements.UIPanel')
+@patch('pygame_gui.elements.UILabel')
+def test_menu_selection_state(mock_ui_label, mock_ui_panel, mock_ui_button, mock_screen, resource_manager, mock_ui_manager):
+    """Test menu selection state with keyboard navigation."""
+    # Setup mocks
+    mock_ui_button.return_value = MagicMock()
+    mock_ui_panel.return_value = MagicMock()
+    mock_ui_label.return_value = MagicMock()
+    
     menu = Menu([
         MenuItem("Item 1", lambda: None),
         MenuItem("Item 2", lambda: None)
     ], resource_manager=resource_manager)
     
+    # Initialize menu
+    menu.initialize(mock_screen, mock_ui_manager)
+    
+    # Show the menu first
+    menu.show()
+    
     # Initial state
-    menu.draw(mock_screen)
-    assert menu.items[0].selected  # First item should be selected
-    assert not menu.items[1].selected
+    assert menu.selected_index == 0
     
     # Move selection down
     menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_DOWN}))
-    menu.draw(mock_screen)
-    assert not menu.items[0].selected
-    assert menu.items[1].selected
+    assert menu.selected_index == 1
     
     # Test wrapping to top
     menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_DOWN}))
-    menu.draw(mock_screen)
-    assert menu.items[0].selected
-    assert not menu.items[1].selected
+    assert menu.selected_index == 0
     
     # Test wrapping to bottom
     menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_UP}))
-    menu.draw(mock_screen)
-    assert not menu.items[0].selected
-    assert menu.items[1].selected
+    assert menu.selected_index == 1
 
-def test_menu_title_drawing(mock_screen, resource_manager):
-    """Test menu title drawing."""
+@patch('pygame_gui.elements.UIButton')
+@patch('pygame_gui.elements.UIPanel')
+@patch('pygame_gui.elements.UILabel')
+def test_menu_title_initialization(mock_ui_label, mock_ui_panel, mock_ui_button, mock_screen, resource_manager, mock_ui_manager):
+    """Test menu title initialization."""
+    # Setup mocks
+    mock_ui_button.return_value = MagicMock()
+    mock_ui_panel.return_value = MagicMock()
+    mock_ui_label.return_value = MagicMock()
+    
     menu = Menu([MenuItem("Test", lambda: None)], "Menu Title", resource_manager)
+    menu.initialize(mock_screen, mock_ui_manager)
+    
+    # Verify that UILabel was created for the title
+    mock_ui_label.assert_called()
+
+@patch('pygame_gui.elements.UIButton')
+@patch('pygame_gui.elements.UIPanel')
+def test_menu_button_click(mock_ui_panel, mock_ui_button, mock_screen, resource_manager, mock_ui_manager):
+    """Test menu button click handling."""
+    # Setup button click action
+    activated = False
+    def on_activate():
+        nonlocal activated
+        activated = True
+        return "activated"
+    
+    # Create menu with mock button
+    menu = Menu([MenuItem("Test", on_activate)], resource_manager=resource_manager)
+    
+    # Setup mock button
+    mock_button = MagicMock()
+    mock_ui_button.return_value = mock_button
+    mock_panel = MagicMock()
+    mock_ui_panel.return_value = mock_panel
+    
+    # Initialize menu
+    menu.initialize(mock_screen, mock_ui_manager)
+    
+    # Show the menu
+    menu.show()
+    assert menu.visible
+    
+    # Reset mock call counts
+    mock_panel.hide.reset_mock()
+    
+    # Store the created button for reference
+    button = menu.buttons[0]
+    
+    # Simulate button click event
+    button_event = pygame.event.Event(
+        pygame.USEREVENT, 
+        {'user_type': pygame_gui.UI_BUTTON_PRESSED, 'ui_element': button}
+    )
+    
+    # Handle the event
+    result = menu.handle_input(button_event)
+    
+    # Verify the action was called
+    assert activated
+    assert result == "activated"
+    
+    # Verify the menu was hidden
+    assert not menu.visible
+    mock_panel.hide.assert_called_once()
+
+@patch('pygame_gui.elements.UIButton')
+@patch('pygame_gui.elements.UIPanel')
+def test_menu_keyboard_activation_hides_menu(mock_ui_panel, mock_ui_button, mock_screen, resource_manager, mock_ui_manager):
+    """Test menu is hidden after keyboard activation."""
+    activated = False
+    def on_activate():
+        nonlocal activated
+        activated = True
+        return "activated"
+
+    # Setup mocks
+    mock_ui_button.return_value = MagicMock()
+    mock_panel = MagicMock()
+    mock_ui_panel.return_value = mock_panel
+    mock_ui_label = MagicMock()
+
+    menu = Menu([MenuItem("Test", on_activate)], resource_manager=resource_manager)
+    menu.initialize(mock_screen, mock_ui_manager)
+    
+    # Show the menu
+    menu.show()
+    assert menu.visible
+    
+    # Reset mock call counts
+    mock_panel.hide.reset_mock()
+    
+    # Test enter key activation
+    result = menu.handle_input(pygame.event.Event(pygame.KEYDOWN, {'key': pygame.K_RETURN}))
+    assert activated
+    assert result == "activated"
+    
+    # Verify the menu was hidden
+    assert not menu.visible
+    mock_panel.hide.assert_called_once()
+
+@patch('pygame_gui.elements.UIButton')
+@patch('pygame_gui.elements.UIPanel')
+def test_menu_visibility_control(mock_ui_panel, mock_ui_button, mock_screen, resource_manager, mock_ui_manager):
+    """Test menu show/hide functionality."""
+    # Create menu
+    menu = Menu([MenuItem("Test", lambda: None)], resource_manager=resource_manager)
+    
+    # Setup mocks
+    mock_ui_button.return_value = MagicMock()
+    mock_panel = MagicMock()
+    mock_ui_panel.return_value = mock_panel
+    
+    # Initialize menu
+    menu.initialize(mock_screen, mock_ui_manager)
+    
+    # Test show
+    menu.show()
+    assert menu.visible
+    mock_panel.show.assert_called_once()
+    
+    # Reset mock call counts
+    mock_panel.hide.reset_mock()
+    
+    # Test hide
+    menu.hide()
+    assert not menu.visible
+    mock_panel.hide.assert_called_once()
+    
+    # Reset mock call counts
+    mock_panel.show.reset_mock()
+    
+    # Test draw (should show the menu)
     menu.draw(mock_screen)
-    # Title drawing is tested implicitly since it would raise an error if it failed
+    assert menu.visible
+    mock_panel.show.assert_called_once()

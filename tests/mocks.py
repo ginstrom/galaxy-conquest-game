@@ -396,6 +396,11 @@ class MockGame:
         self.quit_to_main_menu = MagicMock(return_value=True)
         self.quit_game = MagicMock(return_value=True)
         self.go_to_galaxy_view = MagicMock(return_value=True)
+        self.to_state = MagicMock(side_effect=self._to_state)
+        
+    def _to_state(self, old_state, new_state):
+        """Mock implementation of to_state that updates the game state."""
+        self.state = new_state
         
     def draw_info_panel(self, screen):
         """Mock info panel drawing."""

@@ -90,10 +90,9 @@ class TestPlanetViewKeyHandling:
         # Handle the key event
         planet_view.handle_keydown(event)
         
-        # Verify that the game state changed to SYSTEM
+        # Verify that the selected planet is None and to_state was called
         assert mock_game.selected_planet is None
-        assert mock_game.state == GameState.SYSTEM
-        assert mock_game.current_view == mock_game.system_view
+        mock_game.to_state.assert_called_once_with(GameState.PLANET, GameState.SYSTEM)
     
     def test_handle_keydown_other_key(self, planet_view, mock_game):
         """Test handling of non-escape keys."""
@@ -132,10 +131,9 @@ class TestPlanetViewMouseHandling:
         # Handle the click
         planet_view.handle_click(pos)
         
-        # Verify that the game state changed to SYSTEM
+        # Verify that the selected planet is None and to_state was called
         assert mock_game.selected_planet is None
-        assert mock_game.state == GameState.SYSTEM
-        assert mock_game.current_view == mock_game.system_view
+        mock_game.to_state.assert_called_once_with(GameState.PLANET, GameState.SYSTEM)
     
     def test_handle_right_click_in_info_panel(self, planet_view, mock_game):
         """Test handling of right clicks in the info panel area."""
@@ -156,10 +154,9 @@ class TestPlanetViewMouseHandling:
         # Handle the right click
         planet_view.handle_right_click(pos)
         
-        # Verify that the game state changed to SYSTEM
+        # Verify that the selected planet is None and to_state was called
         assert mock_game.selected_planet is None
-        assert mock_game.state == GameState.SYSTEM
-        assert mock_game.current_view == mock_game.system_view
+        mock_game.to_state.assert_called_once_with(GameState.PLANET, GameState.SYSTEM)
 
 class TestPlanetViewUpdate:
     """Tests for PlanetView update method."""

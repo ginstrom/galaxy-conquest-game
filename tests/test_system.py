@@ -90,8 +90,8 @@ class TestSystemViewKeyHandling:
         # Handle the key event
         system_view.handle_keydown(event)
         
-        # Verify that the game state changed to SYSTEM_MENU
-        assert mock_game.state == GameState.SYSTEM_MENU
+        # Verify that to_state was called with the correct parameters
+        mock_game.to_state.assert_called_once_with(GameState.SYSTEM, GameState.SYSTEM_MENU)
     
     def test_handle_keydown_other_key(self, system_view, mock_game):
         """Test handling of non-escape keys."""
@@ -149,10 +149,9 @@ class TestSystemViewMouseHandling:
         # Handle the click
         system_view.handle_click(pos)
         
-        # Verify that the planet was selected and state changed
+        # Verify that the planet was selected and to_state was called
         assert mock_game.selected_planet == planet
-        assert mock_game.state == GameState.PLANET
-        assert mock_game.current_view == mock_game.planet_view
+        mock_game.to_state.assert_called_once_with(GameState.SYSTEM, GameState.PLANET)
     
     def test_handle_click_not_on_planet(self, system_view, mock_game):
         """Test handling of clicks not on any planet."""
@@ -231,9 +230,9 @@ class TestSystemViewMouseHandling:
         # Handle the right click
         system_view.handle_right_click(pos)
         
-        # Verify that the game state changed to SYSTEM_MENU
+        # Verify that the selected planet is None and to_state was called
         assert mock_game.selected_planet is None
-        assert mock_game.state == GameState.SYSTEM_MENU
+        mock_game.to_state.assert_called_once_with(GameState.SYSTEM, GameState.SYSTEM_MENU)
 
 class TestSystemViewUpdate:
     """Tests for SystemView update method."""
@@ -373,9 +372,9 @@ class TestSystemViewDrawing:
         # Draw the view
         system_view.draw(mock_screen)
         
-        # Verify that the background was drawn and state changed to GALAXY
+        # Verify that the background was drawn and to_state was called
         mock_game.background.draw_system_background.assert_called_once_with(mock_screen)
-        assert mock_game.state == GameState.GALAXY
+        mock_game.to_state.assert_called_once_with(GameState.SYSTEM, GameState.GALAXY)
     
     def test_draw_in_menu_state(self, system_view, mock_game, mock_screen):
         """Test drawing in menu state."""
@@ -384,16 +383,15 @@ class TestSystemViewDrawing:
         mock_game.selected_system = system
         mock_game.state = GameState.SYSTEM_MENU
         
-        # Mock the background, panel, and menu draw methods
+        # Mock the background and panel draw methods
         mock_game.background.draw_system_background = MagicMock()
         system_view.panel.draw = MagicMock()
-        system_view.menu.draw = MagicMock()
         
         # Draw the view
         system_view.draw(mock_screen)
         
-        # Verify that the background, system, panel, and menu were drawn
+        # Verify that the background, system, and panel were drawn
+        # Note: Menu drawing is now handled by the game loop, not in the view's draw method
         mock_game.background.draw_system_background.assert_called_once_with(mock_screen)
         system.draw_system_view.assert_called_once_with(mock_screen)
         system_view.panel.draw.assert_called_once_with(mock_screen)
-        system_view.menu.draw.assert_called_once_with(mock_screen)

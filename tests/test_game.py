@@ -60,3 +60,34 @@ def test_resource_loading(game_instance):
     assert game_instance.title_font is not None
     assert game_instance.info_font is not None
     assert game_instance.detail_font is not None
+
+def test_to_state(game_instance):
+    """Test that the to_state method correctly transitions between game states."""
+    # Test transition to GALAXY state
+    game_instance.to_state(GameState.STARTUP_MENU, GameState.GALAXY)
+    assert game_instance.state == GameState.GALAXY
+    assert game_instance.current_view == game_instance.galaxy_view
+    
+    # Test transition to SYSTEM state
+    game_instance.to_state(GameState.GALAXY, GameState.SYSTEM)
+    assert game_instance.state == GameState.SYSTEM
+    assert game_instance.current_view == game_instance.system_view
+    
+    # Test transition to PLANET state
+    game_instance.to_state(GameState.SYSTEM, GameState.PLANET)
+    assert game_instance.state == GameState.PLANET
+    assert game_instance.current_view == game_instance.planet_view
+    
+    # Test transition to STARTUP_MENU state
+    game_instance.to_state(GameState.PLANET, GameState.STARTUP_MENU)
+    assert game_instance.state == GameState.STARTUP_MENU
+    assert game_instance.current_view == game_instance.startup_view
+    
+    # Test transition to menu states
+    game_instance.to_state(GameState.GALAXY, GameState.GALAXY_MENU)
+    assert game_instance.state == GameState.GALAXY_MENU
+    assert game_instance.current_view == game_instance.galaxy_view
+    
+    game_instance.to_state(GameState.SYSTEM, GameState.SYSTEM_MENU)
+    assert game_instance.state == GameState.SYSTEM_MENU
+    assert game_instance.current_view == game_instance.system_view

@@ -71,8 +71,8 @@ class TestGalaxyViewKeyHandling:
         # Handle the key event
         galaxy_view.handle_keydown(event)
         
-        # Verify that the game state changed to GALAXY_MENU
-        assert mock_game.state == GameState.GALAXY_MENU
+        # Verify that to_state was called with the correct parameters
+        mock_game.to_state.assert_called_once_with(GameState.GALAXY, GameState.GALAXY_MENU)
     
     def test_handle_keydown_other_key(self, galaxy_view, mock_game):
         """Test handling of non-escape keys."""
@@ -120,10 +120,9 @@ class TestGalaxyViewMouseHandling:
         # Handle the click
         galaxy_view.handle_click(pos)
         
-        # Verify that the system was selected and state changed
+        # Verify that the system was selected and to_state was called
         assert mock_game.selected_system == system
-        assert mock_game.state == GameState.SYSTEM
-        assert mock_game.current_view == mock_game.system_view
+        mock_game.to_state.assert_called_once_with(GameState.GALAXY, GameState.SYSTEM)
     
     def test_handle_click_not_on_system(self, galaxy_view, mock_game):
         """Test handling of clicks not on any star system."""
@@ -164,9 +163,9 @@ class TestGalaxyViewMouseHandling:
         # Handle the right click
         galaxy_view.handle_right_click(pos)
         
-        # Verify that the game state changed to GALAXY_MENU
+        # Verify that the selected system is None and to_state was called
         assert mock_game.selected_system is None
-        assert mock_game.state == GameState.GALAXY_MENU
+        mock_game.to_state.assert_called_once_with(GameState.GALAXY, GameState.GALAXY_MENU)
 
 class TestGalaxyViewDrawing:
     """Tests for GalaxyView drawing."""
@@ -200,20 +199,19 @@ class TestGalaxyViewDrawing:
         mock_game.state = GameState.GALAXY_MENU
         mock_game.star_systems = [MagicMock(), MagicMock()]
         
-        # Mock the background, panel, and menu draw methods
+        # Mock the background and panel draw methods
         mock_game.background.draw_galaxy_background = MagicMock()
         galaxy_view.panel.draw = MagicMock()
-        galaxy_view.menu.draw = MagicMock()
         
         # Patch pygame.draw.line to avoid TypeError with MockSurface
         with patch('pygame.draw.line', return_value=None):
             # Draw the view
             galaxy_view.draw(mock_screen)
         
-        # Verify that the background, panel, and menu were drawn
+        # Verify that the background and panel were drawn
+        # Note: Menu drawing is now handled by the game loop, not in the view's draw method
         mock_game.background.draw_galaxy_background.assert_called_once_with(mock_screen)
         galaxy_view.panel.draw.assert_called_once_with(mock_screen)
-        galaxy_view.menu.draw.assert_called_once_with(mock_screen)
         
         # Verify that each star system's draw_galaxy_view method was called
         for system in mock_game.star_systems:

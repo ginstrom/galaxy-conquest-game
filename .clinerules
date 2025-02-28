@@ -26,6 +26,8 @@
 - Test files must match pattern: `test_*.py`
 - Minimum coverage: 80%
 - Fixtures location: `tests/conftest.py`
+When asked to fix tests for a specific file, confine tests to the specified test file until they are all passing.
+When those tests are passing, your task is complete. DO NOT RUN TESTS ON ANY OTHER FILES
 
 # Pygame Best Practices
 
