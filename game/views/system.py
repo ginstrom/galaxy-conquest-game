@@ -59,8 +59,8 @@ class SystemView:
             return
         
         for planet in self.game.selected_system.planets:
-            # Skip planets that don't have coordinates yet
-            if 'x' not in planet or 'y' not in planet:
+            # Skip planets that don't have valid coordinates
+            if 'x' not in planet or 'y' not in planet or planet['x'] is None or planet['y'] is None:
                 continue
                 
             x = planet['x']
@@ -70,7 +70,9 @@ class SystemView:
             dx = pos[0] - x
             dy = pos[1] - y
             if dx * dx + dy * dy <= planet['size'] * planet['size']:
-                self.logger.info(f"Selected planet: {planet.get('name', 'Unnamed')}")
+                # Use dictionary-like access for Planet objects
+                planet_name = planet['name'] if 'name' in planet else 'Unnamed'
+                self.logger.info(f"Selected planet: {planet_name}")
                 self.game.selected_planet = planet
                 # Change state immediately
                 self.logger.info("Transitioning to PLANET view")
@@ -112,8 +114,9 @@ class SystemView:
         # Check if mouse is within the system view area (not over info panel)
         rect_check_func = lambda pos: pos[0] < self.available_width
         
-        # Filter out planets without coordinates
-        valid_planets = [p for p in self.game.selected_system.planets if 'x' in p and 'y' in p]
+        # Filter out planets without valid coordinates
+        valid_planets = [p for p in self.game.selected_system.planets 
+                         if ('x' in p and 'y' in p) and (p['x'] is not None and p['y'] is not None)]
         
         # Use the common hover detection function
         self.game.hovered_planet = check_hover(

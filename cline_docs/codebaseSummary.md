@@ -43,6 +43,8 @@ galaxy-conquest-game/
 - High test coverage (84%)
 
 ## Recent Changes
+- [2025-02-28] Fixed bug in hover_utils.py causing TypeError when hovering over planets with None coordinates
+- [2025-02-28] Added null checks in is_within_circle function and SystemView methods
 - [2025-02-28] Fixed tests in test_star_system.py to work with the new dictionary-based resource format
 - [2025-02-28] Fixed tests in test_planet.py to work with the new dictionary-based resource format
 - [2025-02-28] Changed resource handling from list of dictionaries to a dictionary format
@@ -62,4 +64,3 @@ galaxy-conquest-game/
 - [2025-02-26] Moved Game class to dedicated module
 - [2025-02-26] Enhanced test coverage reporting with HTML reports
 - [2025-02-25] Unified hover handling for planets and systems
-- [2025-02-25] Added Makefile system for common development tasks

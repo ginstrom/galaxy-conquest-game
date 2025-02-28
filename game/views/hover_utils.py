@@ -81,6 +81,10 @@ def is_within_circle(mouse_pos, obj, center_func=None, radius_func=None):
     else:
         return False  # Can't determine radius
         
+    # Check if coordinates are valid (not None)
+    if x is None or y is None:
+        return False
+        
     # Check if mouse is within circle
     dx = mouse_pos[0] - x
     dy = mouse_pos[1] - y

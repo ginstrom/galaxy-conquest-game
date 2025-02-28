@@ -25,6 +25,7 @@
 - [ ] Documentation complete
 
 ## Recent Completed Tasks
+- [2025-02-28] Fixed bug in hover_utils.py causing TypeError when hovering over planets with None coordinates
 - [2025-02-28] Fixed tests in test_star_system.py to work with the new dictionary-based resource format
 - [2025-02-28] Fixed tests in test_planet.py to work with the new dictionary-based resource format
 - [2025-02-28] Changed resource handling from list of dictionaries to a dictionary format
@@ -39,7 +40,6 @@
 - [2025-02-27] Fixed tests for InfoPanel, PlanetView, and Game classes
 - [2025-02-27] Replaced custom-drawn info panel with pygame_gui elements
 - [2025-02-26] Enhanced PlanetViewInfoPanel to display system information
-- [2025-02-26] Improved test coverage for Game class (77%)
 
 ## Current Sprint
 1. Testing Infrastructure

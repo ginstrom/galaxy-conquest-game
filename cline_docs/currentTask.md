@@ -1,10 +1,42 @@
 ## Current Objective
-Fix broken tests in tests/test_star_system.py
+Fix bug in hover_utils.py causing TypeError: unsupported operand type(s) for -: 'int' and 'NoneType'
 
 ## Context
-The resource handling in the game has been refactored to use a dictionary format instead of a list of dictionaries. The tests needed to be updated to match this new implementation. While tests in test_planet.py had been fixed, the tests in test_star_system.py still needed to be updated to work with the new resource format.
+The game was crashing with an error in the hover_utils.py file, specifically in the `is_within_circle` function. The error occurred when trying to subtract an integer from a NoneType value, suggesting that one of the coordinates or position values was None when it should have been a number.
+
+The error trace showed:
+```
+File "/Users/r-ginstrom/Documents/Cline/galaxy-conquest-game/game/views/system.py", line 119, in update
+    self.game.hovered_planet = check_hover(
+File "/Users/r-ginstrom/Documents/Cline/galaxy-conquest-game/game/views/hover_utils.py", line 37, in check_hover
+    if is_within_object_func(mouse_pos, obj):
+File "/Users/r-ginstrom/Documents/Cline/galaxy-conquest-game/game/views/hover_utils.py", line 85, in is_within_circle
+    dx = mouse_pos[0] - x
+TypeError: unsupported operand type(s) for -: 'int' and 'NoneType'
+```
 
 ## Status
+✅ Completed tasks:
+- Examined the hover_utils.py file to understand the is_within_circle function
+- Checked how the function is being called from system.py
+- Identified the issue: Planet objects have x and y attributes that are initialized as None and are set dynamically in the draw_system_view method. However, the hover detection was trying to use these coordinates before they were set.
+- Fixed the issue by:
+  1. Adding a null check in the is_within_circle function to return False if x or y is None
+  2. Improving the filtering in SystemView.update to properly check if coordinates are not None
+  3. Adding a similar null check in SystemView.handle_click to avoid the same issue when clicking
+
+## Root Cause Analysis
+The issue was caused by a mismatch between the Planet class's `__contains__` method and the actual state of the x and y attributes. The `__contains__` method would return True for 'x' and 'y' even if the actual values were None, which led to planets with None coordinates being passed to the hover detection function.
+
+The Planet class was recently converted from a dictionary to a class, and the `__contains__` method was implemented to support backward compatibility with code that expected a dictionary. However, this implementation didn't account for the case where the attributes exist but are set to None.
+
+## Next Steps
+- Consider adding unit tests for the hover detection functions to ensure they handle None values correctly
+- Review other parts of the codebase that might have similar issues with the Planet class's dictionary-like access
+
+## Previous Tasks
+
+### Fix broken tests in tests/test_star_system.py
 ✅ Completed tasks:
 - Fixed tests in test_planet.py to work with the new dictionary-based resource format
 - Fixed tests in test_star_system.py to work with the new dictionary-based resource format:
@@ -12,12 +44,6 @@ The resource handling in the game has been refactored to use a dictionary format
   - Changed the assertion to check for a dictionary instead of a list for resources
   - Added assertions to verify that resource types are ResourceType enum values and amounts are integers between 0 and 100
 - All tests now pass with the new resource format
-
-## Next tasks:
-- Continue updating any remaining tests that might still expect the old resource format
-- Ensure all parts of the codebase are using the new resource format consistently
-
-## Previous Tasks
 
 ### Refactor resource handling to use dictionary format
 ✅ Changed resource handling from list of dictionaries to a dictionary format:
