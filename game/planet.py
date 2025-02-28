@@ -23,7 +23,7 @@ class Planet:
         orbit_number (int): The orbit number of the planet
         angle (float, optional): The angle of the planet in its orbit
         orbit_speed (float, optional): The speed of the planet in its orbit
-        resources (list, optional): A list of resources, each with a type and amount
+        resources (dict, optional): A dictionary of resources, with resource types as keys and amounts as values
     """
     
     def __init__(self, name, planet_type, size, orbit_number, 
@@ -38,7 +38,7 @@ class Planet:
             orbit_number (int): The orbit number of the planet
             angle (float, optional): The angle of the planet in its orbit
             orbit_speed (float, optional): The speed of the planet in its orbit
-            resources (list, optional): A list of resources, each with a type and amount
+            resources (dict, optional): A dictionary of resources, with resource types as keys and amounts as values
         """
         self.name = name
         self.type = planet_type
@@ -46,7 +46,7 @@ class Planet:
         self.orbit_number = orbit_number
         self.angle = angle if angle is not None else random.uniform(0, 2 * 3.14159)
         self.orbit_speed = orbit_speed if orbit_speed is not None else random.uniform(0.2, 0.5)
-        self.resources = resources if resources is not None else []
+        self.resources = resources if resources is not None else {}
         
         # Position in system view (set dynamically)
         self.x = None
@@ -76,7 +76,16 @@ class Planet:
         )
         
         # Copy resources
-        planet.resources = planet_dict.get('resources', [])
+        resources = planet_dict.get('resources', {})
+        
+        # Convert from old list format to new dict format if needed
+        if isinstance(resources, list):
+            resources_dict = {}
+            for resource in resources:
+                resources_dict[resource['type']] = resource['amount']
+            planet.resources = resources_dict
+        else:
+            planet.resources = resources
         
         # Copy position if available
         if 'x' in planet_dict and 'y' in planet_dict:

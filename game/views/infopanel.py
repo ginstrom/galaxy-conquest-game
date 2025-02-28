@@ -154,10 +154,21 @@ class InfoPanel:
         y += 30
         
         # Resource items
-        for resource in planet['resources']:
-            resource_rect = pygame.Rect(padding + 10, y, self.panel_width - (padding * 2) - 10, 25)
-            self.create_label(f"{resource['type'].value}: {resource['amount']}", resource_rect)
-            y += 25
+        resources = planet['resources']
+        
+        # Handle both old list format and new dict format
+        if isinstance(resources, list):
+            # Old format: list of dicts with 'type' and 'amount' keys
+            for resource in resources:
+                resource_rect = pygame.Rect(padding + 10, y, self.panel_width - (padding * 2) - 10, 25)
+                self.create_label(f"{resource['type'].value}: {resource['amount']}", resource_rect)
+                y += 25
+        else:
+            # New format: dict with resource types as keys and amounts as values
+            for resource_type, amount in resources.items():
+                resource_rect = pygame.Rect(padding + 10, y, self.panel_width - (padding * 2) - 10, 25)
+                self.create_label(f"{resource_type.value}: {amount}", resource_rect)
+                y += 25
         
         return y
     

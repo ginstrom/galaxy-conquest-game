@@ -25,6 +25,11 @@
 - [ ] Documentation complete
 
 ## Recent Completed Tasks
+- [2025-02-28] Fixed tests in test_star_system.py to work with the new dictionary-based resource format
+- [2025-02-28] Fixed tests in test_planet.py to work with the new dictionary-based resource format
+- [2025-02-28] Changed resource handling from list of dictionaries to a dictionary format
+- [2025-02-28] Modified generate_resources to include all resource types
+- [2025-02-28] Improved planet resource generation using beta distribution
 - [2025-02-28] Fixed Planet class to support the `in` operator
 - [2025-02-28] Converted planet object from dictionary to class
 - [2025-02-28] Refactored view navigation to use Game.to_state()

@@ -3,7 +3,7 @@ import pytest
 import pygame
 from unittest.mock import Mock
 from game.star_system import StarSystem
-from game.enums import StarType, PlanetType
+from game.enums import StarType, PlanetType, ResourceType
 from game.constants import WHITE, GRAY, SCREEN_WIDTH, SCREEN_HEIGHT
 from game.properties import StarProperties
 from tests.mocks import MockSurface
@@ -86,7 +86,13 @@ def test_planet_generation(star_system):
         assert isinstance(planet['orbit_speed'], float)
         assert 0 <= planet['angle'] <= 2 * 3.14159  # approximately 2π
         assert planet['name'].startswith(star_system.name)
-        assert isinstance(planet['resources'], list)
+        assert isinstance(planet['resources'], dict)
+        
+        # Check that resources dictionary contains entries for resource types
+        for resource_type, amount in planet['resources'].items():
+            assert isinstance(resource_type, ResourceType)
+            assert isinstance(amount, int)
+            assert 0 <= amount <= 100  # Resource values range from 0 to 100
 
 def test_draw_galaxy_view(star_system, screen):
     """Test drawing the star system in galaxy view."""

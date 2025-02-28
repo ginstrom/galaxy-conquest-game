@@ -34,6 +34,8 @@
 ### Core
 - pygame: Game engine and graphics
 - pygame_gui: UI components
+- numpy: Numerical computing
+- scipy: Scientific computing and statistical distributions
 - pytest: Testing framework
 
 ### Development

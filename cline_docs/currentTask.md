@@ -1,16 +1,46 @@
 ## Current Objective
-Fix the failing test in tests/test_star_system.py
+Fix broken tests in tests/test_star_system.py
 
 ## Context
-After converting planets from dictionaries to a class, the test_planet_generation test was failing. The test expected planets to be dictionaries with keys that could be checked using the `in` operator, but the Planet class was missing the `__contains__` method.
+The resource handling in the game has been refactored to use a dictionary format instead of a list of dictionaries. The tests needed to be updated to match this new implementation. While tests in test_planet.py had been fixed, the tests in test_star_system.py still needed to be updated to work with the new resource format.
 
 ## Status
-✅ Fixed by adding a `__contains__` method to the Planet class to support the `in` operator.
-- Method returns True for all valid planet attributes
-- All tests now pass with 84% coverage
-- Maintained backward compatibility with code expecting dictionary behavior
+✅ Completed tasks:
+- Fixed tests in test_planet.py to work with the new dictionary-based resource format
+- Fixed tests in test_star_system.py to work with the new dictionary-based resource format:
+  - Updated the import to include ResourceType from game.enums
+  - Changed the assertion to check for a dictionary instead of a list for resources
+  - Added assertions to verify that resource types are ResourceType enum values and amounts are integers between 0 and 100
+- All tests now pass with the new resource format
+
+## Next tasks:
+- Continue updating any remaining tests that might still expect the old resource format
+- Ensure all parts of the codebase are using the new resource format consistently
 
 ## Previous Tasks
+
+### Refactor resource handling to use dictionary format
+✅ Changed resource handling from list of dictionaries to a dictionary format:
+- Removed the possible_resources value from PlanetProperties class
+- Calculate all resource types for every planet type
+- Changed generate_resources to return a dict with resource types as keys and values as values
+- Modified Planet class and InfoPanel class to use this new dict format
+- Updated tests to work with the new format
+
+### Generate a planetary resource value for every resource type
+✅ Modified generate_resources method to generate a value for every resource type:
+- Now returns a resource value for every resource type in the ResourceType enum
+- Uses the standard beta distribution for common resources (based on planet type)
+- Uses a modified beta distribution with lower mean (0.1) for uncommon resources
+- All tests pass with 84% code coverage
+
+### Improve planet resource generation using beta distribution
+✅ Updated resource generation in PlanetProperties class:
+- Added numpy and scipy as dependencies in requirements.txt
+- Added global variables MEAN (0.5) and VARIANCE (0.02) at the top of properties.py
+- Calculated alpha and beta parameters for the beta distribution
+- Modified generate_resources method to use beta distribution for resource values
+- Resource values now range from 0 to 100 based on the beta distribution
 
 ### Convert planet object from dictionary to class
 ✅ Created Planet class in game/planet.py with:
