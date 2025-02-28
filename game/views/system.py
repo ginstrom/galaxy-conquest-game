@@ -41,7 +41,7 @@ class SystemView:
         # escape key to open in-game menu
         if event.key == pygame.K_ESCAPE:
             self.logger.info("Opening in-game menu")
-            self.game.state = GameState.SYSTEM_MENU
+            self.game.to_state(GameState.SYSTEM, GameState.SYSTEM_MENU)
             return
         self.logger.debug(f"Key pressed in system view: {pygame.key.name(event.key)}")
     
@@ -74,8 +74,7 @@ class SystemView:
                 self.game.selected_planet = planet
                 # Change state immediately
                 self.logger.info("Transitioning to PLANET view")
-                self.game.state = GameState.PLANET
-                self.game.current_view = self.game.planet_view
+                self.game.to_state(GameState.SYSTEM, GameState.PLANET)
                 break
 
     def handle_right_click(self, pos):
@@ -92,7 +91,7 @@ class SystemView:
             return
 
         self.game.selected_planet = None
-        self.game.state = GameState.SYSTEM_MENU
+        self.game.to_state(GameState.SYSTEM, GameState.SYSTEM_MENU)
         self.logger.info("Right click: Transitioning to SYSTEM MENU view")
     
     def update(self):
@@ -146,7 +145,7 @@ class SystemView:
         else:
             self.logger.warning("No system selected to draw")
             self.logger.info("Transitioning to GALAXY view")
-            self.game.state = GameState.GALAXY
+            self.game.to_state(GameState.SYSTEM, GameState.GALAXY)
         if self.game.selected_system:
             ss = self.game.selected_system
             debug(f"System: {ss.name}")
@@ -158,6 +157,5 @@ class SystemView:
             if self.game.hovered_planet:
                 hp = self.game.hovered_planet
                 debug(f"Hovered: {hp['name']}")
-
-        if self.game.state == GameState.SYSTEM_MENU:
-            self.menu.draw(screen)
+        
+        # Note: Menu drawing is now handled by the game loop

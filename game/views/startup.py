@@ -48,6 +48,8 @@ class StartupView:
             MenuItem("Load Game", self.load_game, enabled=has_save),
             MenuItem("Exit", self.exit_game)
         ], title="Galaxy Conquest", resource_manager=self.game.resource_manager)
+        
+        # Note: The menu will be initialized in Game.init_menus() with the game's UI manager
 
     def start_new_game(self) -> bool:
         """
@@ -94,8 +96,8 @@ class StartupView:
         # Draw animated star field background
         self.background.draw_galaxy_background(screen)
         
-        # Draw menu on top
-        self.menu.draw(screen)
+        # Note: Menu drawing is now handled by the game loop
+        # The menu will be shown/hidden based on the game state
 
     def handle_keydown(self, event: pygame.event.Event) -> Optional[bool]:
         """

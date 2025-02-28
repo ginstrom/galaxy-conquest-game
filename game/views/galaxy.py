@@ -43,7 +43,7 @@ class GalaxyView:
         # escape key to open in-game menu
         if event.key == pygame.K_ESCAPE:
             self.logger.info("Opening in-game menu")
-            self.game.state = GameState.GALAXY_MENU
+            self.game.to_state(GameState.GALAXY, GameState.GALAXY_MENU)
             return
         self.logger.debug(f"Key pressed in galaxy view: {pygame.key.name(event.key)}")
     
@@ -65,8 +65,7 @@ class GalaxyView:
                 self.logger.info(f"Selected star system: {system.name}")
                 self.game.selected_system = system
                 self.logger.info("Transitioning to SYSTEM view")
-                self.game.state = GameState.SYSTEM
-                self.game.current_view = self.game.system_view
+                self.game.to_state(GameState.GALAXY, GameState.SYSTEM)
                 break
     
     def handle_right_click(self, pos):
@@ -83,7 +82,7 @@ class GalaxyView:
             return
         
         self.game.selected_system = None
-        self.game.state = GameState.GALAXY_MENU
+        self.game.to_state(GameState.GALAXY, GameState.GALAXY_MENU)
         self.logger.info("Right click: Transitioning to GALAXY MENU view")
     
     def update(self):
@@ -125,5 +124,5 @@ class GalaxyView:
         )
         debug(f"Systems: {len(self.game.star_systems)}")
         debug(f"Mouse: {pygame.mouse.get_pos()}")
-        if self.game.state == GameState.GALAXY_MENU:
-            self.menu.draw(screen)
+        
+        # Note: Menu drawing is now handled by the game loop

@@ -15,6 +15,7 @@ import pygame_gui
 import random
 
 from game.debug import debug, clear_debug, draw_debug, toggle_debug
+from game.notifications import NotificationManager
 from game.views.hover_utils import check_hover, is_within_circle
 from game.constants import (
     SCREEN_WIDTH, SCREEN_HEIGHT, NUM_STAR_SYSTEMS,
@@ -83,9 +84,8 @@ class Game:
         self.planet_view = PlanetView(self)
         self.logger.debug("Views initialized")
         
-        # Save notification
-        self.save_notification_time = 0
-        self.save_notification_duration = 2000  # 2 seconds
+        # Initialize notification manager
+        self.notification_manager = NotificationManager(self.ui_manager)
         
         # Initialize game state
         self.state = GameState.STARTUP_MENU
@@ -106,20 +106,24 @@ class Game:
         # In-game menu (when pressing ESC from galaxy view)
         self.galaxy_menu = self.galaxy_view.menu
         self.system_menu = self.system_view.menu
-        self.logger.debug("Menus initialized")
+        
+        # Initialize menus with the game's UI manager
+        self.startup_view.menu.initialize(self.screen, self.ui_manager)
+        self.galaxy_menu.initialize(self.screen, self.ui_manager)
+        self.system_menu.initialize(self.screen, self.ui_manager)
+        
+        self.logger.debug("Menus initialized with pygame_gui")
     
     def new_game(self):
         self.logger.info("Starting new game")
         self.star_systems = []
         self.generate_star_systems()
-        self.state = GameState.GALAXY
-        self.current_view = self.galaxy_view
+        self.to_state(self.state, GameState.GALAXY)
         return True
 
     def go_to_galaxy_view(self):
         self.logger.debug("Switching to galaxy view")
-        self.state = GameState.GALAXY
-        self.current_view = self.galaxy_view
+        self.to_state(self.state, GameState.GALAXY)
         return True
     
     def generate_star_systems(self):
@@ -169,17 +173,15 @@ class Game:
         self.logger.info("Saving game state")
         save_game_state(self.star_systems, self.selected_system)
         
-        # Set notification time when game is saved
-        self.save_notification_time = pygame.time.get_ticks()
+        # Trigger save notification
+        self.notification_manager.show_save_notification()
         
         # If called from menu, return to game
         if self.state == GameState.GALAXY_MENU:
             if self.selected_system:
-                self.state = GameState.SYSTEM
-                self.current_view = self.system_view
+                self.to_state(self.state, GameState.SYSTEM)
             else:
-                self.state = GameState.GALAXY
-                self.current_view = self.galaxy_view
+                self.to_state(self.state, GameState.GALAXY)
             return True
         return False
 
@@ -217,8 +219,7 @@ class Game:
                 self.star_systems.append(system)
                 self.logger.debug(f"Loaded star system: {system.name}")
             
-            self.state = GameState.GALAXY
-            self.current_view = self.galaxy_view
+            self.to_state(self.state, GameState.GALAXY)
             self.logger.info("Game state loaded successfully")
             return True
         except (FileNotFoundError, json.JSONDecodeError, KeyError) as e:
@@ -230,18 +231,24 @@ class Game:
     
     def return_to_game(self):
         self.logger.debug("Returning to game")
-        if self.selected_system:
-            self.state = GameState.SYSTEM
-            self.current_view = self.system_view
+        # If coming from Galaxy View menu, always go to System view
+        if self.state == GameState.GALAXY_MENU:
+            self.to_state(self.state, GameState.SYSTEM)
         else:
-            self.state = GameState.GALAXY
-            self.current_view = self.galaxy_view
+            # For other menus, use the previous behavior
+            if self.selected_system:
+                self.to_state(self.state, GameState.SYSTEM)
+            else:
+                self.to_state(self.state, GameState.GALAXY)
+        
+        self.startup_view.menu.hide()
+        self.galaxy_menu.hide()
+        self.system_menu.hide()
         return True
     
     def quit_to_main_menu(self):
         self.logger.info("Quitting to main menu")
-        self.state = GameState.STARTUP_MENU
-        self.current_view = self.startup_view
+        self.to_state(self.state, GameState.STARTUP_MENU)
         self.selected_system = None
         self.selected_planet = None
         return True
@@ -249,6 +256,29 @@ class Game:
     def quit_game(self):
         self.logger.info("Quitting game")
         return False
+    
+    def to_state(self, old_state, new_state):
+        """
+        Transition the game from one state to another.
+        
+        Args:
+            old_state (GameState): The current state of the game
+            new_state (GameState): The state to transition to
+        """
+        self.logger.debug(f"Transitioning from {old_state} to {new_state}")
+        
+        # Set the new state
+        self.state = new_state
+        
+        # Set the appropriate view based on the new state
+        if new_state == GameState.STARTUP_MENU:
+            self.current_view = self.startup_view
+        elif new_state == GameState.GALAXY or new_state == GameState.GALAXY_MENU:
+            self.current_view = self.galaxy_view
+        elif new_state == GameState.SYSTEM or new_state == GameState.SYSTEM_MENU:
+            self.current_view = self.system_view
+        elif new_state == GameState.PLANET:
+            self.current_view = self.planet_view
     
     def cleanup(self):
         self.logger.info("Cleaning up resources")
@@ -296,8 +326,19 @@ class Game:
                     elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
                         self.current_view.handle_right_click(event.pos)
                 
-                # Update pygame_gui
+                # Update pygame_gui and menus
                 self.ui_manager.update(time_delta)
+                
+                # Update active menu if in a menu state
+                if self.state in menu_states:
+                    # Ensure the current menu is visible
+                    self.current_view.menu.show()
+                    self.current_view.menu.update(time_delta)
+                else:
+                    # Hide all menus when not in a menu state
+                    self.startup_view.menu.hide()
+                    self.galaxy_menu.hide()
+                    self.system_menu.hide()
                 
                 # Clear debug info at start of frame
                 clear_debug()
@@ -329,10 +370,11 @@ class Game:
                 self.current_view.draw(self.screen)
                 
                 # Draw pygame_gui elements
+                # Note: We always draw UI elements now, as menus are properly hidden when not active
                 self.ui_manager.draw_ui(self.screen)
                 
                 # Draw save notification
-                self.draw_save_notification(self.screen)
+                self.notification_manager.draw_save_notification(self.screen)
                 
                 # Draw debug last
                 draw_debug(self.screen)
@@ -343,29 +385,4 @@ class Game:
             self.logger.error(f"Error in game loop: {e}", exc_info=True)
             raise
         finally:
-            self.cleanup() 
-
-    def draw_save_notification(self, screen):
-        """
-        Display a temporary notification using a Pygame GUI component when the game is saved.
-        The UI label appears at the top center of the screen and is removed after 2 seconds.
-        
-        Args:
-            screen: The pygame surface to draw on (not used directly for the notification)
-        """
-        current_time = pygame.time.get_ticks()
-        if current_time - self.save_notification_time < self.save_notification_duration:
-            # If the notification label doesn't exist, create it using pygame_gui
-            if not hasattr(self, 'save_notification_label') or self.save_notification_label is None:
-                rect = pygame.Rect((SCREEN_WIDTH // 2 - 100, 25), (200, 50))
-                self.save_notification_label = pygame_gui.elements.UILabel(
-                    relative_rect=rect,
-                    text="Game Saved!",
-                    manager=self.ui_manager,
-                    object_id="#save_notification"
-                )
-        else:
-            # If the duration has passed and the label exists, remove it
-            if hasattr(self, 'save_notification_label') and self.save_notification_label is not None:
-                self.save_notification_label.kill()
-                self.save_notification_label = None
+            self.cleanup()

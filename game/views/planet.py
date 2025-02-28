@@ -54,8 +54,7 @@ class PlanetView:
             self.logger.info("ESC pressed - transitioning from PLANET to SYSTEM view")
             # Change state immediately
             self.game.selected_planet = None
-            self.game.state = GameState.SYSTEM
-            self.game.current_view = self.game.system_view
+            self.game.to_state(GameState.PLANET, GameState.SYSTEM)
 
     def handle_click(self, pos):
         """
@@ -73,8 +72,7 @@ class PlanetView:
         
         # Change state immediately
         self.game.selected_planet = None
-        self.game.state = GameState.SYSTEM
-        self.game.current_view = self.game.system_view
+        self.game.to_state(GameState.PLANET, GameState.SYSTEM)
 
     def handle_right_click(self, pos):
         """
@@ -92,8 +90,7 @@ class PlanetView:
         
         # Change state immediately
         self.game.selected_planet = None
-        self.game.state = GameState.SYSTEM
-        self.game.current_view = self.game.system_view
+        self.game.to_state(GameState.PLANET, GameState.SYSTEM)
     
     def update(self):
         """
