@@ -99,23 +99,12 @@ class StarSystem:
         - Resources appropriate for its type
         - A name based on the star system's name
         """
+        from .planet import Planet  # Import here to avoid circular imports
+        
         orbit_spacing = 60  # Base spacing between orbits
         for i in range(self.num_planets):
-            planet_type = PlanetProperties.get_random_type()
-            props = PlanetProperties.PROPERTIES[planet_type]
-            
-            size = random.randint(props['min_size'], props['max_size'])
             orbit_number = i + 1
-            
-            planet = {
-                'type': planet_type,
-                'size': size,
-                'orbit_number': orbit_number,
-                'angle': random.uniform(0, 2 * math.pi),
-                'orbit_speed': random.uniform(0.2, 0.5),
-                'resources': PlanetProperties.generate_resources(planet_type),
-                'name': f"{self.name} {orbit_number}"
-            }
+            planet = Planet.generate(self.name, orbit_number)
             self.planets.append(planet)
 
     def draw_galaxy_view(self, screen):
@@ -189,37 +178,37 @@ class StarSystem:
         
         # Draw orbits and planets
         for i, planet in enumerate(self.planets):
-            orbit_radius = 100 + planet['orbit_number'] * 60
+            orbit_radius = 100 + planet.orbit_number * 60
             pygame.draw.circle(screen, (50, 50, 50), (center_x, center_y), orbit_radius, 1)
             
             # Calculate fixed planet position (no animation)
             # Distribute planets evenly around the orbit
-            if 'x' not in planet or 'y' not in planet:
+            if planet.x is None or planet.y is None:
                 angle = (i * 2 * math.pi / len(self.planets)) + math.pi/4  # Start from 45 degrees
                 x = center_x + orbit_radius * math.cos(angle)
                 y = center_y + orbit_radius * math.sin(angle)
-                planet['x'] = x
-                planet['y'] = y
-            size = planet['size']
+                planet.x = x
+                planet.y = y
+            size = planet.size
             
             # Draw the planet
-            planet_color = PlanetProperties.PROPERTIES[planet['type']]['color']
-            pygame.draw.circle(screen, planet_color, (int(planet['x']), int(planet['y'])), size)
+            planet_color = PlanetProperties.PROPERTIES[planet.type]['color']
+            pygame.draw.circle(screen, planet_color, (int(planet.x), int(planet.y)), size)
             
             # Draw orbit number
             if self.game_instance:
                 orbit_text = self.game_instance.resource_manager.text_cache.get_text(
-                    str(planet['orbit_number']), 24, WHITE
+                    str(planet.orbit_number), 24, WHITE
                 )
                 orbit_rect = orbit_text.get_rect(
-                    center=(planet['x'], planet['y'] - size - 15)
+                    center=(planet.x, planet.y - size - 15)
                 )
                 # Draw text shadow
                 shadow_text = self.game_instance.resource_manager.text_cache.get_text(
-                    str(planet['orbit_number']), 24, GRAY
+                    str(planet.orbit_number), 24, GRAY
                 )
                 shadow_rect = shadow_text.get_rect(
-                    center=(planet['x'] + 0.5, planet['y'] - size - 14.5)
+                    center=(planet.x + 0.5, planet.y - size - 14.5)
                 )
                 screen.blit(shadow_text, shadow_rect)
                 screen.blit(orbit_text, orbit_rect)

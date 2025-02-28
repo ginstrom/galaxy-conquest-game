@@ -194,6 +194,8 @@ class Game:
         """
         self.logger.info("Loading game state")
         try:
+            from .planet import Planet  # Import here to avoid circular imports
+            
             save_data = load_game_state()
             
             # Store selected system name if one is selected
@@ -210,7 +212,12 @@ class Game:
                 )
                 system.size = system_data['size']
                 system.color = tuple(system_data['color']) if 'color' in system_data else system.color
-                system.planets = system_data['planets']
+                
+                # Convert planet dictionaries to Planet objects
+                system.planets = []
+                for planet_dict in system_data['planets']:
+                    planet = Planet.from_dict(planet_dict)
+                    system.planets.append(planet)
                 
                 # Update selected system reference if this is the one that was selected
                 if selected_system_name and system.name == selected_system_name:

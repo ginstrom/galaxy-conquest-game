@@ -18,24 +18,36 @@ from typing import Dict, List, Optional, Any
 from game.enums import StarType, PlanetType, ResourceType
 
 
-def convert_planet_data(planet: Dict[str, Any]) -> Dict[str, Any]:
+def convert_planet_data(planet) -> Dict[str, Any]:
     """
     Convert planet data to JSON-serializable format.
     
     Args:
-        planet: Dictionary containing planet data
+        planet: Planet object or dictionary containing planet data
         
     Returns:
         Dict containing JSON-serializable planet data
     """
-    planet_copy = planet.copy()
-    planet_copy['type'] = planet['type'].name  # Convert PlanetType enum
+    # If planet is a Planet object, convert it to a dictionary first
+    if hasattr(planet, 'to_dict'):
+        planet_dict = planet.to_dict()
+    else:
+        planet_dict = planet.copy()
+    
+    # Create a copy to avoid modifying the original
+    planet_copy = planet_dict.copy()
+    
+    # Convert PlanetType enum
+    if isinstance(planet_dict['type'], PlanetType):
+        planet_copy['type'] = planet_dict['type'].name
     
     # Convert resources data
     resources_copy = []
-    for resource in planet['resources']:
+    for resource in planet_dict['resources']:
         resource_copy = resource.copy()
-        resource_copy['type'] = resource['type'].name  # Convert ResourceType enum
+        # Convert ResourceType enum if it's an enum
+        if isinstance(resource['type'], ResourceType):
+            resource_copy['type'] = resource['type'].name
         resources_copy.append(resource_copy)
     planet_copy['resources'] = resources_copy
     
