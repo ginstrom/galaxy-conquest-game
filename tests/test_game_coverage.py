@@ -229,36 +229,49 @@ def test_generate_star_systems(game_with_mocks, monkeypatch):
     assert len(game.star_systems) > 0
 
 def test_draw_save_notification(game_with_mocks, monkeypatch):
-    """Test drawing the save notification."""
+    """Test drawing the save notification using pygame_gui UILabel."""
     game = game_with_mocks
     
-    # Set up the notification time to be recent
-    current_time = 1000
-    monkeypatch.setattr('pygame.time.get_ticks', lambda: current_time)
-    game.save_notification_time = current_time - 500  # 500ms ago
-    game.save_notification_duration = 2000  # 2 seconds
-    
-    # Create a mock surface to draw on
-    screen = MockSurface((800, 600))
-    
-    # Mock the font rendering
-    mock_text_surface = MockSurface((100, 30))
-    game.info_font.render = MagicMock(return_value=mock_text_surface)
-    
-    # Test the method
-    game.draw_save_notification(screen)
-    
-    # Verify that the font was used to render text
-    assert game.info_font.render.called
-    
-    # Test when notification should not be shown
-    game.save_notification_time = current_time - 3000  # 3 seconds ago (expired)
-    game.info_font.render.reset_mock()
-    
-    game.draw_save_notification(screen)
-    
-    # Verify that the font was not used to render text
-    assert not game.info_font.render.called
+    # Mock the UILabel class
+    mock_label = MagicMock()
+    with patch('pygame_gui.elements.UILabel', return_value=mock_label) as mock_label_class:
+        # Set up the notification time to be recent
+        current_time = 1000
+        monkeypatch.setattr('pygame.time.get_ticks', lambda: current_time)
+        game.save_notification_time = current_time - 500  # 500ms ago
+        game.save_notification_duration = 2000  # 2 seconds
+        
+        # Create a mock surface to draw on
+        screen = MockSurface((800, 600))
+        
+        # Test the method when notification should be shown
+        game.draw_save_notification(screen)
+        
+        # Verify that a UILabel was created with the correct parameters
+        mock_label_class.assert_called_once()
+        args, kwargs = mock_label_class.call_args
+        assert kwargs['text'] == "Game Saved!"
+        assert kwargs['manager'] == game.ui_manager
+        
+        # Reset mocks for next test
+        mock_label_class.reset_mock()
+        
+        # Test when notification should not be shown (expired)
+        game.save_notification_time = current_time - 3000  # 3 seconds ago
+        
+        # Set the label attribute to simulate an existing label
+        game.save_notification_label = mock_label
+        
+        game.draw_save_notification(screen)
+        
+        # Verify that no new UILabel was created
+        assert not mock_label_class.called
+        
+        # Verify that the existing label was killed
+        assert mock_label.kill.called
+        
+        # Verify that the label attribute was set to None
+        assert game.save_notification_label is None
 
 def test_cleanup(game_with_mocks):
     """Test the cleanup method."""

@@ -58,6 +58,14 @@ galaxy-conquest-game/
 - High test coverage with detailed assertions
 
 ## Recent Changes
+- [2025-02-28] Updated Game.draw_save_notification() to use pygame_gui
+  - Replaced manual text rendering with a pygame_gui UILabel component
+  - Added logic to create the label only when needed and remove it when expired
+  - Updated tests in test_game_coverage.py to verify the new implementation
+  - Improved UI consistency by using pygame_gui components throughout the codebase
+  - Enhanced code maintainability by standardizing UI implementation
+  - All tests pass successfully with no regressions
+
 - [2025-02-27] Fixed tests in tests/test_infopanel.py
   - Replaced mock objects with MagicMock for InfoPanel classes and pygame_gui elements
   - Created fixtures to mock UIPanel, UILabel, and InfoPanel classes

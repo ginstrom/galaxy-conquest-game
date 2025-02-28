@@ -347,27 +347,25 @@ class Game:
 
     def draw_save_notification(self, screen):
         """
-        Draw a temporary notification when the game is saved.
-        
-        Shows a fading "Game Saved!" message in the center top of the screen.
-        The notification fades out over 2 seconds.
+        Display a temporary notification using a Pygame GUI component when the game is saved.
+        The UI label appears at the top center of the screen and is removed after 2 seconds.
         
         Args:
-            screen: The pygame surface to draw on
+            screen: The pygame surface to draw on (not used directly for the notification)
         """
         current_time = pygame.time.get_ticks()
         if current_time - self.save_notification_time < self.save_notification_duration:
-            # Calculate alpha based on time remaining
-            alpha = 255 * (1 - (current_time - self.save_notification_time) / self.save_notification_duration)
-            
-            # Create text surface
-            notification_text = self.info_font.render("Game Saved!", True, WHITE)
-            text_rect = notification_text.get_rect(center=(SCREEN_WIDTH//2, 50))
-            
-            # Create surface with transparency
-            text_surface = pygame.Surface(notification_text.get_size(), pygame.SRCALPHA)
-            text_surface.fill((255, 255, 255, int(alpha)))
-            notification_text.blit(text_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
-            
-            # Draw to screen
-            screen.blit(notification_text, text_rect)
+            # If the notification label doesn't exist, create it using pygame_gui
+            if not hasattr(self, 'save_notification_label') or self.save_notification_label is None:
+                rect = pygame.Rect((SCREEN_WIDTH // 2 - 100, 25), (200, 50))
+                self.save_notification_label = pygame_gui.elements.UILabel(
+                    relative_rect=rect,
+                    text="Game Saved!",
+                    manager=self.ui_manager,
+                    object_id="#save_notification"
+                )
+        else:
+            # If the duration has passed and the label exists, remove it
+            if hasattr(self, 'save_notification_label') and self.save_notification_label is not None:
+                self.save_notification_label.kill()
+                self.save_notification_label = None
