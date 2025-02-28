@@ -357,16 +357,20 @@ class MockGame:
         self.ui_manager = MockUIManager()
         
         self.startup_view = MagicMock()
-        self.selected_planet = {
-            'name': 'Test Planet',
-            'type': PlanetType.TERRESTRIAL,
-            'size': 10,
-            'orbit_number': 1,
-            'resources': [
+        # Import Planet class here to avoid circular imports
+        from game.planet import Planet
+        
+        # Create a Planet instance for selected_planet
+        self.selected_planet = Planet(
+            name='Test Planet',
+            planet_type=PlanetType.TERRESTRIAL,
+            size=10,
+            orbit_number=1,
+            resources=[
                 {'type': ResourceType.MINERALS, 'amount': 75},
                 {'type': ResourceType.WATER, 'amount': 50}
             ]
-        }
+        )
         self.background = MockBackground()
         self.state = GameState.PLANET
         self.star_systems = []

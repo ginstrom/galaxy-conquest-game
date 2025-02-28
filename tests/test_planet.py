@@ -12,6 +12,7 @@ if not pygame.font.get_init():
 
 # Import game modules after pygame initialization
 from game.views.planet import PlanetView
+from game.planet import Planet
 from game.enums import PlanetType, ResourceType, GameState
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT
 from tests.mocks import MockGame, MockInfoPanel
@@ -90,3 +91,148 @@ def test_planet_view_handle_keydown(mock_planet_view_info_panel):
     # Verify state changes
     assert game.state == GameState.SYSTEM
     assert game.selected_planet is None
+
+
+# Tests for the Planet class
+def test_planet_initialization():
+    """Test Planet class initialization."""
+    planet = Planet(
+        name="Test Planet",
+        planet_type=PlanetType.TERRESTRIAL,
+        size=10,
+        orbit_number=1,
+        angle=0.5,
+        orbit_speed=0.3,
+        resources=[
+            {'type': ResourceType.MINERALS, 'amount': 75},
+            {'type': ResourceType.WATER, 'amount': 50}
+        ]
+    )
+    
+    assert planet.name == "Test Planet"
+    assert planet.type == PlanetType.TERRESTRIAL
+    assert planet.size == 10
+    assert planet.orbit_number == 1
+    assert planet.angle == 0.5
+    assert planet.orbit_speed == 0.3
+    assert len(planet.resources) == 2
+    assert planet.resources[0]['type'] == ResourceType.MINERALS
+    assert planet.resources[0]['amount'] == 75
+    assert planet.resources[1]['type'] == ResourceType.WATER
+    assert planet.resources[1]['amount'] == 50
+    assert planet.x is None
+    assert planet.y is None
+
+def test_planet_from_dict():
+    """Test creating a Planet from a dictionary."""
+    planet_dict = {
+        'name': 'Dict Planet',
+        'type': PlanetType.GAS_GIANT,
+        'size': 15,
+        'orbit_number': 2,
+        'angle': 1.0,
+        'orbit_speed': 0.2,
+        'resources': [
+            {'type': ResourceType.GASES, 'amount': 90},
+            {'type': ResourceType.ENERGY, 'amount': 60}
+        ],
+        'x': 100,
+        'y': 200
+    }
+    
+    planet = Planet.from_dict(planet_dict)
+    
+    assert planet.name == 'Dict Planet'
+    assert planet.type == PlanetType.GAS_GIANT
+    assert planet.size == 15
+    assert planet.orbit_number == 2
+    assert planet.angle == 1.0
+    assert planet.orbit_speed == 0.2
+    assert len(planet.resources) == 2
+    assert planet.resources[0]['type'] == ResourceType.GASES
+    assert planet.resources[0]['amount'] == 90
+    assert planet.resources[1]['type'] == ResourceType.ENERGY
+    assert planet.resources[1]['amount'] == 60
+    assert planet.x == 100
+    assert planet.y == 200
+
+def test_planet_to_dict():
+    """Test converting a Planet to a dictionary."""
+    planet = Planet(
+        name="Test Planet",
+        planet_type=PlanetType.TERRESTRIAL,
+        size=10,
+        orbit_number=1,
+        angle=0.5,
+        orbit_speed=0.3,
+        resources=[
+            {'type': ResourceType.MINERALS, 'amount': 75},
+            {'type': ResourceType.WATER, 'amount': 50}
+        ]
+    )
+    planet.x = 150
+    planet.y = 250
+    
+    planet_dict = planet.to_dict()
+    
+    assert planet_dict['name'] == "Test Planet"
+    assert planet_dict['type'] == PlanetType.TERRESTRIAL
+    assert planet_dict['size'] == 10
+    assert planet_dict['orbit_number'] == 1
+    assert planet_dict['angle'] == 0.5
+    assert planet_dict['orbit_speed'] == 0.3
+    assert len(planet_dict['resources']) == 2
+    assert planet_dict['resources'][0]['type'] == ResourceType.MINERALS
+    assert planet_dict['resources'][0]['amount'] == 75
+    assert planet_dict['resources'][1]['type'] == ResourceType.WATER
+    assert planet_dict['resources'][1]['amount'] == 50
+    assert planet_dict['x'] == 150
+    assert planet_dict['y'] == 250
+
+def test_planet_generate():
+    """Test generating a random planet."""
+    planet = Planet.generate("Test System", 3)
+    
+    assert planet.name == "Test System 3"
+    assert isinstance(planet.type, PlanetType)
+    assert planet.size > 0
+    assert planet.orbit_number == 3
+    assert planet.angle is not None
+    assert planet.orbit_speed is not None
+    assert isinstance(planet.resources, list)
+    assert planet.x is None
+    assert planet.y is None
+
+def test_planet_dict_access():
+    """Test dictionary-like access to Planet attributes."""
+    planet = Planet(
+        name="Test Planet",
+        planet_type=PlanetType.TERRESTRIAL,
+        size=10,
+        orbit_number=1,
+        angle=0.5,
+        orbit_speed=0.3,
+        resources=[
+            {'type': ResourceType.MINERALS, 'amount': 75},
+            {'type': ResourceType.WATER, 'amount': 50}
+        ]
+    )
+    planet.x = 150
+    planet.y = 250
+    
+    assert planet['name'] == "Test Planet"
+    assert planet['type'] == PlanetType.TERRESTRIAL
+    assert planet['size'] == 10
+    assert planet['orbit_number'] == 1
+    assert planet['angle'] == 0.5
+    assert planet['orbit_speed'] == 0.3
+    assert planet['resources'] == [
+        {'type': ResourceType.MINERALS, 'amount': 75},
+        {'type': ResourceType.WATER, 'amount': 50}
+    ]
+    assert planet['x'] == 150
+    assert planet['y'] == 250
+    
+    # Test accessing a non-existent key
+    with pytest.raises(KeyError):
+        _ = planet['non_existent_key']
