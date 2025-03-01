@@ -14,7 +14,7 @@ import pygame
 import pygame_gui
 import random
 
-from game.debug import debug, clear_debug, draw_debug, toggle_debug, set_ui_manager, handle_debug_event, toggle_console
+from game.debug import Debug
 from game.notifications import NotificationManager
 from game.views.hover_utils import check_hover, is_within_circle
 from game.constants import (
@@ -77,8 +77,8 @@ class Game:
         self.ui_manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.logger.debug("UI manager initialized")
         
-        # Initialize debug console with UI manager
-        set_ui_manager(self.ui_manager)
+        # Initialize debug console as a member of Game
+        self.debug = Debug(self, self.ui_manager)
         self.logger.debug("Debug console initialized")
         
         # Initialize views
@@ -260,6 +260,10 @@ class Game:
     def quit_game(self):
         self.logger.info("Quitting game")
         return False
+        
+    def toggle_console(self):
+        """Toggle the debug console visibility."""
+        self.debug.toggle_console()
     
     def to_state(self, old_state, new_state):
         """
@@ -298,12 +302,12 @@ class Game:
                 time_delta = self.clock.tick(60) / 1000.0  # Time since last frame in seconds
                 
                 for event in pygame.event.get():
-                    # Process pygame_gui events first
-                    self.ui_manager.process_events(event)
-                    
-                    # Handle debug console events
-                    if handle_debug_event(event):
+                    # Handle debug console events first
+                    if self.debug.handle_event(event):
                         continue
+                    
+                    # Process pygame_gui events
+                    self.ui_manager.process_events(event)
                     
                     if event.type == pygame.QUIT:
                         running = False
@@ -314,7 +318,7 @@ class Game:
                             self.save_game()  # Don't use the return value for F5 quick save
                         # toggle debug info
                         elif event.key == pygame.K_F4:  
-                            toggle_debug()
+                            self.debug.toggle()
                         # other key events handled by current view
                         else:
                             self.current_view.handle_keydown(event)
@@ -349,7 +353,7 @@ class Game:
                     self.system_menu.hide()
                 
                 # Clear debug info at start of frame
-                clear_debug()
+                self.debug.clear()
                     
                 # Draw
                 self.screen.fill((0, 0, 0))
@@ -364,7 +368,7 @@ class Game:
                 self.notification_manager.draw_save_notification(self.screen)
                 
                 # Draw debug last
-                draw_debug(self.screen)
+                self.debug.draw(self.screen)
                 
                 pygame.display.flip()
                 self.clock.tick(60)

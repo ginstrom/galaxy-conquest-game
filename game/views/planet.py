@@ -7,7 +7,6 @@ their properties, resources, and interactive elements.
 
 import pygame
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE, GRAY
-from game.debug import debug
 from game.enums import GameState
 from game.properties import PlanetProperties
 from game.logging_config import get_logger
@@ -101,6 +100,7 @@ class PlanetView:
         # In the planet view, we don't need to track hover state for the planet
         # since we're already viewing it in detail. This method is included
         # for consistency with other views.
+                
         pass
     
     def draw(self, screen):
@@ -118,7 +118,7 @@ class PlanetView:
         planet = self.game.selected_planet
         if not planet:
             self.logger.warning("No planet selected to draw")
-            debug("** No planet selected to draw **")
+            self.game.debug.add("** No planet selected to draw **")
             return
             
         # Draw background

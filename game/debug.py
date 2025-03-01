@@ -1,9 +1,16 @@
 import pygame
 import pygame_gui
+from pygame_gui.elements import UITextEntryLine
+from pygame_gui.windows import UIConsoleWindow
 from settings import DEBUG
+from game.logging_config import configure_logging, get_logger
+
+logger = get_logger(__name__)
+
 
 class Debug:
-    def __init__(self, ui_manager=None):
+    def __init__(self, game=None, ui_manager=None):
+        self._game = game
         self._font = None
         self._debug_info = []
         self._margin = 10
@@ -14,8 +21,8 @@ class Debug:
         self._ui_manager = ui_manager
         self._console_initialized = False
         self._console_height = 200  # Height of the console area
-        self._console_input = None
-        self._console_output = None
+        self._console_window = None
+        self._initialize_console()
     
     def set_ui_manager(self, ui_manager):
         """Set the UI manager for the debug console."""
@@ -25,23 +32,25 @@ class Debug:
     def _initialize_console(self):
         """Initialize the console UI elements."""
         if self._ui_manager and not self._console_initialized:
-            screen_width = pygame.display.get_surface().get_width()
+            screen = pygame.display.get_surface()
+            screen_width = screen.get_width()
             
-            # Create console input line at the bottom of the console area
-            self._console_input = pygame_gui.elements.UITextEntryLine(
-                relative_rect=pygame.Rect((0, self._console_height - 30), (screen_width, 30)),
+            # Calculate available width (excluding info panel)
+            # Assuming info panel is approximately 300px wide on the right
+            available_width = screen_width - 300
+            
+            # Create a console window instead of separate elements
+            self._console_window = UIConsoleWindow(
+                rect=pygame.Rect((0, 0), (available_width, self._console_height)),
                 manager=self._ui_manager,
+                window_title='Debug Console',
                 visible=False
             )
             
-            # Create console output box above the input line
-            self._console_output = pygame_gui.elements.UITextBox(
-                relative_rect=pygame.Rect((0, 0), (screen_width, self._console_height - 30)),
-                html_text="<font color='#00FF00'>Debug Console</font><br>Type 'help' for available commands",
-                manager=self._ui_manager,
-                visible=False
-            )
+            # Initialize with welcome message (plain text, no HTML)
+            self._console_window.add_output_line_to_log("Debug Console - Type 'help' for available commands")
             
+            logger.debug("Debug console initialized")
             self._console_initialized = True
     
     def toggle(self):
@@ -97,18 +106,25 @@ class Debug:
         """Show the debug console."""
         if self._console_initialized:
             self._console_visible = True
-            self._console_input.show()
-            self._console_output.show()
-            # Set focus to the input line
-            self._console_input.focus()
+            self._console_window.show()
+            
+            # Explicitly try to focus the input text entry
+            if hasattr(self._console_window, 'focus'):
+                self._console_window.focus()
+            
+            # Find and focus the input text entry component inside the console window
+            if hasattr(self._console_window, 'command_entry'):
+                self._console_window.command_entry.focus()
+                
+            logger.debug("Debug console shown")
     
     def hide_console(self):
         """Hide the debug console."""
         if self._console_initialized:
             self._console_visible = False
-            self._console_input.hide()
-            self._console_output.hide()
-    
+            self._console_window.hide()
+            logger.debug("Debug console hidden")
+
     def handle_event(self, event):
         """
         Handle events for the debug console.
@@ -125,18 +141,38 @@ class Debug:
         # Toggle console with backtick key
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_BACKQUOTE:
-                self.toggle_console()
+                if not self._console_visible:
+                    self.show_console()
+                else:
+                    self.hide_console()
                 return True
             elif event.key == pygame.K_ESCAPE and self._console_visible:
                 self.hide_console()
-                return True
+                return True # Consume the event
         
-        # Handle console input
-        if self._console_visible and event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and event.ui_element == self._console_input:
-            command = self._console_input.get_text()
-            self._process_command(command)
-            self._console_input.set_text("")
-            return True
+        # Handle window events first as the console might need to be brought to front
+        if event.type == pygame.MOUSEBUTTONDOWN and self._console_visible:
+            # Click inside console window should focus it
+            if hasattr(self._console_window, 'get_abs_rect') and self._console_window.get_abs_rect().collidepoint(event.pos):
+                if hasattr(self._console_window, 'command_entry'):
+                    self._console_window.command_entry.focus()
+        
+        # Let the console window handle its own events
+        if self._console_visible and hasattr(self._console_window, 'process_event'):
+            # Check if console handled the event
+            if self._console_window.process_event(event):
+                # Look for UI text entry finished events that might come from the console
+                if event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                    # Try to find the text that was entered
+                    text = None
+                    if hasattr(event, 'text'):
+                        text = event.text
+                    elif hasattr(event, 'ui_element') and hasattr(event.ui_element, 'get_text'):
+                        text = event.ui_element.get_text()
+                    
+                    if text:
+                        self._process_command(text)
+                return True
             
         return False
     
@@ -147,7 +183,8 @@ class Debug:
         Args:
             command: Command string to process
         """
-        if not command.strip():
+        command = command.lstrip('`').strip()
+        if not command:
             return
             
         # Add command to output
@@ -163,11 +200,17 @@ class Debug:
             self._add_to_console("  help - Show this help")
             self._add_to_console("  clear - Clear the console")
             self._add_to_console("  toggle - Toggle debug display")
+            self._add_to_console("  test_scroll - Add multiple lines to test scrolling")
         elif cmd == "clear":
             self._clear_console()
         elif cmd == "toggle":
             self.toggle()
             self._add_to_console(f"Debug display: {'ON' if self._enabled else 'OFF'}")
+        elif cmd == "test_scroll":
+            self._add_to_console("Testing scrolling functionality...")
+            for i in range(1, 31):
+                self._add_to_console(f"Test line {i} - This is a test line to demonstrate scrolling in the debug console")
+            self._add_to_console("Scroll test complete. You should be able to scroll up to see all lines.")
         else:
             self._add_to_console(f"Unknown command: {cmd}")
     
@@ -178,16 +221,36 @@ class Debug:
         Args:
             text: Text to add to the console
         """
-        if self._console_output:
-            current_text = self._console_output.html_text
-            self._console_output.html_text = f"{current_text}<br><font color='#FFFFFF'>{text}</font>"
-            self._console_output.rebuild()
+        if self._console_initialized:
+            # Remove any HTML tags for plain text display
+            clean_text = text
+            self._console_window.add_output_line_to_log(clean_text)
     
     def _clear_console(self):
         """Clear the console output."""
-        if self._console_output:
-            self._console_output.html_text = "<font color='#00FF00'>Debug Console</font><br>Type 'help' for available commands"
-            self._console_output.rebuild()
+        if self._console_initialized:
+            # UIConsoleWindow doesn't have a direct clear method, but we can
+            # create a new console with the same parameters
+            visible = self._console_visible
+            position = self._console_window.get_relative_rect()
+            
+            # Kill the old console
+            self._console_window.kill()
+            
+            # Create a new one
+            self._console_window = UIConsoleWindow(
+                rect=position,
+                manager=self._ui_manager,
+                window_title='Debug Console',
+                visible=visible
+            )
+            
+            # Initialize with welcome message (plain text)
+            self._console_window.add_output_line_to_log("Debug Console - Type 'help' for available commands")
+            
+            # Focus the input if the console is visible
+            if visible and hasattr(self._console_window, 'command_entry'):
+                self._console_window.command_entry.focus()
     
     def draw(self, surface):
         """
@@ -222,8 +285,7 @@ class Debug:
             # Draw text
             surface.blit(text_surface, text_rect)
 
-# Global debug instance
-_debug = Debug()
+# Module-level functions that use the game's debug instance
 
 def set_ui_manager(ui_manager):
     """
@@ -232,7 +294,9 @@ def set_ui_manager(ui_manager):
     Args:
         ui_manager: pygame_gui UIManager instance
     """
-    _debug.set_ui_manager(ui_manager)
+    # This function is no longer needed as the UI manager is passed directly to the Debug instance
+    # It's kept for backward compatibility
+    logger.warning("set_ui_manager is deprecated. Pass UI manager to Game's debug instance directly.")
 
 def handle_debug_event(event):
     """
@@ -244,11 +308,14 @@ def handle_debug_event(event):
     Returns:
         bool: True if the event was handled by the console, False otherwise
     """
-    return _debug.handle_event(event)
+    # This function should be called with game.debug.handle_event(event) instead
+    logger.error("handle_debug_event called directly. Use game.debug.handle_event(event) instead.")
+    return False
 
 def toggle_console():
     """Toggle the debug console visibility."""
-    _debug.toggle_console()
+    # This function should be called with game.debug.toggle_console() instead
+    logger.error("toggle_console called directly. Use game.debug.toggle_console() instead.")
 
 def debug(info, color=(255, 255, 255), pos=None):
     """
@@ -260,13 +327,13 @@ def debug(info, color=(255, 255, 255), pos=None):
         color: RGB tuple for text color (default: white)
         pos: Optional (x, y) position. If None, will be added to list
     """
-    if not is_debug_enabled():
-        return
-    _debug.add(info, color, pos)
+    # This function should be called with game.debug.add(info, color, pos) instead
+    logger.error("debug called directly. Use game.debug.add(info, color, pos) instead.")
 
 def clear_debug():
     """Clear all debug information for the current frame."""
-    _debug.clear()
+    # This function should be called with game.debug.clear() instead
+    logger.error("clear_debug called directly. Use game.debug.clear() instead.")
 
 def draw_debug(surface):
     """
@@ -276,12 +343,16 @@ def draw_debug(surface):
     Args:
         surface: Pygame surface to draw on
     """
-    _debug.draw(surface)
+    # This function should be called with game.debug.draw(surface) instead
+    logger.error("draw_debug called directly. Use game.debug.draw(surface) instead.")
 
 def toggle_debug():
     """Toggle debug display on/off."""
-    _debug.toggle()
+    # This function should be called with game.debug.toggle() instead
+    logger.error("toggle_debug called directly. Use game.debug.toggle() instead.")
 
 def is_debug_enabled():
     """Get current debug state."""
-    return _debug.enabled
+    # This function should be called with game.debug.enabled instead
+    logger.error("is_debug_enabled called directly. Use game.debug.enabled instead.")
+    return False

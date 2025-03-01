@@ -350,11 +350,60 @@ class MockUIManager:
         # Add get_shadow method
         self.get_shadow = MagicMock(return_value=MockSurface((100, 100)))
 
+class MockDebug:
+    """Mock Debug class for testing."""
+    def __init__(self, game=None, ui_manager=None):
+        self._game = game
+        self._ui_manager = ui_manager
+        self._enabled = True
+        self._console_visible = False
+        self._console_initialized = False
+        
+    def add(self, info, color=(255, 255, 255), pos=None):
+        """Mock add method."""
+        pass
+        
+    def clear(self):
+        """Mock clear method."""
+        pass
+        
+    def draw(self, surface):
+        """Mock draw method."""
+        pass
+        
+    def toggle(self):
+        """Mock toggle method."""
+        self._enabled = not self._enabled
+        
+    def toggle_console(self):
+        """Mock toggle_console method."""
+        self._console_visible = not self._console_visible
+        
+    def show_console(self):
+        """Mock show_console method."""
+        self._console_visible = True
+        
+    def hide_console(self):
+        """Mock hide_console method."""
+        self._console_visible = False
+        
+    def handle_event(self, event):
+        """Mock handle_event method."""
+        return False
+        
+    @property
+    def enabled(self):
+        """Mock enabled property."""
+        return self._enabled
+
 class MockGame:
     """Mock game class for testing planet view."""
     def __init__(self):
         # Initialize ui_manager first
         self.ui_manager = MockUIManager()
+        
+        # Initialize debug instance
+        self.debug = MockDebug(self, self.ui_manager)
         
         self.startup_view = MagicMock()
         # Import Planet class here to avoid circular imports

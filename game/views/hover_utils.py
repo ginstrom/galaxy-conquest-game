@@ -5,9 +5,9 @@ This module provides common functions for detecting hover events on game objects
 like planets and star systems, ensuring consistent behavior across the game.
 """
 
-from game.debug import debug
+import pygame
 
-def check_hover(mouse_pos, objects, is_within_object_func, rect_check_func=None):
+def check_hover(mouse_pos, objects, is_within_object_func, rect_check_func=None, game=None):
     """
     Check if the mouse is hovering over any object in the provided list.
     
@@ -36,10 +36,10 @@ def check_hover(mouse_pos, objects, is_within_object_func, rect_check_func=None)
     for obj in objects:
         if is_within_object_func(mouse_pos, obj):
             # For debugging
-            if hasattr(obj, 'name'):
-                debug(f"Hovering: {obj.name}")
-            elif isinstance(obj, dict) and 'name' in obj:
-                debug(f"Hovering: {obj['name']}")
+            if game and hasattr(obj, 'name'):
+                game.debug.add(f"Hovering: {obj.name}")
+            elif game and isinstance(obj, dict) and 'name' in obj:
+                game.debug.add(f"Hovering: {obj['name']}")
             return obj
             
     return None

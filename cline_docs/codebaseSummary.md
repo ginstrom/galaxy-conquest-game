@@ -49,6 +49,17 @@ galaxy-conquest-game/
 - High test coverage (84%)
 
 ## Recent Changes
+- [2025-03-02] Made debug console's _console_output text area scrollable
+- [2025-03-02] Fixed auto-scrolling by using the scroll bar's bottom_limit attribute
+- [2025-03-02] Added test_scroll command to test scrolling functionality
+- [2025-03-01] Fixed failing test in test_persistence.py by adding default values for missing keys
+- [2025-03-01] Updated test_save_and_load_game_state to handle both dictionary and list formats for resources
+- [2025-03-01] Fixed tests in test_view_panel_integration.py by adding MockDebug class
+- [2025-03-01] Updated MockGame class to include debug attribute
+- [2025-03-01] Made Debug instance a member of Game class
+- [2025-03-01] Updated view files to use Game's debug instance
+- [2025-03-01] Modified hover_utils.py to accept Game instance parameter
+- [2025-03-01] Added toggle_console method to Game class
 - [2025-03-01] Added debug console to the top of the screen using pygame_gui
 - [2025-03-01] Implemented console toggle with backtick key and hide with ESC key
 - [2025-03-01] Added basic command processing in the debug console

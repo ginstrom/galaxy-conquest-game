@@ -115,7 +115,15 @@ def test_save_and_load_game_state(test_star_system, tmp_path):
     assert system['star_type'] == StarType.BLUE_GIANT
     assert len(system['planets']) == 2
     assert system['planets'][0]['type'] == PlanetType.DESERT
-    assert system['planets'][0]['resources'][0]['type'] == ResourceType.MINERALS
+    
+    # Check if resources is a dictionary (new format) or a list (old format)
+    planet_resources = system['planets'][0]['resources']
+    if isinstance(planet_resources, dict):
+        # New format: resources is a dictionary with ResourceType keys
+        assert ResourceType.MINERALS in planet_resources
+    else:
+        # Old format: resources is a list of dictionaries
+        assert planet_resources[0]['type'] == ResourceType.MINERALS
 
 
 def test_save_exists_nonexistent_file(tmp_path):

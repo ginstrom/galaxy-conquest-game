@@ -3,7 +3,6 @@ System view module for rendering a star system and its orbiting planets.
 """
 
 import pygame
-from game.debug import debug
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE
 from game.enums import GameState
 from game.logging_config import get_logger
@@ -123,7 +122,8 @@ class SystemView:
             mouse_pos,
             valid_planets,
             is_within_circle,
-            rect_check_func
+            rect_check_func,
+            self.game
         )
     
     def draw(self, screen):
@@ -151,14 +151,14 @@ class SystemView:
             self.game.to_state(GameState.SYSTEM, GameState.GALAXY)
         if self.game.selected_system:
             ss = self.game.selected_system
-            debug(f"System: {ss.name}")
-            debug(f"Planets: {len(ss.planets)}")
-            debug(f"Mouse: {pygame.mouse.get_pos()}")
+            self.game.debug.add(f"System: {ss.name}")
+            self.game.debug.add(f"Planets: {len(ss.planets)}")
+            self.game.debug.add(f"Mouse: {pygame.mouse.get_pos()}")
             if self.game.selected_planet:
                 sp = self.game.selected_planet
-                debug(f"Selected: {sp['name']}")
+                self.game.debug.add(f"Selected: {sp['name']}")
             if self.game.hovered_planet:
                 hp = self.game.hovered_planet
-                debug(f"Hovered: {hp['name']}")
+                self.game.debug.add(f"Hovered: {hp['name']}")
         
         # Note: Menu drawing is now handled by the game loop

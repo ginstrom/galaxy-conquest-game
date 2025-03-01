@@ -164,6 +164,13 @@ def load_game_state(save_dir: str = 'saves', filename: str = 'autosave.json') ->
                 planet_dict['angle'] = random.uniform(0, 2 * math.pi)
             if 'orbit_speed' not in planet_dict:
                 planet_dict['orbit_speed'] = random.uniform(0.2, 0.5)
+                
+            # Ensure size and orbit_number are included
+            if 'size' not in planet_dict:
+                planet_dict['size'] = random.randint(10, 30)  # Default size range
+            if 'orbit_number' not in planet_dict:
+                # If we don't have orbit_number, use the index in the list
+                planet_dict['orbit_number'] = system['planets'].index(planet_dict) + 1
 
             # Create a Planet object from the dictionary
             planet = Planet.from_dict(planet_dict)

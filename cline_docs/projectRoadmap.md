@@ -25,6 +25,9 @@
 - [ ] Documentation complete
 
 ## Recent Completed Tasks
+- [2025-03-02] Made debug console's _console_output text area scrollable
+- [2025-03-01] Fixed failing test in test_persistence.py by adding default values for missing keys
+- [2025-03-01] Fixed tests in test_view_panel_integration.py by adding MockDebug class
 - [2025-03-01] Added debug console in the top of the screen using pygame UI
 - [2025-02-28] Fixed error on load: AttributeError: 'dict' object has no attribute 'orbit_number'
 - [2025-02-28] Updated persistence.py to convert planet dictionaries to Planet objects when loading game state

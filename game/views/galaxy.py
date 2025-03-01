@@ -3,7 +3,6 @@ Galaxy view module for rendering the galaxy map and handling galaxy-specific int
 """
 
 import pygame
-from game.debug import debug
 from game.constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE
 from game.enums import GameState
 from game.logging_config import get_logger
@@ -104,14 +103,15 @@ class GalaxyView:
             mouse_pos, 
             self.game.star_systems, 
             lambda pos, obj: obj.rect.collidepoint(pos),
-            rect_check_func
+            rect_check_func,
+            self.game
         )
         hs = self.game.hovered_system
         # Additional debug info if hovering
         if hs:
-            debug(f"Hovering: {hs} at {hs.x}, {hs.y}")
-            debug(f"Mouse pos: {mouse_pos}")
-            debug(f"System rect: {hs.rect}")
+            self.game.debug.add(f"Hovering: {hs} at {hs.x}, {hs.y}")
+            self.game.debug.add(f"Mouse pos: {mouse_pos}")
+            self.game.debug.add(f"System rect: {hs.rect}")
 
     def draw(self, screen):
         """
@@ -136,7 +136,7 @@ class GalaxyView:
             (self.galaxy_rect.right, 0),
             (self.galaxy_rect.right, SCREEN_HEIGHT)
         )
-        debug(f"Systems: {len(self.game.star_systems)}")
-        debug(f"Mouse: {pygame.mouse.get_pos()}")
+        self.game.debug.add(f"Systems: {len(self.game.star_systems)}")
+        self.game.debug.add(f"Mouse: {pygame.mouse.get_pos()}")
         
         # Note: Menu drawing is now handled by the game loop
