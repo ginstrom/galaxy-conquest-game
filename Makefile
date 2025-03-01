@@ -44,6 +44,11 @@ clean:
 	find . -name "*.pyc" -delete
 	find . -name "__pycache__" -delete
 
+# Activate virtual environment
+.PHONY: va
+va:
+	. $(VENV_DIR)/bin/activate
+
 # Help target
 .PHONY: help
 help:
@@ -54,4 +59,5 @@ help:
 	@echo "  test      - Run unit tests"
 	@echo "  coverage  - Run tests with coverage report (terminal and HTML) and open report in browser"
 	@echo "  clean     - Clean up generated files and directories"
+	@echo "  va        - Activate virtual environment"
 	@echo "  help      - Show this help message"
