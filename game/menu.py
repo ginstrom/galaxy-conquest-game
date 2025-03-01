@@ -213,15 +213,17 @@ class Menu:
         """Show the menu panel."""
         if self.initialized and self.panel:
             self.panel.show()
+            if not self.visible:
+                self.logger.debug("Menu shown")
             self.visible = True
-            self.logger.debug("Menu shown")
 
     def hide(self):
         """Hide the menu panel."""
         if self.initialized and self.panel:
             self.panel.hide()
+            if self.visible:
+                self.logger.debug("Menu hidden")
             self.visible = False
-            self.logger.debug("Menu hidden")
 
     def draw(self, screen):
         """

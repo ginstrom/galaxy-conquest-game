@@ -94,9 +94,24 @@ class GalaxyView:
         for historical reasons, but this method is included for consistency with
         other views and potential future refactoring.
         """
-        # The hover detection for systems is handled in the main game loop
-        # This method is included for consistency with other views
-        pass
+        self.game.hovered_system = None
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        # Only check for hover if mouse is in galaxy area
+        rect_check_func = lambda pos: self.galaxy_rect.collidepoint(pos)
+        self.game.hovered_system = check_hover(
+            mouse_pos, 
+            self.game.star_systems, 
+            lambda pos, obj: obj.rect.collidepoint(pos),
+            rect_check_func
+        )
+        hs = self.game.hovered_system
+        # Additional debug info if hovering
+        if hs:
+            debug(f"Hovering: {hs} at {hs.x}, {hs.y}")
+            debug(f"Mouse pos: {mouse_pos}")
+            debug(f"System rect: {hs.rect}")
 
     def draw(self, screen):
         """
@@ -105,8 +120,7 @@ class GalaxyView:
         Args:
             screen: The pygame surface to draw on
         """
-        # Note: We don't call update() here because system hover detection
-        # is handled in the main game loop
+        self.update()
         # Draw background
         self.game.background.draw_galaxy_background(screen)
         

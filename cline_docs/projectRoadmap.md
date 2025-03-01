@@ -5,7 +5,7 @@
 - [x] Implement menu system
 - [x] Set up testing infrastructure
 - [x] Add dependency injection for testing
-- [ ] Implement save/load system
+- [x] Implement save/load system
 - [ ] Add sound effects and music
 - [ ] Create tutorial system
 
@@ -25,6 +25,9 @@
 - [ ] Documentation complete
 
 ## Recent Completed Tasks
+- [2025-03-01] Added debug console in the top of the screen using pygame UI
+- [2025-02-28] Fixed error on load: AttributeError: 'dict' object has no attribute 'orbit_number'
+- [2025-02-28] Updated persistence.py to convert planet dictionaries to Planet objects when loading game state
 - [2025-02-28] Fixed bug in hover_utils.py causing TypeError when hovering over planets with None coordinates
 - [2025-02-28] Fixed tests in test_star_system.py to work with the new dictionary-based resource format
 - [2025-02-28] Fixed tests in test_planet.py to work with the new dictionary-based resource format
@@ -70,9 +73,9 @@
    - Add performance tests
    - Document testing best practices
    - Add tests for remaining modules with lower coverage
+   - Add tests for persistence.py and save/load functionality
 
 2. Features
-   - Complete save/load system
    - Add sound system
    - Implement tutorial
 

@@ -14,7 +14,7 @@ import pygame
 import pygame_gui
 import random
 
-from game.debug import debug, clear_debug, draw_debug, toggle_debug
+from game.debug import debug, clear_debug, draw_debug, toggle_debug, set_ui_manager, handle_debug_event, toggle_console
 from game.notifications import NotificationManager
 from game.views.hover_utils import check_hover, is_within_circle
 from game.constants import (
@@ -76,6 +76,10 @@ class Game:
         # Initialize pygame_gui
         self.ui_manager = pygame_gui.UIManager((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.logger.debug("UI manager initialized")
+        
+        # Initialize debug console with UI manager
+        set_ui_manager(self.ui_manager)
+        self.logger.debug("Debug console initialized")
         
         # Initialize views
         self.startup_view = StartupView(self)
@@ -194,8 +198,6 @@ class Game:
         """
         self.logger.info("Loading game state")
         try:
-            from .planet import Planet  # Import here to avoid circular imports
-            
             save_data = load_game_state()
             
             # Store selected system name if one is selected
@@ -212,12 +214,7 @@ class Game:
                 )
                 system.size = system_data['size']
                 system.color = tuple(system_data['color']) if 'color' in system_data else system.color
-                
-                # Convert planet dictionaries to Planet objects
-                system.planets = []
-                for planet_dict in system_data['planets']:
-                    planet = Planet.from_dict(planet_dict)
-                    system.planets.append(planet)
+                system.planets = system_data['planets']
                 
                 # Update selected system reference if this is the one that was selected
                 if selected_system_name and system.name == selected_system_name:
@@ -304,6 +301,10 @@ class Game:
                     # Process pygame_gui events first
                     self.ui_manager.process_events(event)
                     
+                    # Handle debug console events
+                    if handle_debug_event(event):
+                        continue
+                    
                     if event.type == pygame.QUIT:
                         running = False
                     
@@ -349,28 +350,7 @@ class Game:
                 
                 # Clear debug info at start of frame
                 clear_debug()
-                
-                # Update hover state based on current view
-                self.hovered_system = None  # Clear hover state by default
-                self.hovered_planet = None  # Clear hover state by default
-                
-                if self.state == GameState.GALAXY:
-                    mouse_pos = pygame.mouse.get_pos()
-                    # Only check for hover if mouse is in galaxy area
-                    rect_check_func = lambda pos: self.galaxy_view.galaxy_rect.collidepoint(pos)
-                    self.hovered_system = check_hover(
-                        mouse_pos, 
-                        self.star_systems, 
-                        lambda pos, obj: obj.rect.collidepoint(pos),
-                        rect_check_func
-                    )
                     
-                    # Additional debug info if hovering
-                    if self.hovered_system:
-                        debug(f"Hovering: {self.hovered_system.name} at {self.hovered_system.x}, {self.hovered_system.y}")
-                        debug(f"Mouse pos: {mouse_pos}")
-                        debug(f"System rect: {self.hovered_system.rect}")
-                
                 # Draw
                 self.screen.fill((0, 0, 0))
                 

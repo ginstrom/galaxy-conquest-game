@@ -16,6 +16,7 @@ import math
 from typing import Dict, List, Optional, Any
 
 from game.enums import StarType, PlanetType, ResourceType
+from game.planet import Planet
 
 
 def convert_planet_data(planet) -> Dict[str, Any]:
@@ -43,12 +44,23 @@ def convert_planet_data(planet) -> Dict[str, Any]:
     
     # Convert resources data
     resources_copy = []
-    for resource in planet_dict['resources']:
-        resource_copy = resource.copy()
-        # Convert ResourceType enum if it's an enum
-        if isinstance(resource['type'], ResourceType):
-            resource_copy['type'] = resource['type'].name
-        resources_copy.append(resource_copy)
+    if isinstance(planet_dict['resources'], dict):
+        # Convert from dict format to list format for JSON serialization
+        for resource_type, amount in planet_dict['resources'].items():
+            resource_copy = {
+                'type': resource_type.name if isinstance(resource_type, ResourceType) else resource_type,
+                'amount': amount
+            }
+            resources_copy.append(resource_copy)
+    else:
+        # Already in list format
+        for resource in planet_dict['resources']:
+            resource_copy = resource.copy()
+            # Convert ResourceType enum if it's an enum
+            if isinstance(resource['type'], ResourceType):
+                resource_copy['type'] = resource['type'].name
+            resources_copy.append(resource_copy)
+    
     planet_copy['resources'] = resources_copy
     
     # Ensure angle and orbit_speed are included
@@ -136,10 +148,29 @@ def load_game_state(save_dir: str = 'saves', filename: str = 'autosave.json') ->
     # Convert string enum values back to enum types
     for system in save_data['star_systems']:
         system['star_type'] = StarType[system['star_type']]
-        for planet in system['planets']:
-            planet['type'] = PlanetType[planet['type']]
-            for resource in planet['resources']:
+        
+        # Convert planet dictionaries to Planet objects
+        converted_planets = []
+        for planet_dict in system['planets']:
+            # Convert enum strings to enum types first
+            planet_dict['type'] = PlanetType[planet_dict['type']]
+            
+            # Convert resources enum strings to enum types
+            for resource in planet_dict['resources']:
                 resource['type'] = ResourceType[resource['type']]
+
+            # Ensure angle and orbit_speed are included
+            if 'angle' not in planet_dict:
+                planet_dict['angle'] = random.uniform(0, 2 * math.pi)
+            if 'orbit_speed' not in planet_dict:
+                planet_dict['orbit_speed'] = random.uniform(0.2, 0.5)
+
+            # Create a Planet object from the dictionary
+            planet = Planet.from_dict(planet_dict)
+            converted_planets.append(planet)
+
+        # Replace the list of planet dictionaries with Planet objects
+        system['planets'] = converted_planets
     
     return save_data
 

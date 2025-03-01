@@ -5,6 +5,7 @@ galaxy-conquest-game/
 │   ├── views/         # Game view components
 │   ├── game.py        # Main Game class
 │   ├── notifications.py # Notification system
+│   ├── persistence.py # Game state saving/loading
 │   ├── resources.py   # Resource management
 │   ├── star_system.py # Star system logic
 │   └── menu.py        # Menu system
@@ -37,12 +38,23 @@ galaxy-conquest-game/
 - NotificationManager: Handles temporary notifications
 - Supports save notifications with extensibility for other types
 
+### Persistence System
+- persistence.py: Handles saving and loading game state
+- Converts game objects to/from JSON-serializable format
+- Supports Planet objects with proper serialization/deserialization
+
 ### Testing Infrastructure
 - Mock objects for pygame components
 - Dependency injection for hardware independence
 - High test coverage (84%)
 
 ## Recent Changes
+- [2025-03-01] Added debug console to the top of the screen using pygame_gui
+- [2025-03-01] Implemented console toggle with backtick key and hide with ESC key
+- [2025-03-01] Added basic command processing in the debug console
+- [2025-02-28] Fixed error on load: AttributeError: 'dict' object has no attribute 'orbit_number'
+- [2025-02-28] Updated persistence.py to convert planet dictionaries to Planet objects when loading game state
+- [2025-02-28] Improved resource handling in convert_planet_data to support both dictionary and list formats
 - [2025-02-28] Fixed bug in hover_utils.py causing TypeError when hovering over planets with None coordinates
 - [2025-02-28] Added null checks in is_within_circle function and SystemView methods
 - [2025-02-28] Fixed tests in test_star_system.py to work with the new dictionary-based resource format
