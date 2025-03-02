@@ -1,4 +1,129 @@
 ## Current Objective
+Fix the bootstrap command in the Makefile to work with the system architecture
+
+## Context
+The bootstrap command was failing due to compilation issues with pygame on the system. We needed to modify the project to use pygame-ce (Community Edition) instead, which is more compatible with the system architecture.
+
+## Status
+✅ Completed tasks:
+- Fixed the bootstrap command by switching from pygame to pygame-ce
+  - Updated pyproject.toml to use pygame-ce instead of pygame
+  - Added SDL2 installation check to the bootstrap command
+  - Updated installation documentation to mention SDL2 requirement
+- Successfully tested the game with pygame-ce
+  - Discovered that pygame-ce installs as "pygame" module
+  - Reverted import statements to use "import pygame" instead of "import pygame_ce as pygame"
+  - Verified that the game runs correctly with pygame-ce
+- Updated documentation to reflect the changes
+  - Updated techStack.md to list pygame-ce instead of pygame
+  - Updated codebaseSummary.md to document the changes
+  - Updated installation.md with SDL2 installation instructions
+
+## Implementation Details
+1. Identified the issue:
+   - The bootstrap command was failing because pygame 2.1.3 couldn't compile on the system
+   - The error was related to architecture-specific headers in the SDL2 library
+
+2. Fixed the dependency:
+   - Changed the dependency in pyproject.toml from pygame 2.1.3 to pygame-ce 2.5.3
+   - pygame-ce is the Community Edition of pygame with better compatibility
+   - Added SDL2 installation check to the bootstrap command
+
+3. Updated the codebase:
+   - Initially created a script (update_imports.py) to update all imports to use pygame_ce
+   - Discovered that pygame-ce installs as "pygame" module, not "pygame_ce"
+   - Created a script (revert_imports.py) to revert back to using "import pygame"
+   - Verified that the game runs correctly with pygame-ce
+
+4. Updated documentation:
+   - Updated techStack.md to reflect the change to pygame-ce
+   - Added entries to codebaseSummary.md to document the changes
+   - Updated installation.md with SDL2 installation instructions
+   - Updated currentTask.md with details of the implementation
+
+## Next Steps
+- Consider adding more comprehensive error handling in the bootstrap command
+- Add automated tests for the bootstrap command
+- Consider creating a script to check for and install dependencies
+
+## Implementation Details
+1. Added a bootstrap command to the Makefile:
+   - Added checks for Python 3.10+ using `python3 -c "import sys; assert sys.version_info >= (3, 10)"`
+   - Added checks for Poetry installation using `command -v poetry`
+   - Added creation of the saves directory using `mkdir -p saves`
+   - Added configuration setup by copying prefs.toml.example to prefs.toml if it doesn't exist
+   - Added helpful error messages and success confirmation
+
+2. Created a prefs.toml.example file:
+   - Based on the existing prefs.toml file
+   - Added comments to explain each setting
+   - Used default values appropriate for new installations
+
+3. Updated installation documentation:
+   - Added information about the bootstrap command
+   - Listed what the bootstrap command does
+   - Updated the recommended installation process to use bootstrap
+   - Kept the manual installation instructions as an alternative
+
+4. Updated the help target in the Makefile:
+   - Added the bootstrap command to the list of available targets
+   - Added a description of what the bootstrap command does
+
+## Next Steps
+- Consider adding a .python-version file for pyenv compatibility (already done)
+- Add a poetry.lock file to the repository for reproducible builds
+- Update CI/CD pipelines to use Poetry (if applicable)
+- Consider adding pre-commit hooks for code formatting and linting
+
+## Previous Objective
+Change the project configuration to use Poetry and Python 3.10
+
+## Context
+The project currently uses pip with requirements.txt and requirements-dev.txt files for dependency management. We need to migrate to Poetry for better dependency management and specify Python 3.10 as the required Python version.
+
+## Status
+✅ Completed tasks:
+- Created pyproject.toml file with Poetry configuration
+  - Set Python 3.10 as the required version
+  - Included all dependencies from requirements.txt and requirements-dev.txt
+  - Added build system configuration for Poetry
+- Updated the Makefile to use Poetry commands
+  - Replaced pip install commands with poetry install
+  - Updated the virtual environment activation to use poetry shell
+  - Updated the run and test commands to use poetry run
+- Updated installation documentation
+  - Added Poetry installation instructions
+  - Updated setup and run instructions to use Poetry
+- Updated techStack.md to reflect the new dependency management system
+- Updated codebaseSummary.md to document the changes
+
+## Implementation Details
+1. Created pyproject.toml file:
+   - Set Python 3.10 as the required version with `python = "^3.10"`
+   - Included all dependencies from requirements.txt and requirements-dev.txt
+   - Added build system configuration for Poetry
+   - Added a script entry point for the game
+
+2. Updated the Makefile:
+   - Replaced venv-based commands with Poetry commands
+   - Changed setup target to use `poetry install`
+   - Updated run target to use `poetry run python galaxy_conquest.py`
+   - Updated test and coverage targets to use Poetry
+   - Added a shell target to activate the Poetry shell
+   - Updated the clean target to remove Poetry environments
+
+3. Updated installation documentation:
+   - Added Poetry installation instructions for different operating systems
+   - Updated setup and run instructions to use Poetry
+   - Added troubleshooting section for Poetry-specific issues
+
+4. Updated techStack.md:
+   - Changed Python version requirement to 3.10+
+   - Added Poetry as a development tool
+   - Added a new section for dependency management
+   - Updated the testing environment section to mention Poetry
+
+## Previous Objective
 Make the debug console's `_console_output` text area scrollable.
 
 ## Context
@@ -36,104 +161,3 @@ The scrolling functionality can be tested by:
 - Consider adding more debug commands that might be useful for development and testing
 - Add keyboard shortcuts for scrolling through console history (up/down arrows)
 - Consider adding tab completion for commands
-
-## Previous Objective
-Fix failing test in tests/test_persistence.py
-
-## Context
-The test `test_save_and_load_game_state` in `test_persistence.py` was failing with a `KeyError: 'size'` error. This was occurring because when loading a game state, the `Planet.from_dict` method was trying to access the 'size' and 'orbit_number' keys in the planet dictionary, but these keys were missing in the test data.
-
-## Status
-✅ Completed tasks:
-- Identified the issue: The `Planet.from_dict` method requires 'size' and 'orbit_number' keys, but these were missing in the test data
-- Fixed the issue by:
-  1. Modifying the `load_game_state` function in `persistence.py` to add default values for 'size' and 'orbit_number' when they're missing
-  2. Updated the test to handle both dictionary and list formats for resources
-- Verified that all tests in test_persistence.py now pass
-
-## Implementation Details
-1. Updated the `load_game_state` function in `persistence.py`:
-   - Added code to ensure 'size' and 'orbit_number' are included in the planet dictionary
-   - Set default values for these keys when they're missing
-   - For 'orbit_number', used the index of the planet in the list + 1 as a reasonable default
-
-2. Updated the `test_save_and_load_game_state` test in `test_persistence.py`:
-   - Modified the assertion to handle both dictionary and list formats for resources
-   - Added a check to determine the format of the resources and assert accordingly
-
-## Root Cause Analysis
-The issue was caused by a mismatch between the test data and the requirements of the `Planet.from_dict` method. The test was creating planet dictionaries without 'size' or 'orbit_number' keys, but these keys are required parameters in the Planet constructor and are expected by the `from_dict` method.
-
-This issue was likely introduced when the Planet class was refactored from a dictionary-based approach to a class-based approach, but the test data wasn't updated to include all the required fields.
-
-## Next Steps
-- Consider adding validation to the `Planet.from_dict` method to handle missing keys more gracefully
-- Review other tests that might be affected by the Planet class refactoring
-- Add more comprehensive tests for the persistence module, especially for edge cases
-
-## Previous Objective
-Fix tests in tests/test_view_panel_integration.py
-
-## Context
-After making the Debug instance a member of the Game class, the tests in test_view_panel_integration.py were failing because the MockGame class used in the tests didn't have a debug attribute. The view classes now expect the Game instance to have a debug attribute with methods like add(), clear(), etc.
-
-## Status
-✅ Completed tasks:
-- Created a MockDebug class in tests/mocks.py that mimics the interface of the Debug class
-- Updated the MockGame class to include a debug attribute initialized with a MockDebug instance
-- Verified that all tests in test_view_panel_integration.py now pass
-
-## Implementation Details
-1. Created a MockDebug class in tests/mocks.py:
-   - Implemented the same interface as the Debug class with methods like add(), clear(), draw(), etc.
-   - Made these methods no-ops since they're not actually used in the tests
-
-2. Updated the MockGame class in tests/mocks.py:
-   - Added a debug attribute initialized with a MockDebug instance
-   - Passed self and self.ui_manager to the MockDebug constructor
-
-## Next Steps
-- Check if other test files need similar updates to work with the new Debug implementation
-- Consider adding more comprehensive tests for the Debug class
-- Update any remaining tests that might be affected by the Debug class changes
-
-## Previous Objective
-Make the game.debug.Debug instance a member of the game.game.Game class
-
-## Context
-Previously, the Debug instance was created as a global variable in the debug.py module. This made it difficult to access the game state from the Debug class and required global functions to interact with the Debug instance. By making the Debug instance a member of the Game class, we can pass the Game instance to the Debug constructor, allowing the Debug class to access the game state directly.
-
-## Status
-✅ Completed tasks:
-- Modified the Debug class in game/debug.py to accept a Game instance in its constructor
-- Updated the Game class in game/game.py to create a Debug instance as a member variable
-- Added a toggle_console method to the Game class
-- Updated the module-level functions in debug.py to log warnings when called directly
-- Updated the view files to use the Game's debug instance instead of the global one
-- Updated the hover_utils.py file to accept a Game instance parameter
-
-## Implementation Details
-1. Modified the Debug class in game/debug.py:
-   - Added a `_game` attribute to store the Game instance
-   - Updated the constructor to accept a Game instance parameter
-
-2. Updated the Game class in game/game.py:
-   - Added a `debug` attribute to store the Debug instance
-   - Created a Debug instance in the constructor, passing `self` as the Game instance
-   - Added a `toggle_console` method to the Game class
-   - Updated all calls to debug functions to use the Game's debug instance
-
-3. Updated the module-level functions in debug.py:
-   - Kept the functions for backward compatibility
-   - Added warning logs when these functions are called directly
-   - Updated the function documentation to indicate that they should not be used directly
-
-4. Updated the view files:
-   - Removed imports of the debug function
-   - Updated all calls to debug to use the Game's debug instance
-   - Updated the hover_utils.py file to accept a Game instance parameter
-
-## Next Steps
-- Update any remaining files that might be using the global debug functions
-- Add unit tests for the Debug class
-- Consider adding more debug functionality now that the Debug class has access to the Game instance

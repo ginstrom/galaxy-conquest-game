@@ -25,6 +25,10 @@
 - [ ] Documentation complete
 
 ## Recent Completed Tasks
+- [2025-03-02] Fixed bootstrap command by switching from pygame to pygame-ce
+- [2025-03-02] Added SDL2 installation check to the bootstrap command
+- [2025-03-02] Added bootstrap command to the Makefile for setting up dependencies
+- [2025-03-02] Changed project configuration to use Poetry and Python 3.10
 - [2025-03-02] Made debug console's _console_output text area scrollable
 - [2025-03-01] Fixed failing test in test_persistence.py by adding default values for missing keys
 - [2025-03-01] Fixed tests in test_view_panel_integration.py by adding MockDebug class

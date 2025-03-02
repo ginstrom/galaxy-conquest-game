@@ -10,8 +10,9 @@
 - MockPygame: Complete pygame module mock for hardware independence
 
 ## Development Tools
-- Python 3.9+
-- pygame: Game development library
+- Python 3.10+
+- Poetry: Dependency management
+- pygame-ce: Game development library (Community Edition of pygame)
 - pygame_gui: UI components
 - VSCode: Primary IDE
 - Git: Version control
@@ -27,22 +28,31 @@
    - Component interaction verification
 
 3. Test Environment:
-   - Automated test suite with Makefile support
+   - Automated test suite with Poetry and Makefile support
    - HTML coverage reports
 
 ## Dependencies
 ### Core
-- pygame: Game engine and graphics
+- pygame-ce: Game engine and graphics (Community Edition of pygame)
 - pygame_gui: UI components
 - numpy: Numerical computing
 - scipy: Scientific computing and statistical distributions
-- pytest: Testing framework
+- toml: Configuration file parsing
 
 ### Development
+- pytest: Testing framework
 - pytest-mock: Mocking support
 - pytest-cov: Coverage reporting
-- black: Code formatting
-- pylint: Code linting
+- black: Code formatting (managed outside Poetry)
+- pylint: Code linting (managed outside Poetry)
+
+## Dependency Management
+- Poetry: Modern Python dependency management
+  - Manages virtual environments
+  - Handles dependency resolution
+  - Provides consistent builds
+  - Simplifies package publishing
+  - Separates development and production dependencies
 
 ## Architecture
 ### Components

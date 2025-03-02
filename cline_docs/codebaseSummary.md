@@ -49,6 +49,19 @@ galaxy-conquest-game/
 - High test coverage (84%)
 
 ## Recent Changes
+- [2025-03-02] Fixed bootstrap command by switching from pygame to pygame-ce to resolve compilation issues
+- [2025-03-02] Added SDL2 installation check to the bootstrap command
+- [2025-03-02] Updated installation documentation with SDL2 installation instructions
+- [2025-03-02] Discovered that pygame-ce installs as "pygame" module and reverted import changes
+- [2025-03-02] Added bootstrap command to the Makefile for setting up dependencies
+- [2025-03-02] Created prefs.toml.example file as a template for new installations
+- [2025-03-02] Updated installation documentation to recommend using the bootstrap command
+- [2025-03-02] Updated the help target in the Makefile to include the bootstrap command
+- [2025-03-02] Changed project configuration to use Poetry and Python 3.10
+- [2025-03-02] Created pyproject.toml file with Poetry configuration
+- [2025-03-02] Updated Makefile to use Poetry commands
+- [2025-03-02] Updated installation documentation with Poetry instructions
+- [2025-03-02] Updated techStack.md to reflect the new dependency management system
 - [2025-03-02] Made debug console's _console_output text area scrollable
 - [2025-03-02] Fixed auto-scrolling by using the scroll bar's bottom_limit attribute
 - [2025-03-02] Added test_scroll command to test scrolling functionality

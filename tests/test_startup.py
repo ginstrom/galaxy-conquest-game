@@ -139,9 +139,7 @@ def test_draw(startup_view):
     """Test drawing the startup view."""
     screen = Mock()
     startup_view.background.draw_galaxy_background = Mock()
-    startup_view.menu.draw = Mock()
     
     startup_view.draw(screen)
     
-    assert startup_view.background.draw_galaxy_background.called_with(screen)
-    assert startup_view.menu.draw.called_with(screen)
+    startup_view.background.draw_galaxy_background.assert_called_once_with(screen)

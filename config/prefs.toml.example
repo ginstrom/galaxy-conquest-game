@@ -1,0 +1,16 @@
+[debug]
+enabled = false  # Enable or disable debug mode
+
+[logging]
+level = "INFO"   # Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+format = "%(levelname)s - %(message)s"  # Log format
+
+[game]
+screen_width = 1024  # Screen width in pixels
+screen_height = 768  # Screen height in pixels
+fps = 60             # Target frames per second
+
+[galaxy]
+num_star_systems = 10    # Number of star systems to generate
+num_background_stars = 200  # Number of background stars
+num_nebulae = 3         # Number of nebulae
