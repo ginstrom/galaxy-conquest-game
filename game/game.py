@@ -30,6 +30,7 @@ from game.views import GalaxyView, SystemView, PlanetView, InfoPanel
 from game.views.startup import StartupView
 from game.persistence import save_game_state, load_game_state, save_exists
 from game.logging_config import configure_logging, get_logger
+from game.empire import Empire
 
 
 class Game:
@@ -41,6 +42,7 @@ class Game:
     - Handling user input
     - Rendering different game views (galaxy, system, menus)
     - Save/load game functionality
+    - Managing empires (player and AI)
     """
     
     def __init__(self):
@@ -100,7 +102,11 @@ class Game:
         self.hovered_planet = None  # Track hovered planet in system view
         self.star_systems = []
         self.background = BackgroundEffect()
-        self.logger.debug("Game state initialized")
+        
+        # Initialize empire management
+        self.empires = []  # List of all empires in the game
+        self.player_empire = None  # Reference to the player's empire
+        self.logger.debug("Empire management initialized")
         
         # Initialize menus
         self.init_menus()
@@ -119,9 +125,34 @@ class Game:
         self.logger.debug("Menus initialized with pygame_gui")
     
     def new_game(self):
+        """
+        Start a new game by generating star systems and initializing empires.
+        
+        Returns:
+            bool: True if game started successfully
+        """
         self.logger.info("Starting new game")
+        
+        # Clear existing game state
         self.star_systems = []
+        self.empires = []
+        self.player_empire = None
+        
+        # Generate star systems
         self.generate_star_systems()
+        
+        # Create player empire
+        self.player_empire = Empire(self)
+        self.empires.append(self.player_empire)
+        
+        # Create AI empires (2 by default)
+        for _ in range(2):
+            ai_empire = Empire(self)
+            self.empires.append(ai_empire)
+        
+        self.logger.debug(f"Created {len(self.empires)} empires")
+        
+        # Switch to galaxy view
         self.to_state(self.state, GameState.GALAXY)
         return True
 
@@ -175,7 +206,12 @@ class Game:
             bool: True if called from menu (to return to game), False otherwise
         """
         self.logger.info("Saving game state")
-        save_game_state(self.star_systems, self.selected_system)
+        save_game_state(
+            self.star_systems, 
+            self.selected_system,
+            self.empires,
+            self.player_empire
+        )
         
         # Trigger save notification
         self.notification_manager.show_save_notification()
@@ -203,7 +239,12 @@ class Game:
             # Store selected system name if one is selected
             selected_system_name = self.selected_system.name if self.selected_system else None
             
+            # Clear current game state
             self.star_systems = []
+            self.empires = []
+            self.player_empire = None
+            
+            # Load star systems
             for system_data in save_data['star_systems']:
                 system = StarSystem(
                     system_data['x'], 
@@ -222,6 +263,25 @@ class Game:
                 
                 self.star_systems.append(system)
                 self.logger.debug(f"Loaded star system: {system.name}")
+            
+            # Create planet name to object mapping for empire loading
+            planet_map = {}
+            for system in self.star_systems:
+                for planet in system.planets:
+                    planet_map[planet.name] = planet
+            
+            # Load empires
+            for empire_data in save_data['empires']:
+                empire = Empire(self)
+                # Add planets to empire
+                for planet_name in empire_data['planets']:
+                    if planet_name in planet_map:
+                        empire.add_planet(planet_map[planet_name])
+                self.empires.append(empire)
+            
+            # Set player empire reference
+            if save_data['player_empire_index'] is not None:
+                self.player_empire = self.empires[save_data['player_empire_index']]
             
             self.to_state(self.state, GameState.GALAXY)
             self.logger.info("Game state loaded successfully")
@@ -278,6 +338,9 @@ class Game:
         # Set the new state
         self.state = new_state
         
+        self.planet_view.panel.clear_ui_elements()
+        self.system_view.panel.clear_ui_elements()
+        self.galaxy_view.panel.clear_ui_elements()
         # Set the appropriate view based on the new state
         if new_state == GameState.STARTUP_MENU:
             self.current_view = self.startup_view

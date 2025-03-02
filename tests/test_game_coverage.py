@@ -14,10 +14,12 @@ from game.enums import GameState
 from tests.mocks import MockSurface
 
 # Dummy implementations for save/load functions used in testing.
-def dummy_save_game_state(star_systems, selected_system):
+def dummy_save_game_state(star_systems, selected_system, empires=None, player_empire=None):
     dummy_save_game_state.called = True
     dummy_save_game_state.star_systems = star_systems
     dummy_save_game_state.selected_system = selected_system
+    dummy_save_game_state.empires = empires
+    dummy_save_game_state.player_empire = player_empire
 
 dummy_save_game_state.called = False
 
@@ -34,7 +36,13 @@ def dummy_load_game_state():
                 'color': [255, 255, 255],
                 'planets': []
             }
-        ]
+        ],
+        'empires': [
+            {
+                'planets': []  # Empty list of planet names for testing
+            }
+        ],
+        'player_empire_index': 0  # First empire is the player's empire
     }
 
 @pytest.fixture

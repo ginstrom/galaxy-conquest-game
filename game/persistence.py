@@ -17,6 +17,9 @@ from typing import Dict, List, Optional, Any
 
 from game.enums import StarType, PlanetType, ResourceType
 from game.planet import Planet
+from game.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 def convert_planet_data(planet) -> Dict[str, Any]:
@@ -101,56 +104,99 @@ def create_save_data(star_systems: List[Any], selected_system: Optional[Any] = N
     }
 
 
-def save_game_state(star_systems: List[Any], selected_system: Optional[Any] = None, 
-                   save_dir: str = 'saves', filename: str = 'autosave.json') -> None:
-    """
-    Save the current game state to a JSON file.
+def save_game_state(star_systems, selected_system=None, empires=None, player_empire=None, save_dir='saves', filename='autosave.json'):
+    """Save the current game state to a JSON file.
     
     Args:
-        star_systems: List of StarSystem objects
-        selected_system: Currently selected StarSystem object or None
-        save_dir: Directory to save files in
-        filename: Name of save file
-        
-    Raises:
-        IOError: If unable to write save file
+        star_systems (list): List of StarSystem objects
+        selected_system (StarSystem, optional): Currently selected system
+        empires (list, optional): List of Empire objects
+        player_empire (Empire, optional): Reference to player's empire
+        save_dir (str, optional): Directory to save in. Defaults to 'saves'.
+        filename (str, optional): Name of save file. Defaults to 'autosave.json'.
     """
-    save_data = create_save_data(star_systems, selected_system)
+    logger.info(f"Saving game state to {filename}")
     
-    os.makedirs(save_dir, exist_ok=True)
+    # Create save directory if it doesn't exist
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    
+    # Convert star systems to serializable format
+    systems_data = []
+    for system in star_systems:
+        if hasattr(system, 'to_dict'):
+            system_data = system.to_dict()
+        else:
+            system_data = {
+                'name': system.name,
+                'x': system.x,
+                'y': system.y,
+                'size': system.size,
+                'star_type': system.star_type.name,
+                'color': list(system.color),
+                'planets': [convert_planet_data(p) for p in system.planets]
+            }
+        systems_data.append(system_data)
+    
+    # Convert empires to serializable format
+    empires_data = []
+    player_empire_index = None
+    
+    if empires:
+        for i, empire in enumerate(empires):
+            empire_data = {
+                'planets': [planet.name for planet in empire.planets]  # Store planet references by name
+            }
+            empires_data.append(empire_data)
+            
+            # Track which empire is the player's
+            if empire == player_empire:
+                player_empire_index = i
+    
+    # Create save data structure
+    save_data = {
+        'star_systems': systems_data,
+        'selected_system': selected_system.name if selected_system else None,
+        'empires': empires_data,
+        'player_empire_index': player_empire_index
+    }
+    
+    # Save to file
     save_path = os.path.join(save_dir, filename)
-    
     with open(save_path, 'w') as f:
-        json.dump(save_data, f, indent=2)
+        json.dump(save_data, f)
+    
+    logger.info("Game state saved successfully")
 
 
 def load_game_state(save_dir: str = 'saves', filename: str = 'autosave.json') -> Dict[str, Any]:
-    """
-    Load game state from a JSON save file.
+    """Load game state from a JSON file.
     
     Args:
-        save_dir: Directory containing save files
-        filename: Name of save file to load
-        
-    Returns:
-        Dict containing loaded game state data
-        
-    Raises:
-        FileNotFoundError: If save file does not exist
-        json.JSONDecodeError: If save file is invalid JSON
-        KeyError: If save file is missing required data
-    """
-    save_path = os.path.join(save_dir, filename)
+        save_dir (str, optional): Directory to load from. Defaults to 'saves'.
+        filename (str, optional): Name of save file. Defaults to 'autosave.json'.
     
+    Returns:
+        dict: Loaded game state data
+    
+    Raises:
+        FileNotFoundError: If save file doesn't exist
+        json.JSONDecodeError: If save file is invalid JSON
+    """
+    logger.info(f"Loading game state from {filename}")
+    
+    save_path = os.path.join(save_dir, filename)
     with open(save_path, 'r') as f:
         save_data = json.load(f)
     
-    # Convert string enum values back to enum types
+    # Convert star systems data
     for system in save_data['star_systems']:
+        # Convert star type string to enum
         system['star_type'] = StarType[system['star_type']]
         
-        # Convert planet dictionaries to Planet objects
+        # Convert planets list
         converted_planets = []
+        
         for planet_dict in system['planets']:
             # Convert enum strings to enum types first
             planet_dict['type'] = PlanetType[planet_dict['type']]
@@ -178,6 +224,11 @@ def load_game_state(save_dir: str = 'saves', filename: str = 'autosave.json') ->
 
         # Replace the list of planet dictionaries with Planet objects
         system['planets'] = converted_planets
+    
+    # Add empty empires list if not present in save data
+    if 'empires' not in save_data:
+        save_data['empires'] = []
+        save_data['player_empire_index'] = None
     
     return save_data
 
