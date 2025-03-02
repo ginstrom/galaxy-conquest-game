@@ -4,8 +4,69 @@ from pygame_gui.elements import UITextEntryLine
 from pygame_gui.windows import UIConsoleWindow
 from settings import DEBUG
 from game.logging_config import configure_logging, get_logger
+import cmd
 
 logger = get_logger(__name__)
+
+
+class ConsoleCommand(cmd.Cmd):
+    """Command processor for the debug console."""
+    
+    intro = 'Debug Console - Type help or ? to list commands.'
+    prompt = '> '
+    
+    def __init__(self, debug_instance):
+        """
+        Initialize the command processor.
+        
+        Args:
+            debug_instance: The Debug instance this processor is attached to
+        """
+        super().__init__()
+        self.debug = debug_instance
+        self.game = debug_instance._game
+    
+    def do_clear(self, arg):
+        """Clear the console output window."""
+        self.debug._clear_console()
+    
+    def do_toggle(self, arg):
+        """Toggle debug display overlay on/off."""
+        self.debug.toggle()
+        self.debug._add_to_console(f"Debug display: {'ON' if self.debug.enabled else 'OFF'}")
+    
+    def do_test_scroll(self, arg):
+        """Add multiple lines of text to test console scrolling functionality."""
+        self.debug._add_to_console("Testing scrolling functionality...")
+        for i in range(1, 31):
+            self.debug._add_to_console(f"Test line {i} - This is a test line to demonstrate scrolling in the debug console")
+        self.debug._add_to_console("Scroll test complete. You should be able to scroll up to see all lines.")
+    
+    def do_systems(self, arg):
+        """List all star systems in the game with their indices (0-based)."""
+        if not self.game or not hasattr(self.game, 'star_systems'):
+            self.debug._add_to_console("Error: Game instance or star systems not available")
+            return
+            
+        if not self.game.star_systems:
+            self.debug._add_to_console("No star systems found")
+            return
+            
+        self.debug._add_to_console("Star Systems:")
+        for i, system in enumerate(self.game.star_systems):
+            self.debug._add_to_console(f"{i}. {system.name}")
+    
+    def default(self, line):
+        """Handle unknown commands."""
+        self.debug._add_to_console(f"Unknown command: {line}")
+    
+    def emptyline(self):
+        """Do nothing on empty line."""
+        pass
+    
+    def postcmd(self, stop, line):
+        """After command processing."""
+        return False  # Never stop the command loop
 
 
 class Debug:
@@ -22,6 +83,7 @@ class Debug:
         self._console_initialized = False
         self._console_height = 200  # Height of the console area
         self._console_window = None
+        self._command_processor = ConsoleCommand(self)
         self._initialize_console()
     
     def set_ui_manager(self, ui_manager):
@@ -190,29 +252,8 @@ class Debug:
         # Add command to output
         self._add_to_console(f"> {command}")
         
-        # Process command
-        cmd_parts = command.strip().split()
-        cmd = cmd_parts[0].lower()
-        args = cmd_parts[1:] if len(cmd_parts) > 1 else []
-        
-        if cmd == "help":
-            self._add_to_console("Available commands:")
-            self._add_to_console("  help - Show this help")
-            self._add_to_console("  clear - Clear the console")
-            self._add_to_console("  toggle - Toggle debug display")
-            self._add_to_console("  test_scroll - Add multiple lines to test scrolling")
-        elif cmd == "clear":
-            self._clear_console()
-        elif cmd == "toggle":
-            self.toggle()
-            self._add_to_console(f"Debug display: {'ON' if self._enabled else 'OFF'}")
-        elif cmd == "test_scroll":
-            self._add_to_console("Testing scrolling functionality...")
-            for i in range(1, 31):
-                self._add_to_console(f"Test line {i} - This is a test line to demonstrate scrolling in the debug console")
-            self._add_to_console("Scroll test complete. You should be able to scroll up to see all lines.")
-        else:
-            self._add_to_console(f"Unknown command: {cmd}")
+        # Use the command processor to handle the command
+        self._command_processor.onecmd(command)
     
     def _add_to_console(self, text):
         """
